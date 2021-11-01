@@ -80,7 +80,7 @@ func getMajors(majors Major) []string {
 type ParticipationConditions struct {
 	gorm.Model
 	ID             uint     `gorm:"column:id;primaryKey;autoIncrement"`
-	Majors         Major    `gorm:"column:majors;type:uint"`
+	Majors         Major    `gorm:"column:majors;type:uint" json:"majors"`
 	MajorsNames    []string `gorm:"-" json:"majors_names"`
 	MinTeamMembers uint     `gorm:"column:min_team_members" json:"min_team_members"`
 	MaxTeamMembers uint     `gorm:"column:max_team_members" json:"max_team_members"`

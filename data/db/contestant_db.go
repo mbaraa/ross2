@@ -20,9 +20,9 @@ func NewContestantDB(db *gorm.DB) *ContestantDB {
 
 // CREATOR REPO
 
-func (c *ContestantDB) Add(contestant models.Contestant) error {
+func (c *ContestantDB) Add(contestant *models.Contestant) error {
 	return c.db.
-		Create(&contestant).
+		Create(contestant).
 		Error
 }
 

@@ -17,10 +17,13 @@ func NewSessionManager(sessionRepo data.SessionCRUDRepo) *SessionManager {
 	}
 }
 
-func (s *SessionManager) CreateSession(userID uint) error {
-	return s.sessionRepo.Add(models.Session{
+func (s *SessionManager) CreateSession(userID uint) (models.Session, error) {
+	sess := models.Session{
 		UserID: userID,
-	})
+	}
+	err := s.sessionRepo.Add(&sess)
+
+	return sess, err
 }
 
 func (s *SessionManager) GetSession(token string) (models.Session, error) {

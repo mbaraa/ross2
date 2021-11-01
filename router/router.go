@@ -33,7 +33,7 @@ func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, con
 	return &Router{
 		contestAPI:     controllers.NewContestAPI(contestRepo),
 		contestantAPI:  controllers.NewContestantAPI(contestantManager, sessionManager, teamManager, joinReqManager),
-		orgAPI:         controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager),
+		orgAPI:         controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager),
 		googleLoginAPI: auth.NewGoogleLoginAPI(sessionManager, contestantRepo, organizerRepo),
 	}
 }

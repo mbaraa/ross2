@@ -5,7 +5,7 @@ import "github.com/mbaraa/ross2/models"
 // ContestantCreatorRepo is an interface that allows creation of a contestant
 // into a certain data source :)
 type ContestantCreatorRepo interface {
-	Add(contestant models.Contestant) error
+	Add(contestant *models.Contestant) error
 }
 
 // ContestantGetterRepo is an interface that allows getting values of a contestant

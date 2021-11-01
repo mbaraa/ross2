@@ -5,8 +5,7 @@ import "gorm.io/gorm"
 // Organizer represents a contest's organizer
 type Organizer struct {
 	User
-	Contests []Contest `gorm:"many2many:register_contest" json:"contests"`
-	// ProfileFinished bool          `gorm:"column:profile_finished" json:"profile_finished"`
+	Contests   []Contest     `gorm:"many2many:register_contest" json:"contests"`
 	Roles      OrganizerRole `gorm:"column:roles;type:uint" json:"roles"`
 	RolesNames []string      `gorm:"-" json:"roles_names"`
 }
@@ -26,7 +25,7 @@ func getRoles(roles OrganizerRole) []string {
 		return []string{organizerRoleText[RoleDirector]}
 	}
 
-	rolesTexts := make([]string, 0)
+	rolesTexts := []string{"Organizer"}
 	for i := 0; i <= 63; i++ {
 		role := OrganizerRole(1 << i)
 		if roles&role != 0 {

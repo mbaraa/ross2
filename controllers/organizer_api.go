@@ -18,19 +18,21 @@ type OrganizerAPI struct {
 	orgMgr  *managers.OrganizerManager
 	sessMgr *managers.SessionManager
 	teamMgr *managers.TeamManager
+	contMgr *managers.ContestantManager
 }
 
 func NewOrganizerAPI(orgMgr *managers.OrganizerManager, sessMgr *managers.SessionManager,
-	teamMgr *managers.TeamManager) *OrganizerAPI {
+	teamMgr *managers.TeamManager, contMgr *managers.ContestantManager) *OrganizerAPI {
 	return (&OrganizerAPI{
 		orgMgr:  orgMgr,
 		sessMgr: sessMgr,
 		teamMgr: teamMgr,
+		contMgr: contMgr,
 	}).initEndPoints()
 }
 
-func (c *OrganizerAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	GetHandlerFromParentPrefix(res, req, strings.TrimPrefix(req.URL.Path, "/organizer"), c.endPoints)
+func (o *OrganizerAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	GetHandlerFromParentPrefix(res, req, strings.TrimPrefix(req.URL.Path, "/organizer"), o.endPoints)
 }
 
 func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
@@ -48,18 +50,18 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /update-team/": o.authenticateHandler(o.handleUpdateTeam),
 
 		// director operations
-		"POST /create-contest/":   o.authenticateHandler(o.handleCreateContest),
-		"DELETE /delete-contest/": o.authenticateHandler(o.handleDeleteContest),
-		"POST /update-contest/":   o.authenticateHandler(o.handleUpdateContest),
-		"POST /add-organizer/":    o.authenticateHandler(o.handleAddOrganizer),
-		// "DELETE /delete-organizer/":         nil,
-		// "POST /update-organizer/":           nil,
-		// "DELETE /delete-contestant/":        nil,
+		"POST /create-contest/":      o.authenticateHandler(o.handleCreateContest),
+		"DELETE /delete-contest/":    o.authenticateHandler(o.handleDeleteContest),
+		"POST /update-contest/":      o.authenticateHandler(o.handleUpdateContest),
+		"POST /add-organizer/":       o.authenticateHandler(o.handleAddOrganizer),
+		"DELETE /delete-organizer/":  o.authenticateHandler(o.handleDeleteContest),
+		"POST /update-organizer/":    o.authenticateHandler(o.handleUpdateOrganizer),
+		"DELETE /delete-contestant/": o.authenticateHandler(o.handleDeleteContestant),
 		"POST /auto-generate-teams/": o.authenticateHandler(o.handleAutoGenerateTeams),
 		// "POST /man-generate-teams/":         nil,
 		"POST /register-generated-teams/": o.authenticateHandler(o.handleRegisterGeneratedTeams),
 		// "GET /get-contestants-for-contest/": nil,
-		// "GET /get-organizers-for-contest/":   nil,
+		// "GET /get-organizers-for-contest/":  nil,
 	}
 	return o
 }
@@ -234,7 +236,7 @@ func (o *OrganizerAPI) handleUpdateContest(res http.ResponseWriter, req *http.Re
 	}
 }
 
-// POST /organizer/add-organier/
+// POST /organizer/add-organizer/
 func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
 	if session.ID != "" {
 		org, err := o.orgMgr.GetOrganizer(session.ID)
@@ -252,6 +254,81 @@ func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Req
 		}
 
 		err = o.orgMgr.AddOrganizer(newOrg)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// DELETE /organizer/delete-organizer/
+func (o *OrganizerAPI) handleDeleteOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
+	if session.ID != "" {
+		org, err := o.orgMgr.GetOrganizer(session.ID)
+		if err != nil || org.Roles&models.RoleDirector == 0 {
+			res.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		var newOrg models.Organizer
+		err = json.NewDecoder(req.Body).Decode(&newOrg)
+		_ = req.Body.Close()
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = o.orgMgr.DeleteOrganizer(newOrg)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// POST /organizer/update-organizer/
+func (o *OrganizerAPI) handleUpdateOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
+	if session.ID != "" {
+		org, err := o.orgMgr.GetOrganizer(session.ID)
+		if err != nil || org.Roles&models.RoleDirector == 0 {
+			res.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		var newOrg models.Organizer
+		err = json.NewDecoder(req.Body).Decode(&newOrg)
+		_ = req.Body.Close()
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = o.orgMgr.UpdateProfile(newOrg)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// DELETE /organizer/delete-contestant/
+func (o *OrganizerAPI) handleDeleteContestant(res http.ResponseWriter, req *http.Request, session models.Session) {
+	if session.ID != "" {
+		org, err := o.orgMgr.GetOrganizer(session.ID)
+		if err != nil || org.Roles&models.RoleDirector == 0 {
+			res.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		var contestant models.Contestant
+		err = json.NewDecoder(req.Body).Decode(&contestant)
+		_ = req.Body.Close()
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = o.contMgr.DeleteUser(contestant)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return

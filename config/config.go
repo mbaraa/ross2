@@ -10,14 +10,12 @@ import (
 
 // Config represents the configuration of the server
 type Config struct {
-	PortNumber            string `json:"port_number"`
-	DBUser                string `json:"db_user"`
-	DBPassword            string `json:"db_password"`
-	ClientAddress         string `json:"client_address"`
-	GoogleClientID        string `json:"google_client_id"`
-	GoogleClientSecret    string `json:"google_client_secret"`
-	GoogleCallbackHandler string `json:"google_callback_handler"`
-	MachineAddress        string `json:"machine_address"`
+	PortNumber     string `json:"port_number"`
+	DBUser         string `json:"db_user"`
+	DBPassword     string `json:"db_password"`
+	DBHost         string `json:"db_host"`
+	AllowedClients string `json:"allowed_clients"`
+	MachineAddress string `json:"machine_address"`
 }
 
 var instance *Config = nil
@@ -25,7 +23,8 @@ var instance *Config = nil
 // GetInstance returns a singleton instance of type Config
 func GetInstance() *Config {
 	if instance == nil {
-		instance = new(Config).loadConfig()
+		instance = new(Config).loadConfigFromFile()
+		instance.setMachineIP()
 	}
 	return instance
 }
@@ -42,9 +41,29 @@ func (c *Config) getMachineIP() string {
 	return localAddr.IP.String()
 }
 
-// loadConfig loads the configuration from the file `./config.json`
+func (c *Config) setMachineIP() {
+	if c.MachineAddress == "" {
+		c.MachineAddress = c.getMachineIP()
+	}
+
+	c.MachineAddress = fmt.Sprintf("http://%s:%s", c.MachineAddress, c.PortNumber)
+}
+
+// used with docker
+func (c *Config) loadConfigFromENV() *Config {
+	return &Config{
+		PortNumber:     os.Getenv("PORT_NUMBER"),
+		DBUser:         os.Getenv("DB_USER"),
+		DBPassword:     os.Getenv("DB_PASSWORD"),
+		DBHost:         os.Getenv("DB_HOST"),
+		AllowedClients: os.Getenv("ALLOWED_CLIENTS"),
+		MachineAddress: os.Getenv("MACCHINE_ADDRESS"),
+	}
+}
+
+// loadConfigFromFile loads the configuration from the file `./config.json`
 // if the file doesn't exist the program crashes
-func (c *Config) loadConfig() *Config {
+func (c *Config) loadConfigFromFile() *Config {
 	confFile, err := os.ReadFile("./config.json")
 	if err != nil {
 		panic("hello I need my config.json file :)")
@@ -54,12 +73,6 @@ func (c *Config) loadConfig() *Config {
 	if err != nil {
 		return nil
 	}
-
-	if c.MachineAddress == "" {
-		c.MachineAddress = c.getMachineIP()
-	}
-
-	c.MachineAddress = fmt.Sprintf("http://%s:%s", c.MachineAddress, c.PortNumber)
 
 	return c
 }

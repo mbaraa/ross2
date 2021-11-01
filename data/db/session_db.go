@@ -19,9 +19,9 @@ func NewSessionDB(db *gorm.DB) *SessionDB {
 
 // CREATOR REPO
 
-func (s *SessionDB) Add(session models.Session) error {
+func (s *SessionDB) Add(session *models.Session) error {
 	return s.db.
-		Create(&session).
+		Create(session).
 		Error
 }
 

@@ -28,10 +28,11 @@ func (c *ContestantManager) CreateUserSession(email string) error {
 		return err
 	}
 
-	return c.sessionManager.CreateSession(cont.ID)
+	_, err = c.sessionManager.CreateSession(cont.ID)
+	return err
 }
 
-func (c *ContestantManager) CreateUser(cont models.Contestant) error {
+func (c *ContestantManager) CreateUser(cont *models.Contestant) error {
 	return c.contestantRepo.Add(cont)
 }
 

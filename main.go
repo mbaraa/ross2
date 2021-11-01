@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/mbaraa/ross2/router"
-
 	"github.com/mbaraa/ross2/data/db"
+	"github.com/mbaraa/ross2/router"
 )
 
 func main() {
@@ -19,6 +18,8 @@ func main() {
 		notificationRepo = db.NewNotificationDB(mysqlDB)
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
 	)
+
+	db.GetDBManagerInstance().InitTables()
 
 	router.New(
 		contestRepo, sessionRepo, contestantRepo, teamRepo, organizerRepo, joinReqRepo, notificationRepo,

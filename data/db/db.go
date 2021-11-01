@@ -35,7 +35,8 @@ func (db *dbManager) GetMySQLConn() *gorm.DB {
 
 		db.mysqlConn, err = gorm.Open(mysql.New(mysql.Config{
 			DriverName: "mysql",
-			DSN:        fmt.Sprintf("%s:%s@/ross2?parseTime=True&loc=Local", db.conf.DBUser, db.conf.DBPassword),
+			DSN: fmt.Sprintf("%s:%s@tcp(%s)/ross2?parseTime=True&loc=Local",
+				config.GetInstance().DBUser, config.GetInstance().DBPassword, config.GetInstance().DBHost),
 		}))
 		if err != nil {
 			panic(err)
@@ -74,9 +75,14 @@ func (db *dbManager) InitTables() {
 // needed for new registered contestants :)
 func createNoTeam(db *gorm.DB) error {
 	err := db.
-		Exec(`insert into ross2.teams 
-(name, created_at, updated_at, leader_id) 
-VALUES('no_team', current_timestamp, current_timestamp, 0)`).
+		Exec(`
+INSERT INTO ross2.teams (name, leader_id)
+SELECT *
+FROM (SELECT 'no_team', 0) AS team
+WHERE NOT EXISTS(
+        SELECT name FROM ross2.teams WHERE name = 'no_team'
+    )
+LIMIT 1`).
 		Error
 
 	if err != nil {

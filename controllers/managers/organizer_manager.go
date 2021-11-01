@@ -47,6 +47,10 @@ func (o *OrganizerManager) UpdateContest(contest models.Contest) error {
 	return o.contestRepo.Update(contest)
 }
 
+func (o *OrganizerManager) DeleteOrganizer(org models.Organizer) error {
+	return o.orgRepo.Delete(org)
+}
+
 func (o *OrganizerManager) DeleteContest(contest models.Contest) error {
 	return o.contestRepo.Delete(contest)
 }

@@ -1,28 +1,23 @@
 package auth
 
 import (
-	"context"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/google/uuid"
-	"github.com/mbaraa/ross2/config"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/mbaraa/ross2/controllers"
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+	"github.com/mbaraa/ross2/models"
 )
 
 // GoogleLoginAPI holds google login handlers
 type GoogleLoginAPI struct {
-	googleOAuthConfig *oauth2.Config
-	orgState          string
-	contState         string
-	config            *config.Config
-
-	contRepo    data.ContestantGetterRepo
+	contRepo    data.ContestantCRUDRepo
 	orgRepo     data.OrganizerGetterRepo
 	sessManager *managers.SessionManager
 
@@ -30,15 +25,13 @@ type GoogleLoginAPI struct {
 }
 
 // NewGoogleLoginAPI returns a new GoogleLoginAPI instance
-func NewGoogleLoginAPI(sessManager *managers.SessionManager, contRepo data.ContestantGetterRepo, orgRepo data.OrganizerGetterRepo) *GoogleLoginAPI {
+func NewGoogleLoginAPI(sessManager *managers.SessionManager, contRepo data.ContestantCRUDRepo, orgRepo data.OrganizerGetterRepo) *GoogleLoginAPI {
 	return (&GoogleLoginAPI{
-		config:      config.GetInstance(),
 		sessManager: sessManager,
 		contRepo:    contRepo,
 		orgRepo:     orgRepo,
 	}).
-		initEndPoints().
-		initOAuthConfig()
+		initEndPoints()
 }
 
 func (g *GoogleLoginAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -47,95 +40,136 @@ func (g *GoogleLoginAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 func (g *GoogleLoginAPI) initEndPoints() *GoogleLoginAPI {
 	g.endPoints = map[string]http.HandlerFunc{
-		"GET /login-callback/": g.handleCallback,
-		"GET /org-login/":      g.handleOrganizerLoginWithGoogle,
-		"GET /cont-login/":     g.handleContestantLoginWithGoogle,
+		"POST /login/": g.handleLoginWithGoogle,
 	}
 	return g
 }
 
-func (g *GoogleLoginAPI) initOAuthConfig() *GoogleLoginAPI {
-	g.googleOAuthConfig = &oauth2.Config{
-		RedirectURL:  g.config.GoogleCallbackHandler,
-		ClientID:     g.config.GoogleClientID,
-		ClientSecret: g.config.GoogleClientSecret,
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-		Endpoint:     google.Endpoint,
+func (g *GoogleLoginAPI) handleLoginWithGoogle(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get("Authorization")
+
+	var cont models.User
+	err := json.NewDecoder(req.Body).Decode(&cont)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	return g
+	_, err = g.validateGoogleJWT(token)
+	if err != nil {
+		res.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	g.finishLogin(res, req, cont)
 }
 
-func (g *GoogleLoginAPI) handleContestantLoginWithGoogle(res http.ResponseWriter, req *http.Request) {
-	g.contState = uuid.New().String()
-	url := g.googleOAuthConfig.AuthCodeURL(g.contState)
-	http.Redirect(res, req, url, http.StatusFound)
+func (g *GoogleLoginAPI) finishLogin(res http.ResponseWriter, req *http.Request, userData models.User) {
+	//org, err := g.orgRepo.GetByEmail(userData.Email)
+	//if err == nil {
+	//sess, _ := g.sessManager.CreateSession(org.ID)
+	//req.Header.Set("Authorization", sess.ID)
+	//http.Redirect(res, req, g.config.MachineAddress+"/organizer/login/", http.StatusPermanentRedirect)
+	//return
+	//}
+
+	cont, err := g.contRepo.GetByEmail(userData.Email)
+	if err != nil {
+		cont = models.Contestant{
+			User: models.User{
+				Name:            userData.Name,
+				Email:           userData.Email,
+				AvatarURL:       userData.AvatarURL,
+				ProfileFinished: false,
+				ContactInfo: models.ContactInfo{
+					FacebookURL:    "/",
+					WhatsappNumber: "/",
+					TelegramNumber: "/",
+				},
+			},
+		}
+		err = g.contRepo.Add(&cont)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	sess, err := g.sessManager.CreateSession(cont.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_ = json.NewEncoder(res).Encode(map[string]interface{}{
+		"token": sess.ID,
+	})
 }
 
-func (g *GoogleLoginAPI) handleOrganizerLoginWithGoogle(res http.ResponseWriter, req *http.Request) {
-	g.orgState = uuid.New().String()
-	url := g.googleOAuthConfig.AuthCodeURL(g.orgState)
-	http.Redirect(res, req, url, http.StatusFound)
+func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, error) {
+	gclaims := googleClaims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, &gclaims, func(token *jwt.Token) (interface{}, error) {
+		pem, err := getGooglePublicKey(token.Header["kid"].(string))
+		if err != nil {
+			return nil, err
+		}
+		key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
+		if err != nil {
+			return nil, err
+		}
+		return key, nil
+	})
+	if err != nil {
+		return googleClaims{}, err
+	}
+
+	claims, ok := token.Claims.(*googleClaims)
+	if !ok {
+		return googleClaims{}, err
+	}
+
+	if claims.Issuer != "accounts.google.com" && claims.Issuer != "https://accounts.google.com" {
+		return googleClaims{}, err
+	}
+
+	if claims.Audience != "202655727003-gu3umksjmog90n6oonvfeh79msbe1j1e.apps.googleusercontent.com" {
+		return googleClaims{}, errors.New("aud is invalid")
+	}
+
+	if claims.ExpiresAt < time.Now().UTC().Unix() {
+		return googleClaims{}, errors.New("JWT is expired")
+	}
+
+	return *claims, nil
 }
 
-// handleCallback is called when authenticating with Google
-// TODO
-// reject un-verified emails
-func (g *GoogleLoginAPI) handleCallback(res http.ResponseWriter, req *http.Request) {
-	if req.FormValue("state") != g.contState && req.FormValue("state") != g.orgState {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	token, err := g.googleOAuthConfig.Exchange(context.Background(), req.FormValue("code"))
+func getGooglePublicKey(keyID string) (string, error) {
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
+		return "", err
 	}
-
-	dataResponse, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
+		return "", err
 	}
 
-	defer func() {
-		err = dataResponse.Body.Close()
-	}()
+	myResp := map[string]string{}
+	err = json.Unmarshal(dat, &myResp)
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
+		return "", err
 	}
-
-	userData := make(map[string]interface{})
-	err = json.NewDecoder(dataResponse.Body).Decode(&userData)
-	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
+	key, ok := myResp[keyID]
+	if !ok {
+		return "", errors.New("key not found")
 	}
-
-	g.finishLogin(res, req, userData)
+	return key, nil
 }
 
-func (g *GoogleLoginAPI) finishLogin(res http.ResponseWriter, req *http.Request, userData map[string]interface{}) {
-	email := userData["email"].(string)
-
-	org, err := g.orgRepo.GetByEmail(email)
-	if err == nil {
-		_ = g.sessManager.CreateSession(org.ID)
-		http.Redirect(res, req, g.config.MachineAddress+"/organizer/login/", http.StatusPermanentRedirect)
-		return
-	}
-
-	cont, err := g.contRepo.GetByEmail(email)
-	if err == nil {
-		_ = g.sessManager.CreateSession(cont.ID)
-		http.Redirect(res, req, g.config.MachineAddress+"/contestant/login/", http.StatusPermanentRedirect)
-		return
-	}
-
-	// when the front end sees the status 202 it redirects to the signup form :)
-	res.WriteHeader(http.StatusAccepted)
-	_ = json.NewEncoder(res).Encode(userData)
-	return
+type googleClaims struct {
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	FirstName     string `json:"given_name"`
+	LastName      string `json:"family_name"`
+	jwt.StandardClaims
 }
