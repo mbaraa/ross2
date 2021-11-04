@@ -9,7 +9,6 @@ import (
 
 // Session represents a session's fields
 type Session struct {
-	gorm.Model
 	ID        string `gorm:"column:id;primaryKey"`
 	CreatedAt time.Time
 	UserID    uint `gorm:"column:user_id"`

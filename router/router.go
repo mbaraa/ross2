@@ -24,7 +24,7 @@ func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, con
 
 	var (
 		sessionManager    = managers.NewSessionManager(sessionRepo)
-		contestantManager = managers.NewContestantManager(contestantRepo, sessionManager, contestRepo)
+		contestantManager = managers.NewContestantManager(contestantRepo, sessionManager, contestRepo, teamRepo)
 		teamManager       = managers.NewTeamManager(teamRepo, contestantRepo)
 		organizerManager  = managers.NewOrganizerManager(organizerRepo, sessionManager, contestRepo)
 		joinReqManager    = managers.NewJoinRequestManager(joinReqRepo, notificationRepo, teamManager)

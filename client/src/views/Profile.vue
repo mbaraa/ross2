@@ -1,12 +1,16 @@
 <template>
     <div class="main" v-if="profile != null">
-        <img class="contestLogo" alt="contestant logo" :src="profile.avatar_url"/>
+        <img class="contestantLogo" alt="contestant logo" :src="profile.avatar_url"/>
         <br/>
         <span class="contestName"><b>{{ profile.name }}</b></span>
+        <br/>
+        <span class="contestName" style="font-size: 1.5em"><b>{{ profile.university_id }}</b></span>
         <br/><br/>
         <v-divider/>
-        <v-btn @click="logout">Logout</v-btn>&nbsp;
-        <v-btn @click="deleteAccount">Delete account</v-btn>
+        <div class="buttons">
+            <v-btn @click="logout" class="text-red-darken-4">Logout</v-btn>&nbsp;
+            <v-btn @click="deleteAccount" class="text-red-darken-4">Delete account</v-btn>
+        </div>
         <div v-if="team.name.length > 0">
             <v-divider/>
             <FontAwesomeIcon :icon="{prefix:'fas', iconName:'file-alt'}"/>
@@ -20,11 +24,15 @@
                     </ul>
                 </li>
             </ul>
+            <div class="buttons">
+                <v-btn @click="leaveTeam" class="text-blue-darken-4">Leave team</v-btn>
+                <v-btn @click="deleteTeam" class="text-red-darken-4">Delete team</v-btn>
+            </div>
         </div>
     </div>
     <div v-else style="padding-top: 20px; text-align: center;">
         <v-btn @click="login" class="bg-red" style="font-size: 2em; padding: 20px">
-            <FontAwesomeIcon :icon="{prefix:'fab', iconName:'google'}"/>&nbsp;Google Login
+            <FontAwesomeIcon :icon="{prefix:'fab', iconName:'google'}"/>&nbsp;Login with Google
         </v-btn>
     </div>
 </template>
@@ -35,7 +43,6 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faFileAlt} from "@fortawesome/free-solid-svg-icons";
 import {faGoogle} from "@fortawesome/free-brands-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import config from "../config";
 import Contestant from "@/models/Contestant";
 
 library.add(faGoogle, faFileAlt);
@@ -57,24 +64,9 @@ export default defineComponent({
     },
     methods: {
         async login() {
-            const user = (await this.$gapi.login()).currentUser;
-
-            await fetch(`${config.backendAddress}/gauth/login/`, {
-                method: "POST",
-                mode: "cors",
-                headers: {
-                    "Authorization": user.Zb.id_token
-                },
-                body: JSON.stringify({
-                    name: user.it.Se,
-                    avatar_url: user.it.SJ,
-                    email: user.it.Tt,
-                })
-            })
-                .then(resp => resp.json())
-                .then(data => {
-                    localStorage.setItem("token", <string>data["token"]);
-                });
+            await Contestant.googleLogin(
+                (await this.$gapi.login()).currentUser
+            );
             window.location.reload();
         },
         async logout() {
@@ -83,12 +75,27 @@ export default defineComponent({
             window.location.reload();
         },
         async deleteAccount() {
-            await this.$gapi.logout();
-            await Contestant.deleteUser();
-            window.location.reload();
+            if (window.confirm("Are you sure you want to delete your account?")) {
+                await this.$gapi.logout();
+                await Contestant.deleteUser();
+                window.location.reload();
+            }
         },
         async leaveTeam() {
-            this()
+            if (window.confirm("Are you sure you want to leave your team?")) {
+                await Contestant.leaveTeam();
+                window.location.reload();
+            }
+        },
+        async deleteTeam() {
+            if (window.confirm("Are you sure you want to delete your team :)")) {
+                if (this.team == null || this.team.name.length == 0) {
+                    window.alert("woah, something went wrong :(");
+                    return;
+                }
+                await Contestant.deleteTeam(this.team);
+                window.location.reload();
+            }
         },
         async tokenLogin(): Promise<Contestant> {
             const contestant = await Contestant.login();
@@ -110,6 +117,7 @@ export default defineComponent({
     /*display: inline-grid;*/
     margin: 20px auto;
     border: #212121 solid 1px;
+    border-radius: 5px;
 }
 
 .contestName {
@@ -117,4 +125,15 @@ export default defineComponent({
     color: #212121;
 }
 
+.contestantLogo {
+    width: 125px;
+    height: 125px;
+    border-radius: 100%;
+    background-color: white;
+    padding: 5px;
+}
+
+.buttons {
+    padding: 5px;
+}
 </style>

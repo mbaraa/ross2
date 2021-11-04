@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mbaraa/ross2/config"
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/models"
 )
@@ -42,11 +41,11 @@ func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 		"GET /profile/": c.authenticateHandler(c.handleGetProfile),
 
 		"POST /create-team/":         c.authenticateHandler(c.handleCreateTeam),
-		"DELETE /delete-team/":       c.authenticateHandler(c.handleDeleteTeam),
+		"POST /delete-team/":         c.authenticateHandler(c.handleDeleteTeam),
 		"POST /req-join-team/":       c.authenticateHandler(c.handleRequestJoinTeam),
 		"POST /accept-join-request/": c.authenticateHandler(c.handleAcceptJoinRequest),
 		"POST /reject-join-request/": c.authenticateHandler(c.handleRejectJoinRequest),
-		"DELETE /leave-team/":        c.authenticateHandler(c.handleLeaveTeam),
+		"GET /leave-team/":           c.authenticateHandler(c.handleLeaveTeam),
 
 		"POST /register-as-teamless/": c.authenticateHandler(c.handleRegisterAsTeamless),
 		//"POST /invite-teamless":       nil,
@@ -76,14 +75,10 @@ func (c *ContestantAPI) handleLogin(res http.ResponseWriter, req *http.Request) 
 			return
 		}
 
-		//res.Header().Set("Authorization", session.ID)
 		_ = json.NewEncoder(res).Encode(cont)
-		return
 	} else {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
-		//http.Redirect(res, req,
-		//	config.GetInstance().MachineAddress+"/gauth/cont-login/", http.StatusPermanentRedirect)
 	}
 }
 
@@ -91,22 +86,20 @@ func (c *ContestantAPI) handleLogin(res http.ResponseWriter, req *http.Request) 
 func (c *ContestantAPI) handleSignup(res http.ResponseWriter, req *http.Request) {
 	contestant := models.Contestant{}
 	err := json.NewDecoder(req.Body).Decode(&contestant)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = c.contManager.FinishUser(contestant)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	err = c.contManager.CreateUser(&contestant)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// login after account creation is done
-	http.Redirect(res, req, config.GetInstance().MachineAddress+"/contestant/login/", http.StatusPermanentRedirect)
 }
 
-// DELETE /contestant/logout/
+// GET /contestant/logout/
 func (c *ContestantAPI) handleLogout(res http.ResponseWriter, req *http.Request, session models.Session) {
 	err := c.sessManager.DeleteSession(session.ID)
 	if err != nil {
@@ -115,7 +108,7 @@ func (c *ContestantAPI) handleLogout(res http.ResponseWriter, req *http.Request,
 	}
 }
 
-// DELETE /contestant/delete/
+// GET /contestant/delete/
 func (c *ContestantAPI) handleDelete(res http.ResponseWriter, req *http.Request, session models.Session) {
 	cont, err := c.contManager.GetContestant(session.ID)
 	if err != nil {
@@ -166,7 +159,7 @@ func (c *ContestantAPI) handleCreateTeam(res http.ResponseWriter, req *http.Requ
 	}
 }
 
-// DELETE /contestant/delete-team/
+// POST /contestant/delete-team/
 func (c *ContestantAPI) handleDeleteTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
 	var team models.Team
 	err := json.NewDecoder(req.Body).Decode(&team)
@@ -248,7 +241,7 @@ func (c *ContestantAPI) handleRejectJoinRequest(res http.ResponseWriter, req *ht
 	}
 }
 
-// DELETE /contestant/leave-team/
+// GET /contestant/leave-team/
 func (c *ContestantAPI) handleLeaveTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
 	cont, err := c.contManager.GetContestant(session.ID)
 	if err != nil {

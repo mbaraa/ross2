@@ -14,16 +14,29 @@ class Contestant extends User {
         super();
     }
 
+    public static async googleLogin(user: any): Promise<void> {
+        await fetch(`${config.backendAddress}/gauth/login/`, {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Authorization": user.Zb.id_token,
+            },
+            body: JSON.stringify({ // only if Google didn't use such fucky names :)
+                name: user.it.Se,
+                avatar_url: user.it.SJ,
+                email: user.it.Tt,
+            })
+        })
+            .then(resp => resp.json())
+            .then(data => {
+                localStorage.setItem("token", <string>data["token"]);
+            });
+    }
+
     public static async login(): Promise<Contestant> {
         let cont: Contestant | null = new Contestant();
 
-        await fetch(`${config.backendAddress}/contestant/login/`, {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                "Authorization": <string>localStorage.getItem("token"),
-            },
-        })
+        await this.makeAuthGetRequest("login")
             .then(resp => resp.json())
             .then(jResp => {
                 cont = jResp as Contestant;
@@ -37,26 +50,45 @@ class Contestant extends User {
         return cont;
     }
 
+    public static async signup(profile: Contestant): Promise<void> {
+        await this.makeAuthPostRequest("signup", profile);
+    }
+
     public static async logout(): Promise<void> {
-        await fetch(`${config.backendAddress}/contestant/logout/`, {
-            method: "GET",
-            mode:"cors",
-            headers: {
-                "Authorization": <string>localStorage.getItem("token"),
-            }
-        })
+        await this.makeAuthGetRequest("logout");
         localStorage.removeItem("token")
     }
 
     public static async deleteUser(): Promise<void> {
-        await fetch(`${config.backendAddress}/contestant/delete/`, {
-            method: "GET",
-            mode:"cors",
+        await this.makeAuthGetRequest("delete");
+        localStorage.removeItem("token")
+    }
+
+    public static async leaveTeam(): Promise<void> {
+        await this.makeAuthGetRequest("leave-team");
+    }
+
+    public static async deleteTeam(team: Team): Promise<void> {
+        await this.makeAuthPostRequest("delete-team", team);
+    }
+
+    private static async makeAuthGetRequest(action: string): Promise<any> {
+        return this.makeRequest("GET", action, null);
+    }
+
+    private static async makeAuthPostRequest(action: string, body: any): Promise<any> {
+        return this.makeRequest("POST", action, body)
+    }
+
+    private static async makeRequest(method: string, action: string, body: any): Promise<any> {
+        return fetch(`${config.backendAddress}/contestant/${action}/`, {
+            method: method,
+            mode: "cors",
             headers: {
                 "Authorization": <string>localStorage.getItem("token"),
-            }
+            },
+            body: method == "POST" ? JSON.stringify(body) : null,
         })
-        localStorage.removeItem("token")
     }
 }
 

@@ -3,6 +3,7 @@ package auth
 import (
 	"encoding/json"
 	"errors"
+	"github.com/mbaraa/ross2/config"
 	"io"
 	"net/http"
 	"strings"
@@ -48,8 +49,8 @@ func (g *GoogleLoginAPI) initEndPoints() *GoogleLoginAPI {
 func (g *GoogleLoginAPI) handleLoginWithGoogle(res http.ResponseWriter, req *http.Request) {
 	token := req.Header.Get("Authorization")
 
-	var cont models.User
-	err := json.NewDecoder(req.Body).Decode(&cont)
+	var user models.User
+	err := json.NewDecoder(req.Body).Decode(&user)
 	_ = req.Body.Close()
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
@@ -62,17 +63,24 @@ func (g *GoogleLoginAPI) handleLoginWithGoogle(res http.ResponseWriter, req *htt
 		return
 	}
 
-	g.finishLogin(res, req, cont)
+	g.finishLogin(res, user)
 }
 
-func (g *GoogleLoginAPI) finishLogin(res http.ResponseWriter, req *http.Request, userData models.User) {
-	//org, err := g.orgRepo.GetByEmail(userData.Email)
-	//if err == nil {
-	//sess, _ := g.sessManager.CreateSession(org.ID)
-	//req.Header.Set("Authorization", sess.ID)
-	//http.Redirect(res, req, g.config.MachineAddress+"/organizer/login/", http.StatusPermanentRedirect)
-	//return
-	//}
+// oh, yes this is where the fuck-ups begin 🙂
+func (g *GoogleLoginAPI) finishLogin(res http.ResponseWriter, userData models.User) {
+	org, err := g.orgRepo.GetByEmail(userData.Email)
+	if err == nil {
+		sess, err := g.sessManager.CreateSession(org.ID)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		res.Header().Set("Authorization", sess.ID)
+		_ = json.NewEncoder(res).Encode(map[string]interface{}{
+			"token": sess.ID,
+		})
+		return
+	}
 
 	cont, err := g.contRepo.GetByEmail(userData.Email)
 	if err != nil {
@@ -110,7 +118,7 @@ func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, er
 	gclaims := googleClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, &gclaims, func(token *jwt.Token) (interface{}, error) {
-		pem, err := getGooglePublicKey(token.Header["kid"].(string))
+		pem, err := g.getGooglePublicKey(token.Header["kid"].(string))
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +141,7 @@ func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, er
 		return googleClaims{}, err
 	}
 
-	if claims.Audience != "202655727003-gu3umksjmog90n6oonvfeh79msbe1j1e.apps.googleusercontent.com" {
+	if claims.Audience != config.GetInstance().GoogleClientID {
 		return googleClaims{}, errors.New("aud is invalid")
 	}
 
@@ -144,7 +152,7 @@ func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, er
 	return *claims, nil
 }
 
-func getGooglePublicKey(keyID string) (string, error) {
+func (g *GoogleLoginAPI) getGooglePublicKey(keyID string) (string, error) {
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 	if err != nil {
 		return "", err

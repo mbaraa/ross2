@@ -16,6 +16,7 @@ type Config struct {
 	DBHost         string `json:"db_host"`
 	AllowedClients string `json:"allowed_clients"`
 	MachineAddress string `json:"machine_address"`
+	GoogleClientID string `json:"google_client_id"`
 }
 
 var instance *Config = nil

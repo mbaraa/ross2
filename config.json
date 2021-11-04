@@ -2,8 +2,7 @@
     "port_number": "8080",
     "db_user": "",
     "db_password": "",
-    "allowed_client": "*",
-    "google_client_id": "",
-    "google_client_secret": "",
-    "machine_ip": ""
+    "allowed_clients": "*",
+    "machine_ip": "",
+    "google_client_id": ""
 }

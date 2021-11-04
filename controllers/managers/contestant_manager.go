@@ -11,14 +11,16 @@ type ContestantManager struct {
 	contestantRepo data.ContestantCRUDRepo
 	sessionManager *SessionManager
 	contestRepo    data.ContestCRUDRepo
+	teamRepo       data.TeamCRUDRepo
 }
 
 func NewContestantManager(contestantRepo data.ContestantCRUDRepo, sessionManager *SessionManager,
-	contestRepo data.ContestCRUDRepo) *ContestantManager {
+	contestRepo data.ContestCRUDRepo, teamRepo data.TeamCRUDRepo) *ContestantManager {
 	return &ContestantManager{
 		contestantRepo: contestantRepo,
 		sessionManager: sessionManager,
 		contestRepo:    contestRepo,
+		teamRepo:       teamRepo,
 	}
 }
 
@@ -32,8 +34,8 @@ func (c *ContestantManager) CreateUserSession(email string) error {
 	return err
 }
 
-func (c *ContestantManager) CreateUser(cont *models.Contestant) error {
-	return c.contestantRepo.Add(cont)
+func (c *ContestantManager) FinishUser(cont models.Contestant) error {
+	return c.contestantRepo.Update(cont)
 }
 
 func (c *ContestantManager) RegisterAsTeamless(cont models.Contestant, contest models.Contest) error {
@@ -64,6 +66,22 @@ func (c *ContestantManager) DeleteUser(cont models.Contestant) error {
 	err := c.sessionManager.DeleteAllSessions(cont.ID)
 	if err != nil {
 		return err
+	}
+
+	if cont.TeamID > 0 {
+		contTeam, err := c.teamRepo.Get(models.Team{ID: cont.TeamID})
+		if err != nil {
+			return err
+		}
+
+		if contTeam.LeaderId == cont.ID && len(contTeam.Members) > 1 {
+			contTeam.LeaderId = contTeam.Members[1].ID
+		}
+
+		err = c.teamRepo.Update(contTeam)
+		if err != nil {
+			return err
+		}
 	}
 
 	return c.contestantRepo.Delete(cont)
