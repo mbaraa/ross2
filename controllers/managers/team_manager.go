@@ -28,7 +28,7 @@ func (t *TeamManager) CreateTeams(teams []models.Team) error {
 }
 
 func (t *TeamManager) AddContestantToTeam(contID, teamID uint) error {
-	cont, err := t.contRepo.Get(models.Contestant{User: models.User{ID: contID}})
+	cont, err := t.contRepo.Get(models.Contestant{ID: contID})
 	if err != nil {
 		return err
 	}

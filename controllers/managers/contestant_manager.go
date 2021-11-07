@@ -58,7 +58,7 @@ func (c *ContestantManager) GetContestant(sessionToken string) (models.Contestan
 	}
 
 	return c.contestantRepo.Get(models.Contestant{
-		User: models.User{ID: session.UserID},
+		ID: session.UserID,
 	})
 }
 

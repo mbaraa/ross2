@@ -1,8 +1,16 @@
 import Team from "@/models/Team";
-import User from "@/models/User";
+import User, {ContactInfo} from "@/models/User";
 import config from "@/config";
 
-class Contestant extends User {
+class Contestant implements User {
+    id: number | undefined;
+    email: string | undefined;
+    name: string | undefined;
+    avatar_url: string | undefined;
+    profile_finished: boolean | undefined;
+
+    contact_info: ContactInfo | undefined;
+
     university_id: string | undefined;
     team: Team | undefined;
     major_name: string | undefined;
@@ -11,11 +19,11 @@ class Contestant extends User {
     teamless_contest_id: number | undefined;
 
     constructor() {
-        super();
+        const _ = "lol";
     }
 
     public static async googleLogin(user: any): Promise<void> {
-        await fetch(`${config.backendAddress}/gauth/login/`, {
+        await fetch(`${config.backendAddress}/gauth/cont-login/`, {
             method: "POST",
             mode: "cors",
             headers: {

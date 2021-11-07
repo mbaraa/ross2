@@ -19,9 +19,9 @@ func NewOrganizerDB(db *gorm.DB) *OrganizerDB {
 
 // CREATOR REPO
 
-func (o *OrganizerDB) Add(organizer models.Organizer) error {
+func (o *OrganizerDB) Add(organizer *models.Organizer) error {
 	return o.db.
-		Create(&organizer).
+		Create(organizer).
 		Error
 }
 
@@ -91,6 +91,16 @@ func (o *OrganizerDB) Count() (int64, error) {
 // UPDATER REPO
 
 func (o *OrganizerDB) Update(organizer models.Organizer) error {
+	err := o.db.
+		Model(new(models.ContactInfo)).
+		Where("id = ?", organizer.ContactInfoID).
+		Updates(&organizer.ContactInfo).
+		Error
+
+	if err != nil {
+		return err
+	}
+
 	return o.db.
 		Model(new(models.Organizer)).
 		Where("id = ?", organizer.ID).

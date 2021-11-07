@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
+import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -7,57 +7,89 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Contests.vue")
     },
     {
-        path: '/about',
+        path: '/about/',
         name: 'About',
         component: () => import('@/views/About.vue')
     },
     {
-        path: '/profile',
+        path: '/profile/',
         name: 'Profile',
-        component: () => import('@/views/Profile.vue')
+        component: () => import('@/views/Profile.vue'),
     },
     {
-        path: '/notifications',
+        path: '/finish-profile/',
+        name: 'ContestantSignup',
+        component: () => import('@/components/ContestantSignup.vue')
+    },
+    {
+        path: '/notifications/',
         name: 'Notifications',
         component: () => import('@/views/Notifications.vue')
     },
     {
         path: "/contest/", // ?id=contestId
-        name: "Contest Details - Ross 2",
-        component: () => import("@/components/ContestPage.vue"),
+        name: "Contest",
+        component: () => import("@/components/contest/ContestPage.vue"),
         children: [
             {
                 name: "details",
                 path: "details/", // ?id=contestId
-                component: () => import("../components/ContestDetails.vue")
+                component: () => import("../components/contest/ContestDetails.vue")
             },
             {
                 name: "teams",
                 path: "teams/", // ?id=contestId
-                component: () => import("../components/ContestTeams.vue")
+                component: () => import("../components/contest/ContestTeams.vue")
             },
             {
                 name: "teamless",
                 path: "teamless/", // ?id=contestId
-                component: () => import("../components/ContestTeamless.vue")
+                component: () => import("../components/contest/ContestTeamless.vue")
             },
             {
                 name: "support",
                 path: "support/", // ?id=contestId
-                component: () => import("../components/ContestSupport.vue")
+                component: () => import("../components/contest/ContestSupport.vue")
             },
         ]
     },
     {
-        path: '/finish-profile/',
-        name: 'Finish Profile',
-        component: () => import('@/components/ContestantSignup.vue')
+        path: '/organizer/',
+        name: 'Organizer',
+        component: () => import('@/views/Organizer.vue'),
+        children: [
+            {
+                path: 'contests/',
+                name: 'contests',
+                component: () => import("@/components/director/DirectorContests.vue")
+            },
+            {
+                path: 'organizers/',
+                name: 'organizers',
+                component: () => import("@/components/director/DirectorOrganizers.vue")
+            },
+            {
+                path: 'other/',
+                name: 'other',
+                component: () => import("@/components/director/DirectorOther.vue")
+            },
+        ]
+    },
+    {
+        path: '/finish-org-profile/',
+        name: 'OrganizerSignup',
+        component: () => import('@/components/organizer/OrganizerSignup.vue')
+    },
+    {
+        path: '/admin/',
+        name: 'Admin',
+        component: () => import('@/views/Admin.vue')
     },
 ]
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
-    routes
+    history: createWebHashHistory(process.env.BASE_URL),
+    routes: routes,
 })
 
 export default router

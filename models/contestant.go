@@ -7,7 +7,16 @@ import (
 
 // Contestant represents a contestant's fields
 type Contestant struct {
-	User
+	gorm.Model
+	ID              uint   `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	Email           string `gorm:"column:email" json:"email"`
+	Name            string `gorm:"column:name" json:"name"`
+	AvatarURL       string `gorm:"column:avatar_url" json:"avatar_url"`
+	ProfileFinished bool   `gorm:"profile_finished" json:"profile_finished"`
+
+	ContactInfo   ContactInfo `gorm:"foreignkey:ContactInfoID" json:"contact_info"`
+	ContactInfoID uint        `gorm:"column:contact_info_id"`
+
 	UniversityID string `gorm:"column:university_id" json:"university_id"`
 	Team         Team   `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
 	TeamID       uint   `gorm:"column:team_id"`

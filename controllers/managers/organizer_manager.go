@@ -24,7 +24,7 @@ func (o *OrganizerManager) CreateContest(contest models.Contest) error {
 	return o.contestRepo.Add(contest)
 }
 
-func (o *OrganizerManager) AddOrganizer(org models.Organizer) error {
+func (o *OrganizerManager) AddOrganizer(org *models.Organizer) error {
 	return o.orgRepo.Add(org)
 }
 
@@ -35,7 +35,7 @@ func (o *OrganizerManager) GetOrganizer(sessionToken string) (models.Organizer, 
 	}
 
 	return o.orgRepo.Get(models.Organizer{
-		User: models.User{ID: session.UserID},
+		ID: session.UserID,
 	})
 }
 

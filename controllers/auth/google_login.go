@@ -41,60 +41,51 @@ func (g *GoogleLoginAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 func (g *GoogleLoginAPI) initEndPoints() *GoogleLoginAPI {
 	g.endPoints = map[string]http.HandlerFunc{
-		"POST /login/": g.handleLoginWithGoogle,
+		"POST /cont-login/": g.handleContestantLogin,
+		"POST /org-login/":  g.handleOrganizerLogin,
 	}
 	return g
 }
 
-func (g *GoogleLoginAPI) handleLoginWithGoogle(res http.ResponseWriter, req *http.Request) {
+func (g *GoogleLoginAPI) finishLogin(userID uint, res http.ResponseWriter) {
+	sess, err := g.sessManager.CreateSession(userID)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = res.Write([]byte(`{"token" : "` + sess.ID + `" }`))
+}
+
+// contestant stuff
+
+func (g *GoogleLoginAPI) handleContestantLogin(res http.ResponseWriter, req *http.Request) {
 	token := req.Header.Get("Authorization")
 
-	var user models.User
-	err := json.NewDecoder(req.Body).Decode(&user)
+	var cont models.Contestant
+	err := json.NewDecoder(req.Body).Decode(&cont)
 	_ = req.Body.Close()
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	_, err = g.validateGoogleJWT(token)
-	if err != nil {
-		res.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	g.finishLogin(res, user)
+	g.checkGoogleJWTToken(token, res)
+	g.finishContestantLogin(cont, res)
 }
 
-// oh, yes this is where the fuck-ups begin 🙂
-func (g *GoogleLoginAPI) finishLogin(res http.ResponseWriter, userData models.User) {
-	org, err := g.orgRepo.GetByEmail(userData.Email)
-	if err == nil {
-		sess, err := g.sessManager.CreateSession(org.ID)
-		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		res.Header().Set("Authorization", sess.ID)
-		_ = json.NewEncoder(res).Encode(map[string]interface{}{
-			"token": sess.ID,
-		})
-		return
-	}
-
-	cont, err := g.contRepo.GetByEmail(userData.Email)
+func (g *GoogleLoginAPI) finishContestantLogin(cont0 models.Contestant, res http.ResponseWriter) {
+	cont, err := g.contRepo.GetByEmail(cont0.Email)
 	if err != nil {
 		cont = models.Contestant{
-			User: models.User{
-				Name:            userData.Name,
-				Email:           userData.Email,
-				AvatarURL:       userData.AvatarURL,
-				ProfileFinished: false,
-				ContactInfo: models.ContactInfo{
-					FacebookURL:    "/",
-					WhatsappNumber: "/",
-					TelegramNumber: "/",
-				},
+			Name:            cont0.Name,
+			Email:           cont0.Email,
+			AvatarURL:       cont0.AvatarURL,
+			ProfileFinished: false,
+			ContactInfo: models.ContactInfo{
+				FacebookURL:    "/",
+				WhatsappNumber: "/",
+				TelegramNumber: "/",
 			},
 		}
 		err = g.contRepo.Add(&cont)
@@ -104,14 +95,42 @@ func (g *GoogleLoginAPI) finishLogin(res http.ResponseWriter, userData models.Us
 		}
 	}
 
-	sess, err := g.sessManager.CreateSession(cont.ID)
+	g.finishLogin(cont.ID, res)
+}
+
+// organizer stuff
+
+func (g *GoogleLoginAPI) handleOrganizerLogin(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get("Authorization")
+
+	var org models.Organizer
+	err := json.NewDecoder(req.Body).Decode(&org)
+	_ = req.Body.Close()
 	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	_ = json.NewEncoder(res).Encode(map[string]interface{}{
-		"token": sess.ID,
-	})
+
+	g.checkGoogleJWTToken(token, res)
+	g.finishOrganizerLogin(org, res)
+}
+
+func (g *GoogleLoginAPI) finishOrganizerLogin(org0 models.Organizer, res http.ResponseWriter) {
+	org, err := g.orgRepo.GetByEmail(org0.Email)
+	if err != nil {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	g.finishLogin(org.ID, res)
+}
+
+// Google JWT validation stuff
+
+func (g *GoogleLoginAPI) checkGoogleJWTToken(token string, res http.ResponseWriter) {
+	_, err := g.validateGoogleJWT(token)
+	if err != nil {
+		res.WriteHeader(http.StatusForbidden)
+	}
 }
 
 func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, error) {
@@ -153,7 +172,7 @@ func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, er
 }
 
 func (g *GoogleLoginAPI) getGooglePublicKey(keyID string) (string, error) {
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/certs")
 	if err != nil {
 		return "", err
 	}

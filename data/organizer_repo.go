@@ -5,7 +5,7 @@ import "github.com/mbaraa/ross2/models"
 // OrganizerCreatorRepo is an interface that allows creation of an organizer
 // into a certain data source :)
 type OrganizerCreatorRepo interface {
-	Add(organizer models.Organizer) error
+	Add(organizer *models.Organizer) error
 }
 
 // OrganizerGetterRepo is an interface that allows getting values of an organizer

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mbaraa/ross2/config"
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/utils"
@@ -38,9 +37,9 @@ func (o *OrganizerAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 	o.endPoints = map[string]http.HandlerFunc{
 		// shared organizer/director operations
-		"GET /login/":           o.authenticateHandler(o.handleLogin),
-		"POST /finish-profile/": o.authenticateHandler(o.handleFinishProfile),
-		"DELETE /logout/":       o.authenticateHandler(o.handleLogout),
+		"GET /login/":           o.handleLogin,
+		"POST /finish-profile/": o.handleFinishProfile,
+		"GET /logout/":          o.authenticateHandler(o.handleLogout),
 		"GET /profile/":         o.authenticateHandler(o.handleGetProfile),
 
 		// "GET /get-solved-problems/": nil,
@@ -51,12 +50,12 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 
 		// director operations
 		"POST /create-contest/":      o.authenticateHandler(o.handleCreateContest),
-		"DELETE /delete-contest/":    o.authenticateHandler(o.handleDeleteContest),
+		"POST /delete-contest/":      o.authenticateHandler(o.handleDeleteContest),
 		"POST /update-contest/":      o.authenticateHandler(o.handleUpdateContest),
 		"POST /add-organizer/":       o.authenticateHandler(o.handleAddOrganizer),
-		"DELETE /delete-organizer/":  o.authenticateHandler(o.handleDeleteContest),
+		"GET /delete-organizer/":     o.authenticateHandler(o.handleDeleteContest),
 		"POST /update-organizer/":    o.authenticateHandler(o.handleUpdateOrganizer),
-		"DELETE /delete-contestant/": o.authenticateHandler(o.handleDeleteContestant),
+		"POST /delete-contestant/":   o.authenticateHandler(o.handleDeleteContestant),
 		"POST /auto-generate-teams/": o.authenticateHandler(o.handleAutoGenerateTeams),
 		// "POST /man-generate-teams/":         nil,
 		"POST /register-generated-teams/": o.authenticateHandler(o.handleRegisterGeneratedTeams),
@@ -74,38 +73,35 @@ func (o *OrganizerAPI) authenticateHandler(h HandlerFuncWithSession) http.Handle
 }
 
 // GET /organizer/login/
-func (o *OrganizerAPI) handleLogin(res http.ResponseWriter, req *http.Request, session models.Session) {
-	if session.ID != "" {
+func (o *OrganizerAPI) handleLogin(res http.ResponseWriter, req *http.Request) {
+	if session, ok := o.sessMgr.CheckSessionFromRequest(req); ok { // more fuck-ups :)
 		org, err := o.orgMgr.GetOrganizer(session.ID)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		res.Header().Set("Authorization", session.ID)
 		_ = json.NewEncoder(res).Encode(org)
 	} else {
-		http.Redirect(res, req,
-			config.GetInstance().MachineAddress+"/gauth/org-login/", http.StatusPermanentRedirect)
+		res.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 }
 
 // POST /organizer/finish-profile/
-func (o *OrganizerAPI) handleFinishProfile(res http.ResponseWriter, req *http.Request, session models.Session) {
-	if session.ID != "" {
-		var orgData models.Organizer
-		err := json.NewDecoder(req.Body).Decode(&orgData)
-		_ = req.Body.Close()
-		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
+func (o *OrganizerAPI) handleFinishProfile(res http.ResponseWriter, req *http.Request) {
+	orgData := models.Organizer{}
+	err := json.NewDecoder(req.Body).Decode(&orgData)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-		err = o.orgMgr.UpdateProfile(orgData)
-		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+	err = o.orgMgr.UpdateProfile(orgData)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -186,7 +182,7 @@ func (o *OrganizerAPI) handleCreateContest(res http.ResponseWriter, req *http.Re
 	}
 }
 
-// DELETE /organizer/delete-contest/
+// POST /organizer/delete-contest/
 func (o *OrganizerAPI) handleDeleteContest(res http.ResponseWriter, req *http.Request, session models.Session) {
 	if session.ID != "" {
 		org, err := o.orgMgr.GetOrganizer(session.ID)
@@ -253,7 +249,7 @@ func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Req
 			return
 		}
 
-		err = o.orgMgr.AddOrganizer(newOrg)
+		err = o.orgMgr.AddOrganizer(&newOrg)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
@@ -261,7 +257,7 @@ func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Req
 	}
 }
 
-// DELETE /organizer/delete-organizer/
+// POST /organizer/delete-organizer/
 func (o *OrganizerAPI) handleDeleteOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
 	if session.ID != "" {
 		org, err := o.orgMgr.GetOrganizer(session.ID)
@@ -311,7 +307,7 @@ func (o *OrganizerAPI) handleUpdateOrganizer(res http.ResponseWriter, req *http.
 	}
 }
 
-// DELETE /organizer/delete-contestant/
+// POST /organizer/delete-contestant/
 func (o *OrganizerAPI) handleDeleteContestant(res http.ResponseWriter, req *http.Request, session models.Session) {
 	if session.ID != "" {
 		org, err := o.orgMgr.GetOrganizer(session.ID)
@@ -353,7 +349,7 @@ func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *htt
 			return
 		}
 
-		teams := teamsgen.GenerateTeams(contest, utils.NewHardCodeNames())
+		teams := teamsgen.GenerateTeams(contest, utils.NewHardCodeNames()) // the big ass function that am proud AF from :)
 		_ = json.NewEncoder(res).Encode(teams)
 	}
 }

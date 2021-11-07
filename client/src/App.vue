@@ -14,41 +14,14 @@
             v-model="showDrawer"
             temporary
             app>
+            <br/>
 
-            <v-list @click="toggleDrawer">
-                <br/>
+            <v-list @click="toggleDrawer" v-for="link in links" :key="link">
                 <v-list-item>
                     <v-list-item-title>
-                        <router-link to="/">
-                            <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'trophy'}"/>
-                            &nbsp;Contests
-                        </router-link>
-                    </v-list-item-title>
-                </v-list-item>
-
-                <v-list-item>
-                    <v-list-item-title>
-                        <router-link to="/notifications">
-                            <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'bell'}"/>
-                            &nbsp;Notifications
-                        </router-link>
-                    </v-list-item-title>
-                </v-list-item>
-
-                <v-list-item>
-                    <v-list-item-title>
-                        <router-link to="/profile">
-                            <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'user-circle'}"/>
-                            &nbsp;Profile
-                        </router-link>
-                    </v-list-item-title>
-                </v-list-item>
-
-                <v-list-item>
-                    <v-list-item-title>
-                        <router-link to="/about">
-                            <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'info-circle'}"/>
-                            &nbsp;About
+                        <router-link :to="link.page">
+                            <FontAwesomeIcon :icon="link.icon"/>
+                            &nbsp;{{ link.name }}
                         </router-link>
                     </v-list-item-title>
                 </v-list-item>
@@ -64,10 +37,10 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBars, faInfoCircle, faTrophy, faUserCircle, faBell} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faBell, faInfoCircle, faTrophy, faUserCircle, faGavel} from "@fortawesome/free-solid-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
 
-library.add(faBars, faInfoCircle, faTrophy, faUserCircle, faBell);
+library.add(faBars, faInfoCircle, faTrophy, faUserCircle, faBell, faGavel);
 export default defineComponent({
     name: 'App',
     components: {
@@ -76,6 +49,13 @@ export default defineComponent({
     data() {
         return {
             showDrawer: false,
+            links: [
+                {page: '/', name: "Contests", icon: {prefix: 'fas', iconName: 'trophy'}},
+                {page: '/notifications', name: "Notifications", icon: {prefix: 'fas', iconName: 'bell'}},
+                {page: '/profile', name: "Profile", icon: {prefix: 'fas', iconName: 'user-circle'}},
+                {page: 'organizer', name: "Organizer", icon: {prefix: 'fas', iconName: 'gavel'}},
+                {page: '/about', name: "About", icon: {prefix: 'fas', iconName: 'info-circle'}},
+            ]
         };
     },
     methods: {
