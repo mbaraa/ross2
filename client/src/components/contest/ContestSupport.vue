@@ -14,7 +14,7 @@ import Contest from "@/models/Contest";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faFileAlt} from "@fortawesome/free-solid-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import OrganizerCard from "@/components/OrganizerCard.vue";
+import OrganizerCard from "@/components/organizer/OrganizerCard.vue";
 
 library.add(faFileAlt);
 

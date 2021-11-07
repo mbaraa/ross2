@@ -10,7 +10,7 @@
 <script lang="ts">
 import Contest from "@/models/Contest.ts";
 import { defineComponent } from "vue";
-import ContestCard from "@/components/ContestCard.vue";
+import ContestCard from "@/components/contest/ContestCard.vue";
 
 export default defineComponent({
     name: 'Contests',

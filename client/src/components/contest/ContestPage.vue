@@ -102,4 +102,5 @@ export default defineComponent({
     border-top: white solid 0;
     background-color: #e0e0e0;
 }
+
 </style>

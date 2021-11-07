@@ -15,7 +15,7 @@ type NotificationGetterRepo interface {
 	Exists(notification models.Notification) (bool, error)
 	Get(notification models.Notification) (models.Notification, error)
 	GetAll() ([]models.Notification, error)
-	GetAllForUser(user models.User) ([]models.Notification, error)
+	GetAllForUser(userID uint) ([]models.Notification, error)
 	Count() (int64, error)
 }
 

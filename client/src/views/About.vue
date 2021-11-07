@@ -5,11 +5,7 @@
         <h2>
             Support this project by staring it on GitHub 🥰
             <br/>
-            <label class="backend">Backend:&nbsp;</label>
-            <iframe src="https://ghbtns.com/github-btn.html?user=mbaraa&repo=sheev&type=star&count=true" frameborder="0" scrolling="0" width="150" height="20" title="GitHub"></iframe>
-            <br/>
-            <label class="frontend">Frontend:&nbsp;</label>
-            <iframe src="https://ghbtns.com/github-btn.html?user=mbaraa&repo=sheev_client&type=star&count=true" frameborder="0" scrolling="0" width="150" height="20" title="GitHub"></iframe>
+            <iframe src="https://ghbtns.com/github-btn.html?user=mbaraa&repo=ross&type=star&count=true" frameborder="0" scrolling="0" width="150" height="20" title="GitHub"></iframe>
             <br/>
         </h2>
         <h2><a class="rr" href="https://shorts.ninja/no_url" target="_blank">Much wow!</a></h2>

@@ -53,12 +53,12 @@ func (n *NotificationDB) GetAll() ([]models.Notification, error) {
 	return notifications, nil
 }
 
-func (n *NotificationDB) GetAllForUser(user models.User) ([]models.Notification, error) {
+func (n *NotificationDB) GetAllForUser(userID uint) ([]models.Notification, error) {
 	notifications := make([]models.Notification, 0)
 
 	err := n.db.
 		Model(new(models.Notification)).
-		Where("user_id = ?", user.ID).
+		Where("user_id = ?", userID).
 		Find(&notifications).
 		Error
 
