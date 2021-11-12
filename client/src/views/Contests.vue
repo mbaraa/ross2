@@ -1,7 +1,7 @@
 <template>
     <div class="main" v-if="contests.length > 0">
         <div v-for="contest in contests" :key="contest" class="grid">
-            <ContestCard :contest="contest"/>
+            <ContestantContestCard :contest="contest"/>
         </div>
     </div>
     <h1 v-else style="text-align: center">No contests are available at this time!</h1>
@@ -10,12 +10,12 @@
 <script lang="ts">
 import Contest from "@/models/Contest.ts";
 import { defineComponent } from "vue";
-import ContestCard from "@/components/contest/ContestCard.vue";
+import ContestantContestCard from "@/components/contest/ContestantContestCard.vue";
 
 export default defineComponent({
     name: 'Contests',
     components: {
-        ContestCard
+        ContestantContestCard,
     },
     data() {
         return {
@@ -24,8 +24,6 @@ export default defineComponent({
     },
     async mounted() {
         this.contests = await Contest.getContestsFromServer();
-        this.contests.push(...await Contest.getContestsFromServer())
-        this.contests.push(...await Contest.getContestsFromServer())
     }
 });
 </script>

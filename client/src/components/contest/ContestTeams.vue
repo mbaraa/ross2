@@ -7,7 +7,7 @@
         </tr>
         <tr v-for="team in teams" :key="team" :class="getTeamClass(team)">
             <td>{{ team.name }}</td>
-            <td>{{ team.members.join(", ") }}</td>
+            <td>{{ getMembersNames(team) }}</td>
             <td>
                 <v-btn @click="joinTeam(team)">Join team</v-btn>
             </td>
@@ -19,8 +19,9 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest";
-import config from "@/config";
 import Team from "@/models/Team";
+import Contestant from "@/models/Contestant";
+import JoinRequest from "@/models/JoinRequest";
 
 export default defineComponent({
     name: "ContestTeams",
@@ -36,13 +37,8 @@ export default defineComponent({
     },
     methods: {
         async joinTeam(team: Team) {
-            const resp = await fetch(`${config.backendAddress}/contestant/req-join-team/`, {
-                method: "POST",
-                mode: "cors",
-                headers: {
-                    "Authorization": <string>localStorage.getItem("token")
-                },
-                body: JSON.stringify(team)
+            const resp = await Contestant.requestJoinTeam(<JoinRequest> {
+                requested_team: team,
             })
 
             if (resp.ok) {
@@ -51,9 +47,16 @@ export default defineComponent({
                 window.alert(`${resp.status} ${resp.statusText}!`);
             }
         },
+        getMembersNames(team: Team): string {
+            let names = "";
+            team.members.forEach((cont: Contestant) => {
+                names += cont.name + ", ";
+            })
+            return names.substring(0, names.length-2);
+        },
         getTeamClass(team: Team): string {
             return this.teams.indexOf(team) % 2 == 0 ? "team1" : "team2";
-        }
+        },
     }
 });
 </script>

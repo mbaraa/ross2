@@ -4,7 +4,7 @@
             <h1>Finish your profile data:</h1>
 
             <!--            <h3 style="text-align: left" class="text-red">Mandatory Field</h3>-->
-            <v-text-field label="University ID" :v-bind="profile.university_id" id="idd"/>
+            <v-text-field label="University ID" v-model="profile.university_id"/>
 
             <!--            <h3 style="text-align: left" class="text-blue">Optional Fields<br/>Contact Info:</h3>-->
             <!--            <v-text-field label="Facebook profile URL" :v-bind="contactInfo.facebook_url"/>-->
@@ -40,16 +40,12 @@ export default defineComponent({
     },
     methods: {
         async finishProfile() {
-            if ((<string>(<HTMLInputElement>document.getElementById("idd")).value).length == 0) {
+            if (this.profile.university_id.length == 0) {
                 window.alert("wrong input value 🙂")
                 return;
             }
-            // this.profile.contact_info = this.contactInfo;
-            this.profile.university_id = <string>(<HTMLInputElement>document.getElementById("idd")).value;
             this.profile.profile_finished = true;
-
             await Contestant.signup(this.profile)
-
             await this.$router.push("/profile");
         }
     }

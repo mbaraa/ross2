@@ -1,5 +1,5 @@
 <template>
-    <div class="main bg-grey-darken-3" @click="openContestDetails">
+    <div class="main bg-blue-darken-4" @click="openContestDetails">
         <br/>
         <img class="contestLogo" :alt="contest.name + ' logo'" :src="contest.logo_path"/>
         <h1>{{ contest.name }}</h1>
@@ -39,8 +39,8 @@ export default defineComponent({
         openContestDetails() {
             this.$router.push(`/contest/details/?id=${this.contest.id}`);
         },
-        getLocaleTime(time: Date): string {
-            return getLocaleTime(time);
+        getLocaleTime(ts: number): string {
+            return getLocaleTime(new Date(ts));
         }
     }
 });
@@ -59,11 +59,9 @@ export default defineComponent({
 }
 
 .contestLogo {
-    width: 75px;
-    height: 75px;
+    width: 100px;
+    height: 100px;
     border-radius: 100%;
-    background-color: white;
-    padding: 5px;
 }
 
 h1 {

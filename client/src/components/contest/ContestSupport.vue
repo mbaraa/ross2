@@ -1,8 +1,9 @@
 <template>
     <div class="main" v-if="organizers.length > 0">
-        <FontAwesomeIcon :icon="{prefix:'fas', iconName:'file-alt'}"/>&nbsp;<b>Contact us for support 😁</b>
+        <h2 class="text-black">
+            <FontAwesomeIcon :icon="{prefix:'fas', iconName:'file-alt'}"/>&nbsp;Contact us for support 😁</h2>
         <div v-for="org in organizers" :key="org" class="grid">
-            <OrganizerCard/>
+            <OrganizerCard :organizer="org"/>
         </div>
     </div>
     <h1 v-else>Something went wrong 😥</h1>
