@@ -152,6 +152,8 @@ func (c *ContestantAPI) handleCreateTeam(res http.ResponseWriter, req *http.Requ
 	}
 
 	team.LeaderId = leader.ID
+	team.Members = append(team.Members, leader)
+
 	err = c.teamManager.CreateTeam(team)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
