@@ -7,7 +7,7 @@
                    class="drawerButton">
                 <FontAwesomeIcon class="text-indigo" :icon="{prefix: 'fas', iconName: 'bars'}"/>
             </v-btn>
-            <a href="/#" class="title">&nbsp;Ross 2</a>
+            <label @click="goHome" class="title">&nbsp;Ross 2</label>
         </v-app-bar>
 
         <v-navigation-drawer
@@ -61,19 +61,23 @@ export default defineComponent({
     methods: {
         toggleDrawer(): void {
             this.showDrawer = !this.showDrawer;
+        },
+        goHome() {
+            this.$router.push("/");
         }
     }
 })
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap");
 
 .title {
     font-family: 'Ropa Sans', sans-serif;
     color: white;
     font-weight: bold;
     font-size: 2em;
+    cursor: pointer;
 }
 
 .drawerButton {
