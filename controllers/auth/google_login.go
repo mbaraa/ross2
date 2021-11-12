@@ -111,8 +111,9 @@ func (g *GoogleLoginAPI) handleOrganizerLogin(res http.ResponseWriter, req *http
 		return
 	}
 
-	g.checkGoogleJWTToken(token, res)
-	g.finishOrganizerLogin(org, res)
+	if g.checkGoogleJWTToken(token, res) {
+		g.finishOrganizerLogin(org, res)
+	}
 }
 
 func (g *GoogleLoginAPI) finishOrganizerLogin(org0 models.Organizer, res http.ResponseWriter) {
@@ -126,11 +127,14 @@ func (g *GoogleLoginAPI) finishOrganizerLogin(org0 models.Organizer, res http.Re
 
 // Google JWT validation stuff
 
-func (g *GoogleLoginAPI) checkGoogleJWTToken(token string, res http.ResponseWriter) {
+func (g *GoogleLoginAPI) checkGoogleJWTToken(token string, res http.ResponseWriter) bool {
 	_, err := g.validateGoogleJWT(token)
 	if err != nil {
 		res.WriteHeader(http.StatusForbidden)
+		return false
 	}
+
+	return true
 }
 
 func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, error) {
@@ -172,7 +176,7 @@ func (g *GoogleLoginAPI) validateGoogleJWT(tokenString string) (googleClaims, er
 }
 
 func (g *GoogleLoginAPI) getGooglePublicKey(keyID string) (string, error) {
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/certs")
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 	if err != nil {
 		return "", err
 	}

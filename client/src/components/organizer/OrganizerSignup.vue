@@ -4,9 +4,12 @@
             <h1>Finish your profile data:</h1>
 
             <h3 style="text-align: left" class="text-blue">Fill at least one field<br/>Contact Info:</h3>
-            <v-text-field label="Facebook profile URL" id="fb"/>
-            <v-text-field label="Telegram number" id="tg"/>
-            <v-text-field label="Whatsapp number" id="wa"/>
+<!--            <v-text-field label="Facebook profile URL" id="fb"/>-->
+<!--            <v-text-field label="Telegram number" id="tg"/>-->
+<!--            <v-text-field label="Whatsapp number" id="wa"/>-->
+            <v-text-field label="Facebook profile URL" v-model="contactInfo.facebook_url"/>
+            <v-text-field label="Telegram number" v-model="contactInfo.telegram_number"/>
+            <v-text-field label="Whatsapp number" v-model="contactInfo.whatsapp_number"/>
 
             <v-btn @click="finishProfile">Finish profile
             </v-btn>
@@ -37,14 +40,14 @@ export default defineComponent({
     },
     methods: {
         async finishProfile() {
-            this.profile.contact_info = <ContactInfo>{
-                facebook_url: <string>(<HTMLInputElement>document.getElementById("fb")).value,
-                telegram_number: <string>(<HTMLInputElement>document.getElementById("tg")).value,
-                whatsapp_number: <string>(<HTMLInputElement>document.getElementById("wa")).value
-            };
+            // this.profile.contact_info = <ContactInfo>{
+            //     facebook_url: <string>(<HTMLInputElement>document.getElementById("fb")).value,
+            //     telegram_number: <string>(<HTMLInputElement>document.getElementById("tg")).value,
+            //     whatsapp_number: <string>(<HTMLInputElement>document.getElementById("wa")).value
+            // };
             this.profile.profile_finished = true;
+            this.profile.contact_info = this.contactInfo;
 
-            console.log("data", this.profile.contact_info);
             await Organizer.finishProfile(this.profile)
 
             await this.$router.push("/organizer");
