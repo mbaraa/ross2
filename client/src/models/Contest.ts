@@ -6,7 +6,7 @@ import config from "@/config";
 class Contest {
     id: number | undefined;
     name: string | undefined;
-    starts_at: Date | undefined;
+    starts_at: number | undefined; // timestamp goes brr
     duration: number | undefined;
     location: string | undefined;
     logo_path: string | undefined;
@@ -17,7 +17,10 @@ class Contest {
     teamless_contestants: Contestant[] | undefined;
 
     constructor() {
-        const _ = "lol";
+        this.participation_conditions = new ParticipationConditions();
+        this.organizers = new Array<Organizer>();
+        this.teams = new Array<Team>();
+        this.teamless_contestants = new Array<Contestant>();
     }
 
     public static async getContestFromServer(contestId: number): Promise<Contest> {
@@ -29,7 +32,6 @@ class Contest {
             .then(resp => resp.json())
             .then(data => {
                 contest = data as Contest;
-
                 return contest;
             })
             .catch(err => console.log(err));
@@ -56,16 +58,13 @@ class Contest {
 }
 
 export class ParticipationConditions {
-    majors: number;
-    majors_names: string[];
-    min_team_members: number;
-    max_team_members: number;
+    majors: number | undefined;
+    majors_names: string[] | undefined;
+    min_team_members: number | undefined;
+    max_team_members: number | undefined;
 
-    constructor(majors: number, majors_names: string[], min_team_members: number, max_team_members: number) {
-        this.majors = majors;
-        this.majors_names = majors_names;
-        this.min_team_members = min_team_members;
-        this.max_team_members = max_team_members;
+    constructor() {
+        const _ = true;
     }
 }
 

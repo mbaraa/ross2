@@ -1,6 +1,8 @@
 import Team from "@/models/Team";
 import User, {ContactInfo} from "@/models/User";
 import config from "@/config";
+import Contest from "@/models/Contest";
+import JoinRequest from "@/models/JoinRequest";
 
 class Contestant implements User {
     id: number | undefined;
@@ -9,7 +11,7 @@ class Contestant implements User {
     avatar_url: string | undefined;
     profile_finished: boolean | undefined;
 
-    contact_info: ContactInfo | undefined;
+    contact_info: ContactInfo;
 
     university_id: string | undefined;
     team: Team | undefined;
@@ -19,7 +21,20 @@ class Contestant implements User {
     teamless_contest_id: number | undefined;
 
     constructor() {
-        const _ = "lol";
+        this.contact_info = new ContactInfo();
+        this.teamlessed_at = new Date();
+    }
+
+    public static async createTeam(team: Team): Promise<void> {
+        await this.makeAuthPostRequest("create-team", team);
+    }
+
+    public static async joinAsTeamless(contest: Contest): Promise<void> {
+        await this.makeAuthPostRequest("register-as-teamless", contest);
+    }
+
+    public static async requestJoinTeam(jr: JoinRequest): Promise<Response> {
+        return await this.makeAuthPostRequest("req-join-team", jr)
     }
 
     public static async googleLogin(user: any): Promise<void> {

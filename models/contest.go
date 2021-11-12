@@ -11,7 +11,8 @@ type Contest struct {
 	gorm.Model
 	ID          uint          `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
 	Name        string        `gorm:"column:name" json:"name"`
-	StartsAt    time.Time     `gorm:"column:starts_at" json:"starts_at"`
+	StartsAt    int64         `gorm:"-" json:"starts_at"`
+	StartsAt2   time.Time     `gorm:"column:starts_at"` // weird ain't it? :)
 	Duration    time.Duration `gorm:"column:duration" json:"duration"`
 	Location    string        `gorm:"column:location" json:"location"`
 	LogoPath    string        `gorm:"column:logo_path" json:"logo_path"`
@@ -28,7 +29,15 @@ type Contest struct {
 	TeamlessContestants []Contestant `gorm:"-" json:"teamless_contestants"`
 }
 
+func (c *Contest) BeforeCreate(db *gorm.DB) error {
+	c.StartsAt2 = time.UnixMilli(c.StartsAt)
+	c.Duration *= 1e9 * 60
+	return nil
+}
+
 func (c *Contest) AfterFind(db *gorm.DB) error {
+	c.StartsAt = c.StartsAt2.UnixMilli()
+
 	err := db.
 		First(&c.ParticipationConditions, "id = ?", c.PCsID).
 		Error
@@ -37,7 +46,7 @@ func (c *Contest) AfterFind(db *gorm.DB) error {
 	}
 
 	err = db.
-		Model(new(Contest)).
+		Model(c).
 		Association("Organizers").
 		Find(&c.Organizers)
 

@@ -2,7 +2,7 @@ import Contest from "@/models/Contest";
 import config from "@/config";
 import User, {ContactInfo} from "@/models/User";
 
-class Organizer {
+class Organizer implements User {
     id: number | undefined;
     email: string | undefined;
     name: string | undefined;
@@ -16,9 +16,23 @@ class Organizer {
     roles: number | undefined;
     roles_names: string[] | undefined;
 
-    constructor() {
-        const _ = "lol";
-        // super();
+    public static async deleteOrganizer(org: Organizer): Promise<void> {
+        await this.makeAuthPostRequest("delete-organizer", org);
+    }
+
+    public static async getSubOrganizers(): Promise<Array<Organizer>> {
+        let orgs = new Array<Organizer>();
+
+        await this.makeAuthGetRequest("get-sub-organizers")
+            .then(resp => {
+                orgs = resp.json();
+                return orgs;
+            })
+            .catch(() => {
+                window.alert("something went wrong!");
+            });
+
+        return orgs;
     }
 
     public static async googleLogin(user: any): Promise<void> {
@@ -38,6 +52,26 @@ class Organizer {
             .then(data => {
                 localStorage.setItem("org_token", <string>data["token"]);
             });
+    }
+
+    public static async deleteContest(contest: Contest): Promise<void> {
+        await this.makeAuthPostRequest("delete-contest", contest);
+    }
+
+    public static async createContest(contest: Contest): Promise<void> {
+        await this.makeAuthPostRequest("create-contest", contest);
+    }
+
+    public static async getContests(): Promise<Array<Contest>> {
+        let contests = new Array<Contest>();
+        await this.makeAuthGetRequest("get-contests")
+            .then(resp => resp.json())
+            .then(resp => {
+                contests = <Array<Contest>>resp;
+            })
+            .catch(err => window.alert("oi mama" + err.message));
+
+        return contests;
     }
 
     public static async login(): Promise<Organizer> {

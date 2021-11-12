@@ -7,19 +7,28 @@ import (
 // Team represents a team's fields
 type Team struct {
 	gorm.Model
-	ID       uint   `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Name     string `gorm:"column:name" json:"name"`
-	LeaderId uint   `gorm:"column:leader_id" json:"leader_id"` // not a foreign key to avoid cycling mess :)
+	ID       uint        `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	Name     string      `gorm:"column:name" json:"name"`
+	LeaderId uint        `gorm:"column:leader_id" json:"leader_id"` // not a foreign key to avoid cycling mess :)
+	Leader   *Contestant `gorm:"-" json:"leader"`                   // using a pointer to avoid cycling :)
 
-	Contests []Contest `gorm:"many2many:register_teams;"` // a team may register in more than one contest
-
-	Members []Contestant `gorm:"-" json:"members"` // each contestant has their team id :)
+	Contests []Contest    `gorm:"many2many:register_teams;"` // a team may register in more than one contest
+	Members  []Contestant `gorm:"-" json:"members"`          // each contestant has their team id :)
 }
 
 func (t *Team) AfterFind(db *gorm.DB) error {
 	err := db.
-		Model(new(Contest)).
-		Find(&t.Contests).
+		Model(t).
+		Association("Contests").
+		Find(&t.Contests)
+
+	if err != nil {
+		return err
+	}
+
+	err = db.
+		Model(new(Contestant)).
+		Find(&t.Leader, "id = ?", t.LeaderId).
 		Error
 
 	if err != nil {
@@ -44,10 +53,10 @@ type JoinRequest struct {
 	gorm.Model
 	ID              uint         `gorm:"column:id;primaryKey;autoIncrement"`
 	RequesterID     uint         `gorm:"column:requester_id"`
-	Requester       Contestant   `gorm:"foreignkey:RequesterID"`
-	RequestedTeamID uint         `gorm:"column:req_team_id"`
-	RequestedTeam   Team         `gorm:"foreignkey:RequestedTeamID"`
-	RequestMessage  string       `gorm:"column:message"`
+	Requester       Contestant   `gorm:"foreignkey:RequesterID" json:"requester"`
+	RequestedTeamID uint         `gorm:"column:req_team_id" `
+	RequestedTeam   Team         `gorm:"foreignkey:RequestedTeamID" json:"requested_team"`
+	RequestMessage  string       `gorm:"column:message" json:"request_message"`
 	NotificationID  uint         `gorm:"column:notification_id"`
 	Notification    Notification `gorm:"foreignkey:NotificationID"`
 }

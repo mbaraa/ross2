@@ -4,12 +4,14 @@ import Contestant from "@/models/Contestant";
 class Team {
     id: number | undefined;
     name: string | undefined;
-    leader: Contestant | undefined;
-    contests: Contest[] | undefined;
-    members: Contestant[] | undefined;
+    leader: Contestant;
+    contests: Contest[];
+    members: Contestant[];
 
     constructor() {
-        const _ = "lol";
+        this.leader = new Contestant();
+        this.contests = new Array<Contest>();
+        this.members = new Array<Contestant>();
     }
 }
 

@@ -3,18 +3,18 @@
         <div class="main" v-if="profile != null">
             <img class="organizerLogo" alt="organizer picture" :src="profile.avatar_url"/>
             <br/>
-            <span class="contestName"><b>{{ profile.name }}</b></span>
+            <span class="organizerName"><b>{{ profile.name }}</b></span>
             <br/>
-            <span class="contestName" style="font-size: 1.5em"><b>{{ profile.roles_names.join(", ") }}</b></span>
+            <span class="organizerName" style="font-size: 1.5em"><b>{{ profile.roles_names.join(", ") }}</b></span>
             <br/><br/>
             <v-divider/>
             <div class="buttons">
                 <v-btn @click="logout" class="text-red-darken-4">Logout</v-btn>&nbsp;
             </div>
 
-            <div v-if="checkDirector">
+            <div v-if="(profile.roles & 1) !== 0">
                 <v-divider/>
-                <DirectorOperations :director-id="profile"/>
+                <DirectorOperations :director="profile"/>
             </div>
         </div>
 
@@ -80,7 +80,8 @@ export default defineComponent({
             return organizer
         },
         checkDirector(): boolean {
-            return (this.profile.roles & 0b1) != 0;
+            console.log("roles", this.profile.roles)
+            return (this.profile.roles & 1) != 0;
         }
     }
 
@@ -90,14 +91,13 @@ export default defineComponent({
 <style scoped>
 .main {
     text-align: center;
-    width: 80%;
-    /*display: inline-grid;*/
+    width: 90%;
     margin: 20px auto;
     border: #212121 solid 1px;
     border-radius: 5px;
 }
 
-.contestName {
+.organizerName {
     font-size: 2em;
     color: #212121;
 }
