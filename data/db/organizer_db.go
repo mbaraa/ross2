@@ -58,6 +58,17 @@ func (o *OrganizerDB) GetByEmail(email string) (models.Organizer, error) {
 	return fetchedOrganizer, err
 }
 
+func (o *OrganizerDB) GetAllByOrganizer(org models.Organizer) ([]models.Organizer, error) {
+	var orgs []models.Organizer
+
+	err := o.db.
+		Model(new(models.Organizer)).
+		Find(&orgs, "director_id = ?", org.DirectorID).
+		Error
+
+	return orgs, err
+}
+
 func (o *OrganizerDB) GetAll() ([]models.Organizer, error) {
 	count, err := o.Count()
 	if err != nil {

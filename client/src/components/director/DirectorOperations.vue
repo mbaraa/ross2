@@ -1,25 +1,17 @@
 <template>
-    <div class="main">
-        <span class="contestName"><b>{{ profile.name }}</b></span>
-        <br/><br/>
-        <div>
-            <div class="pagesLinks">
-                <router-link :to="{name: 'contests'}">
-                    Contests
-                </router-link>
-                <router-link :to="{ name:'organizers'}">
-                    Organizers
-                </router-link>
-                <router-link :to="{ name:'other'}">
-                    Other
+    <div class="main2" v-if="(director.roles & 1) !== 0">
+        <div v-if="showOps">
+            <div class="pagesLinks" v-for="link in links" :key="link">
+                <router-link :to="{name: link.page}">
+                    {{ link.name }}
                 </router-link>
             </div>
-            <div class="subpage">
+            <div>
                 <router-view/>
             </div>
         </div>
+        <v-btn @click="show" v-if="!showOps">Show Operations</v-btn>
     </div>
-
 </template>
 
 <script lang="ts">
@@ -33,33 +25,38 @@ export default defineComponent({
     },
     data() {
         return {
-            profile: {}
+            profile: {},
+            showOps: false,
+            links: [
+                {page: 'contests', name: 'Contests'},
+                {page: 'organizers', name: 'Organizers'},
+                {page: 'other', name: 'Other'},
+            ]
+        }
+    },
+    methods: {
+        show() {
+            this.showOps = true;
+            this.$router.push('/organizer/contests/')
+        },
+        checkDirector(): boolean {
+            return (this.director.roles & 1) != 0;
         }
     }
 });
 </script>
 
 <style scoped>
-.main {
+.main2 {
     padding: 10px;
     text-align: center;
 }
 
-.contestLogo {
-    border-radius: 100%;
-    width: 125px;
-    height: 125px;
-}
-
-.contestName {
-    font-size: 2em;
-    color: #212121;
-}
-
 .pagesLinks {
     border-radius: 5px 5px 0 0;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0px;
+    display: inline;
+    /*padding-right: 10px;*/
 }
 
 /* inactive subpage */
@@ -78,18 +75,5 @@ export default defineComponent({
 .pagesLinks a.router-link-exact-active {
     background-color: #e0e0e0;
     color: #212121;
-}
-
-.subpage {
-    margin: 6px auto;
-    border-radius: 0 0 5px 5px;
-    padding-top: 10px;
-
-    display: block;
-
-    width: 90%;
-    border: #212121 solid 2px;
-    border-top: white solid 0;
-    background-color: #e0e0e0;
 }
 </style>

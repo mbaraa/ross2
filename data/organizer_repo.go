@@ -14,6 +14,7 @@ type OrganizerGetterRepo interface {
 	Exists(organizer models.Organizer) (bool, error)
 	Get(organizer models.Organizer) (models.Organizer, error)
 	GetByEmail(email string) (models.Organizer, error)
+	GetAllByOrganizer(organizer models.Organizer) ([]models.Organizer, error)
 	GetAll() ([]models.Organizer, error)
 	Count() (int64, error)
 }

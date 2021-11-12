@@ -39,6 +39,14 @@ func (o *OrganizerManager) GetOrganizer(sessionToken string) (models.Organizer, 
 	})
 }
 
+func (o *OrganizerManager) GetContests(org models.Organizer) ([]models.Contest, error) {
+	return o.contestRepo.GetAllByOrganizer(org)
+}
+
+func (o *OrganizerManager) GetOrganizers(org models.Organizer) ([]models.Organizer, error) {
+	return o.orgRepo.GetAllByOrganizer(org)
+}
+
 func (o *OrganizerManager) UpdateProfile(org models.Organizer) error {
 	return o.orgRepo.Update(org)
 }
