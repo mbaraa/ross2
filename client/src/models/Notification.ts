@@ -1,16 +1,35 @@
+import config from "@/config";
+
 class Notification {
-    id: number;
-    user_id: number;
-    content: string;
-    seen: boolean;
+    id: number | undefined;
+    user_id: number | undefined;
+    content: string | undefined;
+    seen: boolean | undefined;
     seen_at: Date;
 
-    constructor(id: number, user_id: number, content: string, seen: boolean, seen_at: Date) {
-        this.id = id;
-        this.user_id = user_id;
-        this.content = content;
-        this.seen = seen;
-        this.seen_at = seen_at;
+    constructor() {
+        this.seen_at = new Date();
+    }
+
+    public static async getNotifications(): Promise<Array<Notification>> {
+        let notifications = new Array<Notification>();
+        await fetch(`${config.backendAddress}/notification/all/`, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Authorization": <string>localStorage.getItem("token"),
+            }
+        })
+            .then(resp => resp.json())
+            .then(jResp => {
+                notifications = <Notification[]>jResp;
+                return notifications;
+            })
+            .catch(() => {
+                window.alert("oops I did it again!")
+            });
+
+        return notifications;
     }
 }
 

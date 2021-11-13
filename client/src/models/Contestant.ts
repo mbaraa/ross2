@@ -3,6 +3,7 @@ import User, {ContactInfo} from "@/models/User";
 import config from "@/config";
 import Contest from "@/models/Contest";
 import JoinRequest from "@/models/JoinRequest";
+import Notification from "@/models/Notification";
 
 class Contestant implements User {
     id: number | undefined;
@@ -24,6 +25,14 @@ class Contestant implements User {
     constructor() {
         this.contact_info = new ContactInfo();
         this.teamlessed_at = new Date();
+    }
+
+    public static async acceptJoinRequest(notification: Notification): Promise<void> {
+        await this.makeAuthPostRequest("accept-join-request", notification);
+    }
+
+    public static async rejectJoinRequest(notification: Notification): Promise<void> {
+        await this.makeAuthPostRequest("reject-join-request", notification);
     }
 
     public static async checkJoinedTeam(team: Team): Promise<boolean> {

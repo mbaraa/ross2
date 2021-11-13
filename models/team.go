@@ -65,5 +65,6 @@ func (j *JoinRequest) BeforeDelete(db *gorm.DB) error {
 	return db.
 		Model(new(Notification)).
 		Where("id = ?", j.NotificationID).
+		Delete(&j.Notification).
 		Error
 }

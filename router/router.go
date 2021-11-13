@@ -12,10 +12,11 @@ import (
 )
 
 type Router struct {
-	contestAPI     *controllers.ContestAPI
-	contestantAPI  *controllers.ContestantAPI
-	orgAPI         *controllers.OrganizerAPI
-	googleLoginAPI *auth.GoogleLoginAPI
+	contestAPI      *controllers.ContestAPI
+	contestantAPI   *controllers.ContestantAPI
+	orgAPI          *controllers.OrganizerAPI
+	notificationAPI *controllers.NotificationAPI
+	googleLoginAPI  *auth.GoogleLoginAPI
 }
 
 func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, contestantRepo data.ContestantCRUDRepo,
@@ -31,10 +32,11 @@ func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, con
 	)
 
 	return &Router{
-		contestAPI:     controllers.NewContestAPI(contestRepo),
-		contestantAPI:  controllers.NewContestantAPI(contestantManager, sessionManager, teamManager, joinReqManager),
-		orgAPI:         controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager),
-		googleLoginAPI: auth.NewGoogleLoginAPI(sessionManager, contestantRepo, organizerRepo),
+		contestAPI:      controllers.NewContestAPI(contestRepo),
+		contestantAPI:   controllers.NewContestantAPI(contestantManager, sessionManager, teamManager, joinReqManager),
+		orgAPI:          controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager),
+		notificationAPI: controllers.NewNotificationAPI(notificationRepo, sessionManager, contestantManager),
+		googleLoginAPI:  auth.NewGoogleLoginAPI(sessionManager, contestantRepo, organizerRepo),
 	}
 }
 
@@ -43,6 +45,7 @@ func (r *Router) getHandler() *http.ServeMux {
 	handler.Handle("/contest/", r.contestAPI)
 	handler.Handle("/contestant/", r.contestantAPI)
 	handler.Handle("/organizer/", r.orgAPI)
+	handler.Handle("/notification/", r.notificationAPI)
 	handler.Handle("/gauth/", r.googleLoginAPI)
 
 	return handler

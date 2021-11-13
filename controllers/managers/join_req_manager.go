@@ -80,7 +80,7 @@ func (j *JoinRequestManager) AcceptJoinRequest(noti models.Notification) error {
 		return err
 	}
 
-	return j.DeleteRequests(requesterID) // this will also delete the team's leader notification
+	return j.DeleteRequests(requesterID, noti.ID) // this will also delete the team's leader notification
 }
 
 func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
@@ -110,9 +110,10 @@ func (j *JoinRequestManager) getContAndTeamID(notiContent string) (uint, uint) {
 	return uint(reqID), uint(teamID)
 }
 
-func (j *JoinRequestManager) DeleteRequests(contID uint) error {
+func (j *JoinRequestManager) DeleteRequests(contID, notiID uint) error {
 	return j.jrRepo.Delete(models.JoinRequest{
-		RequesterID: contID,
+		RequesterID:    contID,
+		NotificationID: notiID,
 	})
 }
 
