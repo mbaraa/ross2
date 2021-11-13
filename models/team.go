@@ -52,9 +52,9 @@ func (t *Team) BeforeDelete(db *gorm.DB) error {
 type JoinRequest struct {
 	gorm.Model
 	ID              uint         `gorm:"column:id;primaryKey;autoIncrement"`
-	RequesterID     uint         `gorm:"column:requester_id"`
+	RequesterID     uint         `gorm:"column:requester_id" json:"requester_id"`
 	Requester       Contestant   `gorm:"foreignkey:RequesterID" json:"requester"`
-	RequestedTeamID uint         `gorm:"column:req_team_id" `
+	RequestedTeamID uint         `gorm:"column:req_team_id" json:"requested_team_id"`
 	RequestedTeam   Team         `gorm:"foreignkey:RequestedTeamID" json:"requested_team"`
 	RequestMessage  string       `gorm:"column:message" json:"request_message"`
 	NotificationID  uint         `gorm:"column:notification_id"`

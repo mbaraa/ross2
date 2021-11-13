@@ -23,6 +23,17 @@ func (j *JoinRequestDB) Add(jr models.JoinRequest) error {
 		Error
 }
 
+// GETTER REPO
+
+func (j *JoinRequestDB) GetAll(contID uint) (jr []models.JoinRequest, err error) {
+	err = j.db.
+		Model(new(models.JoinRequest)).
+		Find(&jr, "requester_id = ?", contID).
+		Error
+
+	return
+}
+
 // DELETER REPO
 
 func (j *JoinRequestDB) Delete(jr models.JoinRequest) error {

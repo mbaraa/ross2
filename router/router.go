@@ -19,7 +19,7 @@ type Router struct {
 }
 
 func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, contestantRepo data.ContestantCRUDRepo,
-	teamRepo data.TeamCRUDRepo, organizerRepo data.OrganizerCRUDRepo, joinReqRepo data.JoinRequestCDRepo,
+	teamRepo data.TeamCRUDRepo, organizerRepo data.OrganizerCRUDRepo, joinReqRepo data.JoinRequestCRDRepo,
 	notificationRepo data.NotificationCRUDRepo) *Router {
 
 	var (

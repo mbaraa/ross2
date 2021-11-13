@@ -8,16 +8,21 @@ type JoinRequestCreatorRepo interface {
 	Add(jr models.JoinRequest) error
 }
 
+type JoinRequestGetterRepo interface {
+	GetAll(contID uint) ([]models.JoinRequest, error)
+}
+
 // JoinRequestDeleterRepo is an interface that allows deleting values of a rj
 // from a certain data source :)
 type JoinRequestDeleterRepo interface {
-	Delete(rj models.JoinRequest) error
+	Delete(jr models.JoinRequest) error
 	DeleteAll() error
 }
 
-// JoinRequestCDRepo is an interface that allows full CRUD operations of a rj
+// JoinRequestCRDRepo is an interface that allows full CRUD operations of a rj
 // on a certain data source :)
-type JoinRequestCDRepo interface {
+type JoinRequestCRDRepo interface {
 	JoinRequestCreatorRepo
+	JoinRequestGetterRepo
 	JoinRequestDeleterRepo
 }

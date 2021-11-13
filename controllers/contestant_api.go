@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -48,7 +49,8 @@ func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 		"GET /leave-team/":           c.authenticateHandler(c.handleLeaveTeam),
 
 		"POST /register-as-teamless/": c.authenticateHandler(c.handleRegisterAsTeamless),
-		//"POST /invite-teamless":       nil,
+		"POST /check-joined-team/":    c.authenticateHandler(c.handleCheckJoinedTeam),
+		//"POST /invite-teamless/":      nil,
 	}
 	return c
 }
@@ -280,4 +282,26 @@ func (c *ContestantAPI) handleRegisterAsTeamless(res http.ResponseWriter, req *h
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+// POST /contestant/check-joined-team/
+func (c *ContestantAPI) handleCheckJoinedTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
+	var team models.Team
+	err := json.NewDecoder(req.Body).Decode(&team)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	cont, err := c.contManager.GetContestant(session.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	inTeam := cont.TeamID == team.ID ||
+		c.joinReqManager.CheckContestantTeamRequests(cont, team)
+
+	_, _ = res.Write([]byte(fmt.Sprintf(`{"team_status" : %v}`, inTeam)))
 }

@@ -10,12 +10,12 @@ import (
 )
 
 type JoinRequestManager struct {
-	jrRepo           data.JoinRequestCDRepo
+	jrRepo           data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
 	teamManager      *TeamManager
 }
 
-func NewJoinRequestManager(jrRepo data.JoinRequestCDRepo, nRepo data.NotificationCRUDRepo, tm *TeamManager) *JoinRequestManager {
+func NewJoinRequestManager(jrRepo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo, tm *TeamManager) *JoinRequestManager {
 	return &JoinRequestManager{
 		jrRepo:           jrRepo,
 		notificationRepo: nRepo,
@@ -114,4 +114,19 @@ func (j *JoinRequestManager) DeleteRequests(contID uint) error {
 	return j.jrRepo.Delete(models.JoinRequest{
 		RequesterID: contID,
 	})
+}
+
+func (j *JoinRequestManager) CheckContestantTeamRequests(cont models.Contestant, team models.Team) bool {
+	jrs, err := j.jrRepo.GetAll(cont.ID)
+	if err != nil {
+		return false
+	}
+
+	for _, jr := range jrs {
+		if jr.RequestedTeamID == team.ID {
+			return true
+		}
+	}
+
+	return false
 }

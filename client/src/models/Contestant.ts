@@ -25,6 +25,19 @@ class Contestant implements User {
         this.teamlessed_at = new Date();
     }
 
+    public static async checkJoinedTeam(team: Team): Promise<boolean> {
+        let inTeam = false;
+        await this.makeAuthPostRequest("check-joined-team", team)
+            .then(resp => resp.json())
+            .then(resp => {
+                inTeam = <boolean>resp["team_status"];
+
+                return inTeam
+            });
+
+        return inTeam;
+    }
+
     public static async createTeam(team: Team): Promise<void> {
         await this.makeAuthPostRequest("create-team", team);
     }

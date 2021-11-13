@@ -9,7 +9,7 @@
             <td>{{ team.name }}</td>
             <td>{{ getMembersNames(team) }}</td>
             <td>
-                <v-btn @click="joinTeam(team)">Join team</v-btn>
+                <v-btn v-if="!team.inTeam" @click="joinTeam(team)">Join team</v-btn>
             </td>
         </tr>
     </table>
@@ -34,15 +34,19 @@ export default defineComponent({
     async mounted() {
         this.contest = await Contest.getContestFromServer(this.$route.query.id);
         this.teams = this.contest.teams;
+        this.processInTeam();
     },
     methods: {
         async joinTeam(team: Team) {
             const resp = await Contestant.requestJoinTeam(<JoinRequest> {
                 requested_team: team,
+                requested_team_id: team.id,
+                request_message: "",
             })
 
             if (resp.ok) {
                 window.alert("request sent successfully!");
+                team.inTeam = true;
             } else {
                 window.alert(`${resp.status} ${resp.statusText}!`);
             }
@@ -51,8 +55,13 @@ export default defineComponent({
             let names = "";
             team.members.forEach((cont: Contestant) => {
                 names += cont.name + ", ";
-            })
+            });
             return names.substring(0, names.length-2);
+        },
+        processInTeam() {
+            this.teams.forEach(async (team: Team) => {
+                team.inTeam = await Contestant.checkJoinedTeam(team);
+            });
         },
         getTeamClass(team: Team): string {
             return this.teams.indexOf(team) % 2 == 0 ? "team1" : "team2";

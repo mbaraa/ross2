@@ -8,6 +8,8 @@ class Team {
     contests: Contest[];
     members: Contestant[];
 
+    inTeam: boolean | undefined; // once you go spaghetti, you can't turn back :)
+
     constructor() {
         this.leader = new Contestant();
         this.contests = new Array<Contest>();
