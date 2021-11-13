@@ -16,6 +16,10 @@ class Organizer implements User {
     roles: number | undefined;
     roles_names: string[] | undefined;
 
+    public static async createOrganizer(org: Organizer): Promise<void> {
+        await this.makeAuthPostRequest("add-organizer", org);
+    }
+
     public static async deleteOrganizer(org: Organizer): Promise<void> {
         await this.makeAuthPostRequest("delete-organizer", org);
     }

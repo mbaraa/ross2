@@ -98,13 +98,13 @@ export default defineComponent({
                 window.location.reload();
             }
         },
-        async tokenLogin(): Promise<Contestant> {
+        async tokenLogin(): Promise<Contestant | null> {
             const contestant = await Contestant.login();
-            if (!contestant.profile_finished) {
+            if ((await contestant) != null && !(await contestant)?.profile_finished) {
                 await this.$router.push("/finish-profile/");
             }
 
-            return contestant
+            return contestant;
         }
     }
 

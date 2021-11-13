@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <div v-if="!profile.profile_finished">
+        <div v-if="profile !== null && !profile.profile_finished">
             <h1>Finish your profile data:</h1>
 
             <!--            <h3 style="text-align: left" class="text-red">Mandatory Field</h3>-->
@@ -28,13 +28,13 @@ export default defineComponent({
     name: "ContestantSignup",
     data() {
         return {
-            profile: {},
+            profile: null,
             contactInfo: new ContactInfo(),
         }
     },
     async mounted() {
         this.profile = await Contestant.login();
-        if (this.profile.profile_finished) {
+        if ((await this.profile) != null && (await this.profile).profile_finished) {
             await this.$router.push("/profile");
         }
     },

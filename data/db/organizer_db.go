@@ -63,7 +63,7 @@ func (o *OrganizerDB) GetAllByOrganizer(org models.Organizer) ([]models.Organize
 
 	err := o.db.
 		Model(new(models.Organizer)).
-		Find(&orgs, "director_id = ?", org.DirectorID).
+		Find(&orgs, "director_id = ?", org.ID).
 		Error
 
 	return orgs, err

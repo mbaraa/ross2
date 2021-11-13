@@ -15,6 +15,7 @@ class Contestant implements User {
 
     university_id: string | undefined;
     team: Team | undefined;
+    team_id: number | undefined;
     major_name: string | undefined;
 
     teamlessed_at: Date | undefined;
@@ -69,8 +70,8 @@ class Contestant implements User {
             });
     }
 
-    public static async login(): Promise<Contestant> {
-        let cont: Contestant | null = new Contestant();
+    public static async login(): Promise<Contestant | null> {
+        let cont: Contestant | null = null;
 
         await this.makeAuthGetRequest("login")
             .then(resp => resp.json())

@@ -19,12 +19,12 @@ type Contestant struct {
 
 	UniversityID string `gorm:"column:university_id" json:"university_id"`
 	Team         Team   `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
-	TeamID       uint   `gorm:"column:team_id"`
+	TeamID       uint   `gorm:"column:team_id" json:"team_id"`
 	Major        Major  `gorm:"column:major;type:uint" json:"major"`
 	MajorName    string `gorm:"-" json:"major_name"`
 
-	TeamlessedAt      time.Time `gorm:"timelessed_at"`
-	TeamlessContestID uint      `gorm:"column:teamless_contest_id"`
+	TeamlessedAt      time.Time `gorm:"timelessed_at" json:"teamlessed_at"`
+	TeamlessContestID uint      `gorm:"column:teamless_contest_id" json:"teamless_contest_id"`
 }
 
 func (c *Contestant) AfterFind(db *gorm.DB) error {

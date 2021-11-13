@@ -6,7 +6,7 @@
         v-model="dialog"
         scrollable>
         <template v-slot:activator="{on, attrs}">
-            <div v-bind="attrs" v-on="on" @click="dialog = true" style="display: inline">
+            <div v-bind="attrs" v-on="on" @click="checkTokenForAction(openDialog)" style="display: inline">
                 <v-btn icon color="error" title="create team">
                     <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'user-plus'}"/>
                 </v-btn>
@@ -38,6 +38,7 @@ import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import Contest from "@/models/Contest";
 import Team from "@/models/Team";
 import Contestant from "@/models/Contestant";
+import {checkTokenForAction} from "@/utils";
 
 library.add(faUserPlus);
 
@@ -62,6 +63,12 @@ export default defineComponent({
             this.dialog = false;
             window.location.reload();
         },
+        checkTokenForAction(fn: () => void) {
+            checkTokenForAction(fn);
+        },
+        openDialog() {
+            this.dialog = true;
+        }
     }
 });
 </script>

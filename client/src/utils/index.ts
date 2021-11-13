@@ -17,3 +17,16 @@ export function formatDuration(minutes: number): string {
 
     return `${hours} hours & ${minutes1} minutes`;
 }
+
+export function checkToken(): boolean {
+    const token = <string>localStorage.getItem("token");
+    return token != null && token.length == 36;
+}
+
+export function checkTokenForAction(fn: () => void): void {
+    if (checkToken()) {
+        fn();
+    } else {
+        window.alert("you're not logged in :)")
+    }
+}
