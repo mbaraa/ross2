@@ -51,6 +51,8 @@ func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 		"POST /register-as-teamless/": c.authenticateHandler(c.handleRegisterAsTeamless),
 		"POST /check-joined-team/":    c.authenticateHandler(c.handleCheckJoinedTeam),
 		//"POST /invite-teamless/":      nil,
+
+		"GET /get-team/": c.authenticateHandler(c.handleGetTeam),
 	}
 	return c
 }
@@ -304,4 +306,21 @@ func (c *ContestantAPI) handleCheckJoinedTeam(res http.ResponseWriter, req *http
 		c.joinReqManager.CheckContestantTeamRequests(cont, team)
 
 	_, _ = res.Write([]byte(fmt.Sprintf(`{"team_status" : %v}`, inTeam)))
+}
+
+// GET /contestant/get-team/
+func (c *ContestantAPI) handleGetTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
+	cont, err := c.contManager.GetContestant(session.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	team, err := c.teamManager.GetTeam(cont.TeamID)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_ = json.NewEncoder(res).Encode(team)
 }

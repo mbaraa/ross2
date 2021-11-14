@@ -11,11 +11,14 @@
             <v-btn @click="logout" class="text-red-darken-4">Logout</v-btn>&nbsp;
             <v-btn @click="deleteAccount" class="text-red-darken-4">Delete account</v-btn>
         </div>
-        <div v-if="team.name.length > 0">
+        <div v-if="checkTeam()">
             <v-divider/>
-            <FontAwesomeIcon :icon="{prefix:'fas', iconName:'file-alt'}"/>
-            <b>Team details:</b>
-            <br/>
+
+            <h3>
+                <FontAwesomeIcon :icon="{prefix:'fas', iconName:'file-alt'}"/>
+                &nbsp;Team details:
+            </h3>
+
             <ul>
                 <li>Team name: {{ team.name }}</li>
                 <li>Team members:
@@ -24,9 +27,10 @@
                     </ul>
                 </li>
             </ul>
+
             <div class="buttons">
                 <v-btn @click="leaveTeam" class="text-blue-darken-4">Leave team</v-btn>
-                <v-btn @click="deleteTeam" class="text-red-darken-4">Delete team</v-btn>
+                <v-btn v-if="checkLeader()" @click="deleteTeam" class="text-red-darken-4">Delete team</v-btn>
             </div>
         </div>
     </div>
@@ -61,7 +65,7 @@ export default defineComponent({
     },
     async mounted() {
         this.profile = await this.tokenLogin();
-        this.team = this.profile.team;
+        this.team = await Contestant.getTeam();
     },
     methods: {
         async login() {
@@ -105,6 +109,12 @@ export default defineComponent({
             }
 
             return contestant;
+        },
+        checkTeam(): boolean {
+            return this.team != null && this.team.name.length > 0;
+        },
+        checkLeader(): boolean {
+            return this.profile.id == this.team.leader_id;
         }
     }
 

@@ -5,6 +5,7 @@ class Team {
     id: number | undefined;
     name: string | undefined;
     leader: Contestant;
+    leader_id: number | undefined;
     contests: Contest[];
     members: Contestant[];
 
