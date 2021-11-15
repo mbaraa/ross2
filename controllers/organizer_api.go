@@ -244,6 +244,11 @@ func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Req
 		return
 	}
 
+	newOrg.ContactInfo = models.ContactInfo{
+		FacebookURL: "/",
+	}
+	newOrg.DirectorID = org.ID
+
 	err = o.orgMgr.AddOrganizer(&newOrg)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)

@@ -4,7 +4,7 @@
         <img class="contestLogo" :alt="organizer.name + ' profile pic'" :src="organizer.avatar_url"/>
         <h1>{{ organizer.name }}</h1>
         <v-divider/>
-        <p>{{ organizer.roles_names[0] }}</p>
+        <p>{{ organizer.roles_names.join(", ") }}</p>
         <v-divider/>
 
         <p>

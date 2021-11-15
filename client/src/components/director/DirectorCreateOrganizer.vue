@@ -18,19 +18,20 @@
                 <span class="text-h4">Add Organizer</span>
             </v-card-title>
 
-            <v-text-field label="Name" v-model="organizer.name"/>
-            <v-text-field label="Gmail" v-model="organizer.email"/>
+            <v-text-field label="Name" v-model="newOrganizer.name" autofocus/>
+            <v-text-field label="Gmail" v-model="newOrganizer.email"/>
 
             <div v-if="contests.length > 0">
                 <h4>Set contest for organizer</h4>
-                <select>
+                <select v-model="selectedContest">
                     <option v-for="contest in contests" :key="contest">
                         {{ contest.name }}
                     </option>
                 </select>
                 <h4>Set roles:</h4>
                 <div v-for="role in roles" :key="role">
-                    <input type="checkbox" :id="role.name" name="role" :value="role.name" :checked="role.checked"/>
+                    <input type="checkbox" :id="role.name" name="role" :value="role.name" :checked="role.checked"
+                           v-model="role.checked"/>
                     <label :for="role.name">&nbsp;{{ role.name }}</label>
                 </div>
             </div>
@@ -51,6 +52,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import Organizer from "@/models/Organizer";
+import Contest from "@/models/Contest";
 
 library.add(faPlus);
 
@@ -62,9 +64,9 @@ export default defineComponent({
     data() {
         return {
             dialog: false,
-            organizer: new Organizer(),
+            newOrganizer: new Organizer(),
             contests: [],
-            contest: "",
+            selectedContest: "",
             roles: [
                 {name: "Core Organizer", checked: false},
                 {name: "Chief Judge", checked: false},
@@ -84,9 +86,31 @@ export default defineComponent({
     },
     methods: {
         async createOrganizer() {
+            this.setContest();
+            this.setRoles();
+            await Organizer.createOrganizer(this.newOrganizer);
+
             window.alert("organizer was created successfully!");
             window.location.reload();
         },
+        setContest() {
+            let contest = new Contest();
+            for (const c of this.contests) {
+                if (c.name == this.selectedContest) {
+                    contest = c;
+                }
+            }
+            this.newOrganizer.contests.push(contest);
+        },
+        setRoles() {
+            this.newOrganizer.roles = 0;
+            for (let i = 0; i <= 8; i++) {
+                if (this.roles[i].checked) {
+                    this.newOrganizer.roles |= (1 << (i + 1)); // i+1, because the roles can't start from director but the roles array starts from 0 :)
+                    console.log("roles: ", (1 << (i + 1)));
+                }
+            }
+        }
     }
 });
 </script>
@@ -109,20 +133,5 @@ export default defineComponent({
     margin: 0 auto;
     width: 400px;
     overflow-y: auto;
-}
-
-.starts {
-    color: #606060;
-    padding-bottom: 20px;
-    padding-left: 10px;
-    margin-bottom: 35px;
-    padding-top: 15px;
-
-    background-color: #f0f0f0;
-    width: 100%;
-
-    border-radius: 5px 5px 0 0;
-
-    border-bottom: #a0a0a0 solid 1px;
 }
 </style>

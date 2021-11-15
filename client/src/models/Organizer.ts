@@ -16,6 +16,12 @@ class Organizer implements User {
     roles: number | undefined;
     roles_names: string[] | undefined;
 
+    constructor() {
+        this.contests = new Array<Contest>();
+        this.contact_info = new ContactInfo();
+        this.roles_names = new Array<string>();
+    }
+
     public static async createOrganizer(org: Organizer): Promise<void> {
         await this.makeAuthPostRequest("add-organizer", org);
     }

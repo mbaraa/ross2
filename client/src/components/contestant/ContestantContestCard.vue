@@ -24,7 +24,7 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import Contest from "@/models/Contest";
 import Contestant from "@/models/Contestant";
-import ContestantCreateTeam from "@/components/contest/ContestantCreateTeam.vue";
+import ContestantCreateTeam from "@/components/contestant/ContestantCreateTeam.vue";
 import {checkTokenForAction} from "@/utils";
 
 library.add(faUserPlus, faUsers, faUsersSlash);

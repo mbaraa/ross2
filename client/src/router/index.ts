@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/finish-profile/',
         name: 'ContestantSignup',
-        component: () => import('@/components/ContestantSignup.vue')
+        component: () => import('@/components/contestant/ContestantSignup.vue')
     },
     {
         path: '/notifications/',

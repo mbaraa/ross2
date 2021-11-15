@@ -18,7 +18,7 @@
                 <span class="text-h4">Create Team</span>
             </v-card-title>
 
-            <v-text-field label="Team name" v-model="team.name"/>
+            <v-text-field label="Team name" v-model="team.name" autofocus/>
 
             <v-btn class="bg-red" @click="dialog = false">
                 Close

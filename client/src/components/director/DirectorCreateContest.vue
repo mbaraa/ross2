@@ -18,7 +18,7 @@
                 <span class="text-h4">Create Contest</span>
             </v-card-title>
 
-            <v-text-field label="Contest Title" v-model="contest.name"/>
+            <v-text-field label="Contest Title" v-model="contest.name" autofocus=""/>
 
             <label for="starts">Starts at:</label>
             <input id="starts" class="starts" type="datetime-local" v-model="startsAt" required/>
