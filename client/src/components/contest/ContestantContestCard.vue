@@ -47,8 +47,7 @@ export default defineComponent({
     },
     async mounted() {
         this.contestant = await Contestant.login();
-        this.hasTeam = ((this.contestant) != null && ( this.contestant).team_id > 0) ;
-        console.log("c", await this.contestant);
+        this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 0) ;
     },
     methods: {
         async joinAsTeamless() {

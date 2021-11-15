@@ -2,8 +2,10 @@
     <div v-for="not in nots" :key="not">
         <NotificationCard :notification="not"/>
     </div>
-    <h1 style="text-align: center">look closer you might see some!</h1>
-    <h2 style="text-align: center; cursor: pointer" @click="refresh">or just refresh the page 😕</h2>
+    <div v-if="nots.length === 0">
+        <h1 style="text-align: center">look closer you might see some!</h1>
+        <h2 style="text-align: center; cursor: pointer" @click="refresh">or just refresh the page 😕</h2>
+    </div>
 </template>
 
 <script lang="ts">

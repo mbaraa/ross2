@@ -99,6 +99,18 @@ func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
 		return err
 	}
 
+	jrs, err := j.jrRepo.GetAll(requesterID)
+	if err != nil {
+		return err
+	}
+
+	for _, jr := range jrs {
+		if jr.NotificationID == noti.ID {
+			err = j.jrRepo.Delete(jr)
+			break
+		}
+	}
+
 	return j.notificationRepo.Delete(noti)
 }
 

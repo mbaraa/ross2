@@ -35,9 +35,11 @@ export default defineComponent({
         },
         async acReq() {
             await Contestant.acceptJoinRequest(this.notification);
+            window.location.reload();
         },
         async waReq() {
             await Contestant.rejectJoinRequest(this.notification);
+            window.location.reload();
         },
     }
 });

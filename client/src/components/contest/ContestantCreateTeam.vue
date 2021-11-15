@@ -61,6 +61,8 @@ export default defineComponent({
             this.team.contests.push(this.contest);
             await Contestant.createTeam(this.team);
             this.dialog = false;
+
+            window.alert(`your team "${this.team.name}" was created successfully ☺️`);
             window.location.reload();
         },
         checkTokenForAction(fn: () => void) {
