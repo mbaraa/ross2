@@ -23,7 +23,7 @@
 
             <div v-if="contests.length > 0">
                 <h4>Set contest for organizer</h4>
-                <select v-model="selectedContest">
+                <select v-model="selectedContest" style="background-color: #eeeeee">
                     <option v-for="contest in contests" :key="contest">
                         {{ contest.name }}
                     </option>
@@ -82,7 +82,7 @@ export default defineComponent({
     },
     async mounted() {
         this.contests = await Organizer.getContests();
-        this.contest = this.contests[0].name;
+        this.selectedContest = this.contests[0].name;
     },
     methods: {
         async createOrganizer() {

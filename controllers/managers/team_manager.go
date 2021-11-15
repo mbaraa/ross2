@@ -62,25 +62,38 @@ func (t *TeamManager) GetTeam(id uint) (models.Team, error) {
 }
 
 func (t *TeamManager) DeleteContestantFromTeam(cont models.Contestant) error {
-	team, err := t.teamRepo.Get(models.Team{ID: cont.TeamID})
+	team, err := t.GetTeam(cont.TeamID)
 	if err != nil {
 		return err
 	}
 
-	cont.TeamID = 0 // add to the no_team team
-	err = t.contRepo.Update(cont)
-	if err != nil {
-		return err
+	if team.LeaderId == cont.ID {
+		if len(team.Members) > 1 {
+			team.LeaderId = team.Members[1].ID
+			err = t.teamRepo.Update(team)
+		} else {
+			err = t.DeleteTeam(team)
+		}
+
+		if err != nil {
+			return err
+		}
 	}
 
-	for memberIndex := range team.Members {
+	for memberIndex := range team.Members { // remove the contestant from the team
 		if team.Members[memberIndex].ID == cont.ID {
 			team.Members = append(team.Members[:memberIndex], team.Members[memberIndex+1:]...)
 			break
 		}
 	}
 
-	return nil
+	err = t.teamRepo.Update(team)
+	if err != nil {
+		return err
+	}
+
+	cont.TeamID = 0 // add to the no_team team
+	return t.contRepo.Update(cont)
 }
 
 func (t *TeamManager) DeleteTeam(team models.Team) error {

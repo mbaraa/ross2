@@ -2,32 +2,37 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/mbaraa/ross2/controllers/managers"
-	"github.com/mbaraa/ross2/models"
-	"github.com/mbaraa/ross2/utils"
-	"github.com/mbaraa/ross2/utils/teamsgen"
+	"errors"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/mbaraa/ross2/controllers/managers"
+	"github.com/mbaraa/ross2/data"
+	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/ross2/utils"
+	"github.com/mbaraa/ross2/utils/teamsgen"
 )
 
 type OrganizerAPI struct {
 	endPoints map[string]http.HandlerFunc
 
-	orgMgr  *managers.OrganizerManager
-	sessMgr *managers.SessionManager
-	teamMgr *managers.TeamManager
-	contMgr *managers.ContestantManager
+	orgMgr      *managers.OrganizerManager
+	sessMgr     *managers.SessionManager
+	teamMgr     *managers.TeamManager
+	contMgr     *managers.ContestantManager
+	contestRepo data.ContestCRUDRepo
 }
 
 func NewOrganizerAPI(orgMgr *managers.OrganizerManager, sessMgr *managers.SessionManager,
-	teamMgr *managers.TeamManager, contMgr *managers.ContestantManager) *OrganizerAPI {
+	teamMgr *managers.TeamManager, contMgr *managers.ContestantManager, contestRepo data.ContestCRUDRepo) *OrganizerAPI {
 	return (&OrganizerAPI{
-		orgMgr:  orgMgr,
-		sessMgr: sessMgr,
-		teamMgr: teamMgr,
-		contMgr: contMgr,
+		orgMgr:      orgMgr,
+		sessMgr:     sessMgr,
+		teamMgr:     teamMgr,
+		contMgr:     contMgr,
+		contestRepo: contestRepo,
 	}).initEndPoints()
 }
 
@@ -325,7 +330,7 @@ func (o *OrganizerAPI) handleDeleteContestant(res http.ResponseWriter, req *http
 	}
 }
 
-// POST /organizer/auto-generate-teams/
+// POST /organizer/auto-generate-teams/?gen-type="numbered"|"random"
 func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
 	if err != nil || org.Roles&models.RoleDirector == 0 {
@@ -341,8 +346,36 @@ func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *htt
 		return
 	}
 
-	teams := teamsgen.GenerateTeams(contest, utils.NewHardCodeNames()) // the big ass function that am proud AF from :)
+	contest, err = o.contestRepo.Get(contest)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	ng, err := o.getNamesGetter(req)
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	teams := teamsgen.GenerateTeams(contest, ng) // the big ass function that am proud AF from :)
 	_ = json.NewEncoder(res).Encode(teams)
+}
+
+func (o *OrganizerAPI) getNamesGetter(req *http.Request) (utils.NamesGetter, error) {
+	genType, found := req.URL.Query()["gen-type"]
+	if !found {
+		return nil, errors.New("wrong generation type")
+	}
+
+	switch genType[0] {
+	case "numbered":
+		return utils.NewOrderedNames(), nil
+	case "random":
+		return utils.NewHardCodeNames(), nil
+	}
+
+	return nil, errors.New("wrong generation type")
 }
 
 // POST /organizer/register-generated-teams/

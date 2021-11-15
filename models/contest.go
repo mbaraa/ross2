@@ -50,9 +50,16 @@ func (c *Contest) AfterFind(db *gorm.DB) error {
 		Association("Organizers").
 		Find(&c.Organizers)
 
+	if err != nil {
+		return err
+	}
+
 	c.ParticipationConditions.MajorsNames = getMajors(c.ParticipationConditions.Majors)
 
-	return err
+	return db.
+		Model(new(Contestant)).
+		Find(&c.TeamlessContestants, "teamless_contest_id = ?", c.ID).
+		Error
 }
 
 // this method is left as a run away solution in case that GORM deletes organizers associated with a contest :\

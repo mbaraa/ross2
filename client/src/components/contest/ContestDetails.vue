@@ -82,6 +82,9 @@ export default defineComponent({
     text-align: center;
     width: 100%;
     display: inline-grid;
+
+    background-color: #B0BEC5;
+    border-radius: 10px;
 }
 
 .basic {

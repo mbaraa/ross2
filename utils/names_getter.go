@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"fmt"
+	"math/rand"
+)
+
 type NamesGetter interface {
 	GetNames() []string
 	GetName() string
@@ -49,11 +54,17 @@ var names = []string{
 }
 
 type HardCodeNames struct {
-	lastIndex int
+	calledTimes int
+	usedNames   map[int]bool
+	numNames    int
 }
 
 func NewHardCodeNames() *HardCodeNames {
-	return &HardCodeNames{-1}
+	return &HardCodeNames{
+		calledTimes: 0,
+		usedNames:   map[int]bool{},
+		numNames:    len(names),
+	}
 }
 
 func (h *HardCodeNames) GetNames() []string {
@@ -61,9 +72,35 @@ func (h *HardCodeNames) GetNames() []string {
 }
 
 func (h *HardCodeNames) GetName() string {
-	h.lastIndex++
-	if h.lastIndex >= len(names) {
-		h.lastIndex = 0
+getIndex:
+	h.calledTimes++
+	if h.calledTimes >= h.numNames {
+		h.usedNames = map[int]bool{}
 	}
-	return names[h.lastIndex]
+	index := rand.Intn(h.numNames)
+
+	if used, exists := h.usedNames[index]; !used || !exists {
+		h.usedNames[index] = true
+	} else {
+		goto getIndex
+	}
+
+	return names[index]
+}
+
+type OrderedNames struct {
+	lastIndex int
+}
+
+func NewOrderedNames() *OrderedNames {
+	return &OrderedNames{-1}
+}
+
+func (o *OrderedNames) GetNames() []string {
+	return nil
+}
+
+func (o *OrderedNames) GetName() string {
+	o.lastIndex++
+	return fmt.Sprintf("team%d", o.lastIndex)
 }

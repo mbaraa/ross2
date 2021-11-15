@@ -1,19 +1,16 @@
 <template>
-    <table class="main" v-if="teams.length > 0">
-        <tr>
-            <th>Team name</th>
-            <th>Team members</th>
-            <th></th>
-        </tr>
-        <tr v-for="team in teams" :key="team" :class="getTeamClass(team)">
-            <td>{{ team.name }}</td>
-            <td>{{ getMembersNames(team) }}</td>
-            <td>
-                <v-btn v-if="!team.inTeam" @click="joinTeam(team)">Join team</v-btn>
-            </td>
-        </tr>
-    </table>
-    <h1 v-else>No teams are registered for this contest so far!</h1>
+    <div class="main bg-green-accent-4 team" v-if="teams.length > 0">
+        <div v-for="team in teams" :key="team">
+            <TeamCard :team="team"/>
+            <v-btn v-if="!team.inTeam" @click="joinTeam(team)">Join team</v-btn>
+        </div>
+    </div>
+    <div v-else>
+        <h1>No teams are registered for this contest so far!</h1>
+        <h2 title="go to the home page and click on `create team` under the contest description :)">
+            Be the first to register 😁
+        </h2>
+    </div>
 </template>
 
 <script lang="ts">
@@ -22,9 +19,11 @@ import Contest from "@/models/Contest";
 import Team from "@/models/Team";
 import Contestant from "@/models/Contestant";
 import JoinRequest from "@/models/JoinRequest";
+import TeamCard from "@/components/team/TeamCard.vue";
 
 export default defineComponent({
     name: "ContestTeams",
+    components: {TeamCard},
     data() {
         return {
             contest: {},
@@ -38,7 +37,7 @@ export default defineComponent({
     },
     methods: {
         async joinTeam(team: Team) {
-            const resp = await Contestant.requestJoinTeam(<JoinRequest> {
+            const resp = await Contestant.requestJoinTeam(<JoinRequest>{
                 requested_team: team,
                 requested_team_id: team.id,
                 request_message: "",
@@ -51,20 +50,10 @@ export default defineComponent({
                 window.alert(`${resp.status} ${resp.statusText}!`);
             }
         },
-        getMembersNames(team: Team): string {
-            let names = "";
-            team.members.forEach((cont: Contestant) => {
-                names += cont.name + ", ";
-            });
-            return names.substring(0, names.length-2);
-        },
         processInTeam() {
             this.teams.forEach(async (team: Team) => {
                 team.inTeam = await Contestant.checkJoinedTeam(team);
             });
-        },
-        getTeamClass(team: Team): string {
-            return this.teams.indexOf(team) % 2 == 0 ? "team1" : "team2";
         },
     }
 });
@@ -72,20 +61,14 @@ export default defineComponent({
 
 <style scoped>
 .main {
-    width: 100%;
-    border-collapse: collapse;
+    color: white;
+    text-align: center;
+    margin: 10px auto;
 }
 
-td, th {
-    padding: 5px;
-    border: #212121 solid 2px;
-}
-
-.team1 {
-    background-color: #d0d0d0;
-}
-
-.team2 {
-    background-color: #a0a0a0;
+.team {
+    display: inline-grid;
+    padding: 20px;
+    border-radius: 5px;
 }
 </style>
