@@ -9,14 +9,42 @@ import (
 	"github.com/mbaraa/ross2/utils"
 )
 
+var (
+	leftMembers = map[uint]bool{} // {id, status}
+)
+
+func markMembers(teamless []models.Contestant) {
+	for _, cont := range teamless {
+		leftMembers[cont.ID] = true
+	}
+}
+
+func getLeftMembers(teamless []models.Contestant) (left []models.Contestant) {
+	for _, cont := range teamless {
+		if !leftMembers[cont.ID] {
+			left = append(left, cont)
+		}
+	}
+	return
+}
+
 // GenerateTeams generates teams for the sad teamless contestants of the given contest
 // also it uses the NamesGetter interface to assign names for the created teams :)
-func GenerateTeams(contest models.Contest, names utils.NamesGetter) []models.Team {
-	return generateTeams(
-		contest.TeamlessContestants,
-		contest,
-		names,
-	)
+func GenerateTeams(contest models.Contest, names utils.NamesGetter) ([]models.Team, []models.Contestant) {
+	sConts := splitContestantsByGender(contest.TeamlessContestants)
+
+	markMembers(contest.TeamlessContestants)
+
+	return combineTeams(
+			generateTeams(sConts.males, contest, names),
+			generateTeams(sConts.females, contest, names),
+			generateTeams(sConts.regular, contest, names)),
+		getLeftMembers(contest.TeamlessContestants)
+}
+
+func combineTeams(teamsGroups ...[]models.Team) []models.Team {
+	combined := append(teamsGroups[0], teamsGroups[1]...)
+	return append(combined, teamsGroups[2]...)
 }
 
 // generateTeams this is where the fun begins...
@@ -54,6 +82,10 @@ func deleteLastAddedTeamless(teamless []models.Contestant, min uint) []models.Co
 		sortedConts = models.ContestantSortable(teamless)
 	)
 	sort.Sort(sortedConts)
+
+	for i := conts - leftConts; i < conts; i++ {
+		leftMembers[sortedConts[i].ID] = false
+	}
 
 	return sortedConts[:conts-leftConts]
 }

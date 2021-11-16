@@ -21,9 +21,9 @@ func TestBigFatMonstrousCases(t *testing.T) {
 		)
 
 		teams := generalTest(min, max, conts)
-		for _, t := range teams {
-			fmt.Println(t.Name)
-		}
+		//for _, t := range teams {
+		//	fmt.Println(t.Name)
+		//}
 		if ok, team := checkTeamsMembers(teams, min); !ok {
 			t.Errorf("team %s doesn't have enough members!\n", team.Name)
 			t.Errorf("team %s has %d members, but wants %d members\n", team.Name, len(team.Members), min)
@@ -99,7 +99,7 @@ func TestNoFitMinEqMaxGenerateTeams(t *testing.T) {
 ////////////////
 
 func generalTest(minMembers, maxMembers, numConts uint) []models.Team {
-	return GenerateTeams(models.Contest{
+	teams, _ := GenerateTeams(models.Contest{
 		Name:        "Potato Peeling Contest",
 		StartsAt2:   time.Now().Add(time.Hour * 300),
 		Duration:    time.Minute * 120,
@@ -112,6 +112,8 @@ func generalTest(minMembers, maxMembers, numConts uint) []models.Team {
 		},
 		TeamlessContestants: createRandomContestants(numConts),
 	}, utils.NewHardCodeNames())
+
+	return teams
 }
 
 func logTeams(teams []models.Team, t *testing.T) {
@@ -146,12 +148,27 @@ func createRandomContestants(numConts uint) []models.Contestant {
 
 	for contI := range conts {
 		rand.Seed(time.Now().UnixNano())
+		gender := false
+		if rand.Intn(2) == 1 {
+			gender = true
+		} else {
+			gender = false
+		}
+
+		partWithOther := false
+		if rand.Intn(2) == 1 {
+			partWithOther = true
+		} else {
+			partWithOther = false
+		}
 
 		conts[contI] = models.Contestant{
-			Name:         uuid.New().String(),
-			UniversityID: fmt.Sprint(rand.Intn(9000000) + 1000000),
-			Major:        models.MajorAny,
-			TeamlessedAt: time.Now(),
+			Name:                       uuid.New().String(),
+			UniversityID:               fmt.Sprint(rand.Intn(9000000) + 1000000),
+			Major:                      models.MajorAny,
+			TeamlessedAt:               time.Now(),
+			Gender:                     gender,
+			ParticipateWithOtherGender: partWithOther,
 		}
 	}
 

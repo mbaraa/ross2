@@ -6,6 +6,23 @@
             <!--            <h3 style="text-align: left" class="text-red">Mandatory Field</h3>-->
             <v-text-field label="University ID" v-model="profile.university_id"/>
 
+            <label style="font-size: 1.2em">Select your gender: </label>
+
+            <input type="radio" id="male" value="true" v-model="profile.gender">
+            <label for="male">Male</label>
+            &nbsp;
+            <input type="radio" id="female" value="false" v-model="profile.gender">
+            <label for="female">Female</label>
+            <br/>
+
+            <label style="font-size: 1.2em">Do you mind participating with the other gender? </label>
+
+            <input type="radio" id="yes" value="true" v-model="profile.participate_with_other">
+            <label for="yes">Yes</label>
+            &nbsp;
+            <input type="radio" id="no" value="false" v-model="profile.participate_with_other">
+            <label for="no">No</label>
+            <br/><br/>
             <!--            <h3 style="text-align: left" class="text-blue">Optional Fields<br/>Contact Info:</h3>-->
             <!--            <v-text-field label="Facebook profile URL" :v-bind="contactInfo.facebook_url"/>-->
             <!--            <v-text-field label="Telegram number" :v-bind="contactInfo.telegram_number"/>-->
@@ -44,9 +61,14 @@ export default defineComponent({
                 window.alert("wrong input value 🙂")
                 return;
             }
+            this.setRadioValues();
             this.profile.profile_finished = true;
             await Contestant.signup(this.profile)
             await this.$router.push("/profile");
+        },
+        setRadioValues() {
+            this.profile.gender = (this.profile.gender == "true");
+            this.profile.participate_with_other = (this.profile.participate_with_other == "true");
         }
     }
 });

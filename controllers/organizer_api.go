@@ -358,8 +358,11 @@ func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *htt
 		return
 	}
 
-	teams := teamsgen.GenerateTeams(contest, ng) // the big ass function that am proud AF from :)
-	_ = json.NewEncoder(res).Encode(teams)
+	teams, leftTeamless := teamsgen.GenerateTeams(contest, ng) // the big ass function that am proud AF from :)
+	_ = json.NewEncoder(res).Encode(map[string]interface{}{
+		"teams":         teams,
+		"left_teamless": leftTeamless,
+	})
 }
 
 func (o *OrganizerAPI) getNamesGetter(req *http.Request) (utils.NamesGetter, error) {

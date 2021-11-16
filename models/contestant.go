@@ -1,8 +1,9 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // Contestant represents a contestant's fields
@@ -25,6 +26,9 @@ type Contestant struct {
 
 	TeamlessedAt      time.Time `gorm:"timelessed_at" json:"teamlessed_at"`
 	TeamlessContestID uint      `gorm:"column:teamless_contest_id" json:"teamless_contest_id"`
+
+	Gender                     bool `gorm:"column:gender" json:"gender"`
+	ParticipateWithOtherGender bool `gorm:"column:participate_with_other" json:"participate_with_other"`
 }
 
 func (c *Contestant) AfterFind(db *gorm.DB) error {

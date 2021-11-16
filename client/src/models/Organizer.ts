@@ -2,6 +2,7 @@ import Contest from "@/models/Contest";
 import config from "@/config";
 import User, {ContactInfo} from "@/models/User";
 import Team from "@/models/Team";
+import Contestant from "@/models/Contestant";
 
 class Organizer implements User {
     id: number | undefined;
@@ -27,8 +28,9 @@ class Organizer implements User {
         await this.makeAuthPostRequest("register-generated-teams", teams);
     }
 
-    public static async generateTeams(contest: Contest, genType: string): Promise<Array<Team>> {
+    public static async generateTeams(contest: Contest, genType: string): Promise<[Array<Team>, Array<Contestant>]> {
         let teams = new Array<Team>();
+        let leftTeamless = new Array<Contestant>();
 
         await fetch(`${config.backendAddress}/organizer/auto-generate-teams/?gen-type=${genType}`, {
             method: "POST",
@@ -40,11 +42,13 @@ class Organizer implements User {
         })
             .then(resp => resp.json())
             .then(jResp => {
-                teams = <Team[]>jResp;
-                return teams;
+                teams = <Team[]>jResp["teams"];
+                leftTeamless = <Contestant[]>jResp["left_teamless"];
+
+                return [teams, leftTeamless];
             })
 
-        return teams;
+        return [teams, leftTeamless];
     }
 
     public static async createOrganizer(org: Organizer): Promise<void> {

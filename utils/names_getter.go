@@ -75,6 +75,7 @@ func (h *HardCodeNames) GetName() string {
 getIndex:
 	h.calledTimes++
 	if h.calledTimes >= h.numNames {
+		h.calledTimes = 0
 		h.usedNames = map[int]bool{}
 	}
 	index := rand.Intn(h.numNames)
@@ -93,7 +94,7 @@ type OrderedNames struct {
 }
 
 func NewOrderedNames() *OrderedNames {
-	return &OrderedNames{-1}
+	return &OrderedNames{0}
 }
 
 func (o *OrderedNames) GetNames() []string {
