@@ -32,17 +32,12 @@ func (o *OrganizerDB) Exists(organizer models.Organizer) (bool, error) {
 	return !errors.Is(res.Error, gorm.ErrRecordNotFound), res.Error
 }
 
-func (o *OrganizerDB) Get(organizer models.Organizer) (models.Organizer, error) {
-	var (
-		fetchedOrganizer models.Organizer
-		err              error
-	)
-
+func (o *OrganizerDB) Get(organizer models.Organizer) (fetchedOrganizer models.Organizer, err error) {
 	err = o.db.
 		First(&fetchedOrganizer, "id = ?", organizer.ID).
 		Error
 
-	return fetchedOrganizer, err
+	return
 }
 
 func (o *OrganizerDB) GetByEmail(email string) (models.Organizer, error) {

@@ -24,7 +24,7 @@ type Contestant struct {
 	Major        Major  `gorm:"column:major;type:uint" json:"major"`
 	MajorName    string `gorm:"-" json:"major_name"`
 
-	TeamlessedAt      time.Time `gorm:"timelessed_at" json:"teamlessed_at"`
+	TeamlessedAt      time.Time `gorm:"column:teamlessed_at" json:"teamlessed_at"`
 	TeamlessContestID uint      `gorm:"column:teamless_contest_id" json:"teamless_contest_id"`
 
 	Gender                     bool `gorm:"column:gender" json:"gender"`
@@ -32,13 +32,8 @@ type Contestant struct {
 }
 
 func (c *Contestant) AfterFind(db *gorm.DB) error {
-	err := db.
-		First(&c.ContactInfo, "id = ?", c.ContactInfoID).
-		Error
-
 	c.MajorName = majorText[c.Major]
-
-	return err
+	return nil
 }
 
 // ContestantSortable is just a sortable by creation date Contestant slice

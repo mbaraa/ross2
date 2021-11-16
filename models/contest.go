@@ -37,48 +37,9 @@ func (c *Contest) BeforeCreate(db *gorm.DB) error {
 
 func (c *Contest) AfterFind(db *gorm.DB) error {
 	c.StartsAt = c.StartsAt2.UnixMilli()
-
-	err := db.
-		First(&c.ParticipationConditions, "id = ?", c.PCsID).
-		Error
-	if err != nil {
-		return err
-	}
-
-	err = db.
-		Model(c).
-		Association("Organizers").
-		Find(&c.Organizers)
-
-	if err != nil {
-		return err
-	}
-
 	c.ParticipationConditions.MajorsNames = getMajors(c.ParticipationConditions.Majors)
-
-	return db.
-		Model(new(Contestant)).
-		Find(&c.TeamlessContestants, "teamless_contest_id = ?", c.ID).
-		Error
+	return nil
 }
-
-// this method is left as a run away solution in case that GORM deletes organizers associated with a contest :\
-// func (c *Contest) BeforeDelete(db *gorm.DB) error {
-// 	for _, org := range c.Organizers {
-// 		for i, cont := range org.Contests {
-// 			if cont.ID == c.ID {
-// 				org.Contests = append(org.Contests[:i], org.Contests[i-1:]...)
-// 			}
-// 		}
-//
-// 		db.Model(new(Organizer)).
-// 			Where("id = ?", org.ID).
-// 			Update(&org)
-// 	}
-// 	c.Organizers = []Organizer{}
-//
-// 	return
-// }
 
 func getMajors(majors Major) []string {
 	majorsTexts := make([]string, 0)

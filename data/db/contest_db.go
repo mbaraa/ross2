@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+
 	"github.com/mbaraa/ross2/data"
 
 	"github.com/mbaraa/ross2/models"
@@ -39,49 +40,52 @@ func (c *ContestDB) Exists(contest models.Contest) (bool, error) {
 	return !errors.Is(res.Error, gorm.ErrRecordNotFound), res.Error
 }
 
-func (c *ContestDB) Get(contest models.Contest) (models.Contest, error) {
-	var (
-		fetchedContest models.Contest
-		err            error
-	)
-
+func (c *ContestDB) Get(contest models.Contest) (fetchedContest models.Contest, err error) {
 	err = c.db.
 		First(&fetchedContest, "id = ?", contest.ID).
 		Error
 	if err != nil {
-		return models.Contest{}, err
+		return
 	}
 
 	fetchedContest.Teams, err = c.teamRepo.GetAllByContest(contest)
 	if err != nil {
-		return models.Contest{}, err
+		return
+	}
+
+	err = c.db.
+		Model(new(models.ParticipationConditions)).
+		First(&fetchedContest.ParticipationConditions, "id = ?", fetchedContest.PCsID).
+		Error
+	if err != nil {
+		return
+	}
+
+	err = c.db.
+		Model(&fetchedContest).
+		Association("Organizers").
+		Find(&fetchedContest.Organizers)
+	if err != nil {
+		return
 	}
 
 	fetchedContest.TeamlessContestants, err = c.tlRepo.GetAllTeamLess(contest)
 
-	return fetchedContest, err
+	return
 }
 
-func (c *ContestDB) GetAll() ([]models.Contest, error) {
-	count, err := c.Count()
-	if err != nil {
-		return nil, err
-	}
-
-	contests := make([]models.Contest, count)
+func (c *ContestDB) GetAll() (contests []models.Contest, err error) {
 	err = c.db.Find(&contests).Error
-
-	return contests, err
+	return
 }
 
-func (c *ContestDB) GetAllByOrganizer(org models.Organizer) ([]models.Contest, error) {
-	contests := make([]models.Contest, 0)
-	err := c.db.
+func (c *ContestDB) GetAllByOrganizer(org models.Organizer) (contests []models.Contest, err error) {
+	err = c.db.
 		Model(&org).
 		Association("Contests").
 		Find(&contests)
 
-	return contests, err
+	return
 }
 
 func (c *ContestDB) Count() (int64, error) {

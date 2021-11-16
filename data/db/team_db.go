@@ -22,33 +22,14 @@ func NewTeamDB(db *gorm.DB, contRepo data.ContestantUpdaterRepo) *TeamDB {
 // CREATOR REPO
 
 func (t *TeamDB) Add(team models.Team) error {
-	err := t.db.
+	return t.db.
 		Create(&team).
 		Error
-	if err != nil {
-		return err
-	}
-
-	for _, member := range team.Members {
-		member.TeamID = team.ID
-		_ = t.contRepo.Update(member)
-	}
-
-	return nil
 }
 
 // AddMany creates multiple teams, this method is only used when a contest's director
-// generates teams for the teamless contestant and add them to it,
-// on top of that, there's no fucking contest in the entire universe that would
-// require any optimization for this code :)
+// generates teams for the teamless contestants.
 func (t *TeamDB) AddMany(teams []models.Team) error {
-	for ti := range teams {
-		members := &teams[ti].Members
-		for mi := range *members {
-			(*members)[mi].TeamID = teams[ti].ID
-			_ = t.contRepo.Update((*members)[mi])
-		}
-	}
 	return t.db.
 		Create(&teams).
 		Error
@@ -61,22 +42,34 @@ func (t *TeamDB) Exists(team models.Team) (bool, error) {
 	return !errors.Is(res.Error, gorm.ErrRecordNotFound), res.Error
 }
 
-func (t *TeamDB) Get(team models.Team) (models.Team, error) {
-	fetchedTeam := models.Team{}
-	err := t.db.First(&fetchedTeam, "id = ?", team.ID).Error
+func (t *TeamDB) Get(team models.Team) (fetchedTeam models.Team, err error) {
+	err = t.db.First(&fetchedTeam, "id = ?", team.ID).Error
+	if err != nil {
+		return
+	}
 
-	return fetchedTeam, err
+	err = t.db.
+		Model(fetchedTeam).
+		Association("Contests").
+		Find(&fetchedTeam.Contests)
+
+	if err != nil {
+		return
+	}
+
+	err = t.db.
+		Model(new(models.Contestant)).
+		Find(&fetchedTeam.Leader, "id = ?", fetchedTeam.LeaderId).
+		Error
+
+	return
 }
 
-func (t *TeamDB) GetAll() ([]models.Team, error) {
-	count, err := t.Count()
-	if err != nil {
-		return nil, err
-	}
-	teams := make([]models.Team, count)
-	err = t.db.Find(&teams).Error
-
-	return teams, err
+func (t *TeamDB) GetAll() (teams []models.Team, err error) {
+	err = t.db.
+		Find(&teams).
+		Error
+	return
 }
 
 func (t *TeamDB) GetAllByContest(contest models.Contest) ([]models.Team, error) {

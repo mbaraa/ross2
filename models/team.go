@@ -1,6 +1,9 @@
 package models
 
 import (
+	"math"
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -17,24 +20,6 @@ type Team struct {
 }
 
 func (t *Team) AfterFind(db *gorm.DB) error {
-	err := db.
-		Model(t).
-		Association("Contests").
-		Find(&t.Contests)
-
-	if err != nil {
-		return err
-	}
-
-	err = db.
-		Model(new(Contestant)).
-		Find(&t.Leader, "id = ?", t.LeaderId).
-		Error
-
-	if err != nil {
-		return err
-	}
-
 	return db.
 		Model(new(Contestant)).
 		Find(&t.Members, "team_id = ?", t.ID).
@@ -47,6 +32,26 @@ func (t *Team) BeforeDelete(db *gorm.DB) error {
 		Where("team_id = ?", t.ID).
 		Update("team_id", 0).
 		Error
+}
+
+func (t *Team) AfterCreate(db *gorm.DB) error {
+	for i := range t.Members {
+		t.Members[i].TeamID = t.ID
+		t.Members[i].TeamlessContestID = math.MaxInt
+		t.Members[i].TeamlessedAt = time.Time{}
+
+		err := db.
+			Model(&t.Members[i]).
+			Where("id = ?", t.Members[i].ID).
+			Updates(&t.Members[i]).
+			Error
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type JoinRequest struct {

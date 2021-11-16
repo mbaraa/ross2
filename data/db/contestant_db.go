@@ -36,17 +36,20 @@ func (c *ContestantDB) Exists(contestant models.Contestant) (bool, error) {
 // TODO
 // generalize the get methods :_
 
-func (c *ContestantDB) Get(contestant models.Contestant) (models.Contestant, error) {
-	var (
-		fetchedContestant models.Contestant
-		err               error
-	)
-
+func (c *ContestantDB) Get(contestant models.Contestant) (fetchedContestant models.Contestant, err error) {
 	err = c.db.
 		First(&fetchedContestant, "id = ?", contestant.ID).
 		Error
 
-	return fetchedContestant, err
+	if err != nil {
+		return models.Contestant{}, err
+	}
+
+	err = c.db.
+		First(&fetchedContestant.ContactInfo, "id = ?", fetchedContestant.ContactInfoID).
+		Error
+
+	return
 }
 
 func (c *ContestantDB) GetByEmail(email string) (models.Contestant, error) {
@@ -68,10 +71,6 @@ func (c *ContestantDB) GetAll() ([]models.Contestant, error) {
 		err         error
 		contestants = make([]models.Contestant, count)
 	)
-	count, err = c.Count()
-	if err != nil {
-		return nil, err
-	}
 
 	err = c.db.Find(&contestants).Error
 
