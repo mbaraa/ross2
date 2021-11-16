@@ -42,7 +42,12 @@ class Contestant implements User {
     }
 
     public static async acceptJoinRequest(notification: Notification): Promise<void> {
-        await this.makeAuthPostRequest("accept-join-request", notification);
+        await this.makeAuthPostRequest("accept-join-request", notification)
+            .then(resp => resp.json())
+            .then(resp => {
+                window.alert(<string>resp['err']);
+                window.location.reload();
+            });
     }
 
     public static async rejectJoinRequest(notification: Notification): Promise<void> {

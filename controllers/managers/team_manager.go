@@ -27,25 +27,25 @@ func (t *TeamManager) CreateTeams(teams []models.Team) error {
 	return t.teamRepo.AddMany(teams)
 }
 
-func (t *TeamManager) AddContestantToTeam(contID, teamID uint) error {
+func (t *TeamManager) AddContestantToTeam(contID, teamID uint) (team models.Team, err error) {
 	cont, err := t.contRepo.Get(models.Contestant{ID: contID})
 	if err != nil {
-		return err
+		return
 	}
 
-	team, err := t.teamRepo.Get(models.Team{ID: teamID}) // just to be safe :), Update could remove all team's members :)
+	team, err = t.teamRepo.Get(models.Team{ID: teamID}) // just to be safe :), Update could remove all team's members :)
 	if err != nil {
-		return err
+		return
 	}
 	team.Members = append(team.Members, cont)
 
 	cont.TeamID = team.ID
 	err = t.contRepo.Update(cont)
 	if err != nil {
-		return err
+		return
 	}
 
-	return t.teamRepo.Update(team)
+	return team, t.teamRepo.Update(team)
 }
 
 func (t *TeamManager) UpdateTeam(team models.Team, org models.Organizer) error {

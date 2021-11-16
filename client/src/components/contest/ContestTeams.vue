@@ -1,6 +1,6 @@
 <template>
-    <div class="main bg-green-accent-4 team" v-if="teams.length > 0">
-        <div v-for="team in teams" :key="team">
+    <div v-if="teams.length > 0">
+        <div class="main bg-green-accent-4 team" v-for="team in teams" :key="team">
             <TeamCard :team="team"/>
             <v-btn v-if="!team.inTeam" @click="joinTeam(team)">Join team</v-btn>
         </div>
@@ -41,6 +41,8 @@ export default defineComponent({
                 requested_team: team,
                 requested_team_id: team.id,
                 request_message: "",
+                requested_contest_id: this.contest.id,
+                requested_contest: this.contest,
             })
 
             if (resp.ok) {
@@ -69,6 +71,7 @@ export default defineComponent({
 .team {
     display: inline-grid;
     padding: 20px;
+    margin: 10px;
     border-radius: 5px;
 }
 </style>

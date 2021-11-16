@@ -226,6 +226,7 @@ func (c *ContestantAPI) handleAcceptJoinRequest(res http.ResponseWriter, req *ht
 	err = c.joinReqManager.AcceptJoinRequest(noti)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
+		_, _ = res.Write([]byte(fmt.Sprintf(`{"err": "%s"}`, err.Error())))
 		return
 	}
 }

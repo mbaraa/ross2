@@ -20,6 +20,14 @@ type Team struct {
 }
 
 func (t *Team) AfterFind(db *gorm.DB) error {
+	err := db.
+		Model(new(Contestant)).
+		Find(&t.Leader, "id = ?", t.LeaderId).
+		Error
+	if err != nil {
+		return err
+	}
+
 	return db.
 		Model(new(Contestant)).
 		Find(&t.Members, "team_id = ?", t.ID).
@@ -56,14 +64,16 @@ func (t *Team) AfterCreate(db *gorm.DB) error {
 
 type JoinRequest struct {
 	gorm.Model
-	ID              uint         `gorm:"column:id;primaryKey;autoIncrement"`
-	RequesterID     uint         `gorm:"column:requester_id" json:"requester_id"`
-	Requester       Contestant   `gorm:"foreignkey:RequesterID" json:"requester"`
-	RequestedTeamID uint         `gorm:"column:req_team_id" json:"requested_team_id"`
-	RequestedTeam   Team         `gorm:"foreignkey:RequestedTeamID" json:"requested_team"`
-	RequestMessage  string       `gorm:"column:message" json:"request_message"`
-	NotificationID  uint         `gorm:"column:notification_id"`
-	Notification    Notification `gorm:"foreignkey:NotificationID"`
+	ID                 uint         `gorm:"column:id;primaryKey;autoIncrement"`
+	RequesterID        uint         `gorm:"column:requester_id" json:"requester_id"`
+	Requester          Contestant   `gorm:"foreignkey:RequesterID" json:"requester"`
+	RequestedTeamID    uint         `gorm:"column:req_team_id" json:"requested_team_id"`
+	RequestedTeam      Team         `gorm:"foreignkey:RequestedTeamID" json:"requested_team"`
+	RequestedContestID uint         `gorm:"column:req_contest_id" json:"requested_contest_id"`
+	RequestedContest   Team         `gorm:"foreignkey:RequestedContestID" json:"requested_contest"`
+	RequestMessage     string       `gorm:"column:message" json:"request_message"`
+	NotificationID     uint         `gorm:"column:notification_id"`
+	Notification       Notification `gorm:"foreignkey:NotificationID"`
 }
 
 func (j *JoinRequest) BeforeDelete(db *gorm.DB) error {

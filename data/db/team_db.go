@@ -57,11 +57,6 @@ func (t *TeamDB) Get(team models.Team) (fetchedTeam models.Team, err error) {
 		return
 	}
 
-	err = t.db.
-		Model(new(models.Contestant)).
-		Find(&fetchedTeam.Leader, "id = ?", fetchedTeam.LeaderId).
-		Error
-
 	return
 }
 

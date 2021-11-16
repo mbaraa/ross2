@@ -28,7 +28,7 @@ func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, con
 		contestantManager = managers.NewContestantManager(contestantRepo, sessionManager, contestRepo, teamRepo)
 		teamManager       = managers.NewTeamManager(teamRepo, contestantRepo)
 		organizerManager  = managers.NewOrganizerManager(organizerRepo, sessionManager, contestRepo)
-		joinReqManager    = managers.NewJoinRequestManager(joinReqRepo, notificationRepo, teamManager)
+		joinReqManager    = managers.NewJoinRequestManager(joinReqRepo, notificationRepo, contestRepo, teamManager)
 	)
 
 	return &Router{

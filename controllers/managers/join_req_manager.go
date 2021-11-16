@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,13 +13,16 @@ import (
 type JoinRequestManager struct {
 	jrRepo           data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
+	contestRepo      data.ContestGetterRepo
 	teamManager      *TeamManager
 }
 
-func NewJoinRequestManager(jrRepo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo, tm *TeamManager) *JoinRequestManager {
+func NewJoinRequestManager(jrRepo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo, contestRepo data.ContestGetterRepo,
+	tm *TeamManager) *JoinRequestManager {
 	return &JoinRequestManager{
 		jrRepo:           jrRepo,
 		notificationRepo: nRepo,
+		contestRepo:      contestRepo,
 		teamManager:      tm,
 	}
 }
@@ -32,7 +36,7 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 		reqMsg += "\nRequest message: " + jr.RequestMessage
 	}
 
-	reqMsg += fmt.Sprintf("_IDS%d:%d", cont.ID, jr.RequestedTeamID) // a weird way to store ids in the notification text(they won't appear)
+	reqMsg += fmt.Sprintf("_IDS%d:%d:%d", cont.ID, jr.RequestedTeamID, jr.RequestedContestID) // a weird way to store ids in the notification text(they won't appear)
 
 	notification := models.Notification{ // send a join request notification to the team leader!
 		UserID:  jr.RequestedTeam.LeaderId,
@@ -60,14 +64,36 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 }
 
 func (j *JoinRequestManager) AcceptJoinRequest(noti models.Notification) error {
-	requesterID, teamID := j.getContAndTeamID(noti.Content)
+	requesterID, teamID, contestID := j.juiceNotification(noti.Content)
 
-	err := j.teamManager.AddContestantToTeam(requesterID, teamID)
+	contest, err := j.contestRepo.Get(models.Contest{ID: contestID})
 	if err != nil {
 		return err
 	}
 
 	team, err := j.teamManager.GetTeam(teamID)
+	if err != nil {
+		return err
+	}
+
+	if uint(len(team.Members)) >= contest.ParticipationConditions.MaxTeamMembers {
+		err = j.notificationRepo.Delete(noti)
+		if err != nil {
+			return err
+		}
+
+		err = j.notificationRepo.Add(&models.Notification{
+			UserID:  requesterID,
+			Content: fmt.Sprintf(`your request to the team "%s" was rejected because the team is full!`, team.Name),
+		})
+		if err != nil {
+			return err
+		}
+
+		return errors.New("max allowed team members for this contest is exceeded")
+	}
+
+	team, err = j.teamManager.AddContestantToTeam(requesterID, teamID)
 	if err != nil {
 		return err
 	}
@@ -84,7 +110,7 @@ func (j *JoinRequestManager) AcceptJoinRequest(noti models.Notification) error {
 }
 
 func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
-	requesterID, teamID := j.getContAndTeamID(noti.Content)
+	requesterID, teamID, _ := j.juiceNotification(noti.Content)
 
 	team, err := j.teamManager.GetTeam(teamID)
 	if err != nil {
@@ -107,6 +133,9 @@ func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
 	for _, jr := range jrs {
 		if jr.NotificationID == noti.ID {
 			err = j.jrRepo.Delete(jr)
+			if err != nil {
+				return err
+			}
 			break
 		}
 	}
@@ -114,12 +143,16 @@ func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
 	return j.notificationRepo.Delete(noti)
 }
 
-func (j *JoinRequestManager) getContAndTeamID(notiContent string) (uint, uint) {
+func (j *JoinRequestManager) juiceNotification(notiContent string) (uint, uint, uint) {
 	idsStr := notiContent[strings.LastIndex(notiContent, "_IDS")+len("_IDS"):]
 	reqID, _ := strconv.Atoi(idsStr[:strings.IndexByte(idsStr, ':')])
-	teamID, _ := strconv.Atoi(idsStr[strings.IndexByte(idsStr, ':')+1:])
 
-	return uint(reqID), uint(teamID)
+	teamContestIDs := idsStr[strings.IndexByte(idsStr, ':')+1:]
+
+	teamID, _ := strconv.Atoi(teamContestIDs[:strings.IndexByte(teamContestIDs, ':')])
+	contestID, _ := strconv.Atoi(teamContestIDs[strings.IndexByte(teamContestIDs, ':')+1:])
+
+	return uint(reqID), uint(teamID), uint(contestID)
 }
 
 func (j *JoinRequestManager) DeleteRequests(contID, notiID uint) error {
