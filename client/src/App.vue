@@ -6,6 +6,7 @@
                    color="error"
                    class="drawerButton">
                 <FontAwesomeIcon class="text-indigo" :icon="{prefix: 'fas', iconName: 'bars'}"/>
+                <FontAwesomeIcon class="text-red" v-if="newNotification" :icon="{prefix:'fas', iconName:'bell'}"/>
             </v-btn>
             <label @click="goHome" class="title">&nbsp;Ross 2</label>
         </v-app-bar>
@@ -20,7 +21,7 @@
                 <v-list-item>
                     <v-list-item-title>
                         <router-link :to="link.page">
-                            <FontAwesomeIcon :icon="link.icon"/>
+                            <FontAwesomeIcon :class="getClass(link.name)" :icon="link.icon"/>
                             &nbsp;{{ link.name }}
                         </router-link>
                     </v-list-item-title>
@@ -29,7 +30,7 @@
         </v-navigation-drawer>
 
         <v-main class="main">
-            <router-view></router-view>
+            <router-view/>
         </v-main>
     </v-app>
 </template>
@@ -39,6 +40,7 @@ import {defineComponent} from 'vue'
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faBars, faBell, faInfoCircle, faTrophy, faUserCircle, faGavel} from "@fortawesome/free-solid-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
+import Notification from "@/models/Notification";
 
 library.add(faBars, faInfoCircle, faTrophy, faUserCircle, faBell, faGavel);
 export default defineComponent({
@@ -55,8 +57,12 @@ export default defineComponent({
                 {page: '/profile', name: "Profile", icon: {prefix: 'fas', iconName: 'user-circle'}},
                 {page: 'organizer', name: "Organizer", icon: {prefix: 'fas', iconName: 'gavel'}},
                 {page: '/about', name: "About", icon: {prefix: 'fas', iconName: 'info-circle'}},
-            ]
+            ],
+            newNotification: false,
         };
+    },
+    async mounted() {
+        this.newNotification = await Notification.checkNotifications();
     },
     methods: {
         toggleDrawer(): void {
@@ -64,6 +70,9 @@ export default defineComponent({
         },
         goHome() {
             this.$router.push("/");
+        },
+        getClass(name: string): string {
+            return this.newNotification && name == "Notifications"? "text-red": "";
         }
     }
 })

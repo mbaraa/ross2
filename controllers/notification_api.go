@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
-	"net/http"
-	"strings"
 )
 
 type NotificationAPI struct {
@@ -32,7 +34,9 @@ func (n *NotificationAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 
 func (n *NotificationAPI) initEndPoints() *NotificationAPI {
 	n.endPoints = map[string]http.HandlerFunc{
-		"GET /all/": n.authenticateHandler(n.handleGetNotifications),
+		"GET /all/":   n.authenticateHandler(n.handleGetNotifications),
+		"GET /check/": n.authenticateHandler(n.handleCheckNotifications),
+		"GET /clear/": n.authenticateHandler(n.handleClearNotifications),
 	}
 	return n
 }
@@ -63,4 +67,36 @@ func (n *NotificationAPI) handleGetNotifications(res http.ResponseWriter, req *h
 	}
 
 	_ = json.NewEncoder(res).Encode(notifications)
+}
+
+// GET /notification/check/
+func (n *NotificationAPI) handleCheckNotifications(res http.ResponseWriter, req *http.Request, s models.Session) {
+	cont, err := n.contMgr.GetContestant(s.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	notifications, err := n.notiRepo.GetAllForUser(cont.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = res.Write([]byte(fmt.Sprint(len(notifications) != 0)))
+}
+
+// GET /notification/clear/
+func (n *NotificationAPI) handleClearNotifications(res http.ResponseWriter, req *http.Request, s models.Session) {
+	cont, err := n.contMgr.GetContestant(s.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	err = n.notiRepo.DeleteAllForUser(cont.ID)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

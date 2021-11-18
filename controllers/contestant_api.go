@@ -303,7 +303,7 @@ func (c *ContestantAPI) handleCheckJoinedTeam(res http.ResponseWriter, req *http
 		return
 	}
 
-	inTeam := cont.TeamID == team.ID ||
+	inTeam := cont.TeamID > 0 || cont.TeamID == team.ID ||
 		c.joinReqManager.CheckContestantTeamRequests(cont, team)
 
 	_, _ = res.Write([]byte(fmt.Sprintf(`{"team_status" : %v}`, inTeam)))

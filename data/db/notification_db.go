@@ -100,3 +100,10 @@ func (n *NotificationDB) DeleteAll() error {
 		Delete(new(models.Notification)).
 		Error
 }
+
+func (n *NotificationDB) DeleteAllForUser(userID uint) error {
+	return n.db.
+		Model(new(models.Notification)).
+		Delete(new(models.Notification), "user_id = ?", userID).
+		Error
+}

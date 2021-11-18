@@ -2,7 +2,7 @@
     <div v-if="teams.length > 0">
         <div class="main bg-green-accent-4 team" v-for="team in teams" :key="team">
             <TeamCard :team="team"/>
-            <v-btn v-if="!team.inTeam" @click="joinTeam(team)">Join team</v-btn>
+            <v-btn v-if="checkTeam(team)" @click="joinTeam(team)">Join team</v-btn>
         </div>
     </div>
     <div v-else>
@@ -57,6 +57,9 @@ export default defineComponent({
                 team.inTeam = await Contestant.checkJoinedTeam(team);
             });
         },
+        checkTeam(team: Team): boolean {
+            return !team.inTeam && team.members.length < this.contest.participation_conditions.max_team_members;
+        }
     }
 });
 </script>

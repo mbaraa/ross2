@@ -30,6 +30,7 @@ type NotificationUpdaterRepo interface {
 type NotificationDeleterRepo interface {
 	Delete(notification models.Notification) error
 	DeleteAll() error
+	DeleteAllForUser(userID uint) error
 }
 
 // NotificationCRUDRepo is an interface that allows full CRUD operations of a notification
