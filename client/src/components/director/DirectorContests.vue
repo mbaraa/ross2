@@ -13,7 +13,7 @@
 import {defineComponent} from "vue";
 import DirectorContestCard from "@/components/director/OrganizerContestCard.vue";
 import DirectorCreateContest from "@/components/director/DirectorCreateContest.vue";
-import Organizer from "@/models/Organizer";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 export default defineComponent({
     name: 'DirectorContests',
@@ -27,7 +27,7 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.contests = await Organizer.getContests();
+        this.contests = await OrganizerRequests.getContests();
     }
 });
 </script>

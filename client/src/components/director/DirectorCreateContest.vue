@@ -34,8 +34,10 @@
             ></v-file-input>
             <v-text-field label="Description" v-model="contest.description" required/>
             <!--            <v-text-field label="Allowed Majors" v-model="contest."/>-->
-            <v-text-field label="Minimum team members" v-model="contest.participation_conditions.min_team_members" required/>
-            <v-text-field label="Maximum team members" v-model="contest.participation_conditions.max_team_members" required/>
+            <v-text-field label="Minimum team members" v-model="contest.participation_conditions.min_team_members"
+                          required/>
+            <v-text-field label="Maximum team members" v-model="contest.participation_conditions.max_team_members"
+                          required/>
 
             <v-btn class="bg-red" @click="dialog = false">
                 Close
@@ -53,8 +55,8 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import Contest from "@/models/Contest";
-import Organizer from "@/models/Organizer";
 import config from "@/config";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 library.add(faPlus);
 
@@ -86,7 +88,7 @@ export default defineComponent({
             }
 
             this.contest.logo_path = '/' + this.logoFile.name;
-            await Organizer.createContest(this.contest);
+            await OrganizerRequests.createContest(this.contest);
 
             this.dialog = false;
             window.alert("contest was created successfully!");

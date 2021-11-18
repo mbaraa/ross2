@@ -14,6 +14,7 @@ import {faTrash} from "@fortawesome/free-solid-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import OrganizerCard from "@/components/organizer/OrganizerCard.vue";
 import Organizer from "../../models/Organizer";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 library.add(faTrash)
 
@@ -28,7 +29,7 @@ export default defineComponent({
     },
     methods: {
         async deleteOrganizer() {
-            await Organizer.deleteOrganizer(this.organizer);
+            await OrganizerRequests.deleteOrganizer(this.organizer);
         }
     }
 });

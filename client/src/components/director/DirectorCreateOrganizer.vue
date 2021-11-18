@@ -53,6 +53,7 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import Organizer from "@/models/Organizer";
 import Contest from "@/models/Contest";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 library.add(faPlus);
 
@@ -81,14 +82,14 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.contests = await Organizer.getContests();
+        this.contests = await OrganizerRequests.getContests();
         this.selectedContest = this.contests[0].name;
     },
     methods: {
         async createOrganizer() {
             this.setContest();
             this.setRoles();
-            await Organizer.createOrganizer(this.newOrganizer);
+            await OrganizerRequests.createOrganizer(this.newOrganizer);
 
             window.alert("organizer was created successfully!");
             window.location.reload();

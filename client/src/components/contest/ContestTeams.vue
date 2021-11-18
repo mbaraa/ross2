@@ -17,9 +17,9 @@
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest";
 import Team from "@/models/Team";
-import Contestant from "@/models/Contestant";
 import JoinRequest from "@/models/JoinRequest";
 import TeamCard from "@/components/team/TeamCard.vue";
+import ContestantRequests from "@/utils/requests/ContestantRequests";
 
 export default defineComponent({
     name: "ContestTeams",
@@ -37,7 +37,7 @@ export default defineComponent({
     },
     methods: {
         async joinTeam(team: Team) {
-            const resp = await Contestant.requestJoinTeam(<JoinRequest>{
+            const resp = await ContestantRequests.requestJoinTeam(<JoinRequest>{
                 requested_team: team,
                 requested_team_id: team.id,
                 request_message: "",
@@ -54,7 +54,7 @@ export default defineComponent({
         },
         processInTeam() {
             this.teams.forEach(async (team: Team) => {
-                team.inTeam = await Contestant.checkJoinedTeam(team);
+                team.inTeam = await ContestantRequests.checkJoinedTeam(team);
             });
         },
         checkTeam(team: Team): boolean {

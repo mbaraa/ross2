@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 )
 
 type NamesGetter interface {
@@ -104,4 +105,14 @@ func (o *OrderedNames) GetNames() []string {
 func (o *OrderedNames) GetName() string {
 	o.lastIndex++
 	return fmt.Sprintf("team%d", o.lastIndex)
+}
+
+func GetNamesGetter(nType string) NamesGetter {
+	switch strings.ToLower(nType) {
+	case "ordered":
+		return NewOrderedNames()
+	case "random":
+		return NewHardCodeNames()
+	}
+	return nil
 }

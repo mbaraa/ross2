@@ -11,9 +11,9 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import Organizer from "@/models/Organizer";
 import DirectorOrganizerCard from "@/components/director/DirectorOrganizerCard.vue";
 import DirectorCreateOrganizer from "@/components/director/DirectorCreateOrganizer.vue";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 export default defineComponent({
     name: 'DirectorContests',
@@ -27,7 +27,7 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.organizers = await Organizer.getSubOrganizers();
+        this.organizers = await OrganizerRequests.getSubOrganizers();
     }
 });
 </script>

@@ -43,7 +43,7 @@
         </div>
 
         <!-- hmm -->
-        <div v-if="leftTeamless.length > 0">
+        <div v-if="leftTeamless != null && leftTeamless.length > 0">
             <br/>
             <h2>Contestants left with no teams:</h2>
             <table class="tls">
@@ -56,11 +56,13 @@
                 <tr v-for="cont in leftTeamless" :key="cont" :class="getContClass(cont)">
                     <td>{{ cont.name }}</td>
                     <td>{{ cont.university_id }}</td>
-                    <td>{{ cont.gender? "Male": "Female"}}</td>
-                    <td>{{ cont.participate_with_other? "Yes": "No"}}</td>
+                    <td>{{ cont.gender ? "Male" : "Female" }}</td>
+                    <td>{{ cont.participate_with_other ? "Yes" : "No" }}</td>
                 </tr>
             </table>
         </div>
+
+        <h1 class="text-red" v-if="noTeamless">no teamless contestants were found for this contest :)</h1>
 
     </div>
     <div v-else>
@@ -71,10 +73,10 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import Organizer from "@/models/Organizer";
 import Contest from "@/models/Contest";
 import TeamCard from "@/components/team/TeamCard.vue";
 import Contestant from "@/models/Contestant";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 export default defineComponent({
     name: "DirectorGenerateTeamless",
@@ -87,11 +89,13 @@ export default defineComponent({
             genType: "random",
             generatedTeams: [],
             leftTeamless: [],
+            noTeamless: false,
         }
     },
     async mounted() {
-        this.contests = await Organizer.getContests();
-        this.selection = this.contests[0].name;
+        this.contests = await OrganizerRequests.getContests();
+        const name = this.$route.query["contest"];
+        this.selection = name == undefined ? this.contests[0].name : name;
     },
     methods: {
         openContests() {
@@ -106,12 +110,20 @@ export default defineComponent({
             return null
         },
         async generateTeams() {
-            [this.generatedTeams, this.leftTeamless] = await Organizer.generateTeams(this.selectContest(), this.genType);
+            [this.generatedTeams, this.leftTeamless] = await OrganizerRequests.generateTeams(this.selectContest(), this.genType);
+
+            if (this.generatedTeams.length == 0 && this.leftTeamless == null) {
+                this.noTeamless = true;
+                return;
+            }
 
             this.generated = true;
         },
         async saveTeams() {
-            await Organizer.saveTeams(this.generatedTeams);
+            if (window.confirm("are you sure of the teams you are about to register?")) {
+                await OrganizerRequests.saveTeams(this.generatedTeams);
+                window.location.reload();
+            }
         },
         getContClass(cont: Contestant): string {
             return this.leftTeamless.indexOf(cont) % 2 == 0 ? "cont1" : "cont2";

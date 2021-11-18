@@ -14,7 +14,7 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import Notification from "@/models/Notification";
-import Contestant from "@/models/Contestant";
+import ContestantRequests from "@/utils/requests/ContestantRequests";
 
 export default defineComponent({
     name: "NotificationCard",
@@ -31,13 +31,13 @@ export default defineComponent({
             const lastUnderscore = this.notification.content.lastIndexOf("_");
             const content = this.notification.content;
 
-            return (this.isRequest()? content.substring(4, lastUnderscore): content);
+            return (this.isRequest() ? content.substring(4, lastUnderscore) : content);
         },
         async acReq() {
-            await Contestant.acceptJoinRequest(this.notification);
+            await ContestantRequests.acceptJoinRequest(this.notification);
         },
         async waReq() {
-            await Contestant.rejectJoinRequest(this.notification);
+            await ContestantRequests.rejectJoinRequest(this.notification);
             window.location.reload();
         },
     }

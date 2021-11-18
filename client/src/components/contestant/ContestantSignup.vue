@@ -40,6 +40,7 @@
 import {defineComponent} from "vue";
 import {ContactInfo} from "@/models/User";
 import Contestant from "@/models/Contestant";
+import ContestantRequests from "@/utils/requests/ContestantRequests";
 
 export default defineComponent({
     name: "ContestantSignup",
@@ -50,7 +51,7 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.profile = await Contestant.login();
+        this.profile = await ContestantRequests.login();
         if ((await this.profile) != null && (await this.profile).profile_finished) {
             await this.$router.push("/profile");
         }
@@ -63,7 +64,7 @@ export default defineComponent({
             }
             this.setRadioValues();
             this.profile.profile_finished = true;
-            await Contestant.signup(this.profile)
+            await ContestantRequests.signup(this.profile)
             await this.$router.push("/profile");
         },
         setRadioValues() {

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -352,33 +351,13 @@ func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *htt
 		return
 	}
 
-	ng, err := o.getNamesGetter(req)
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	teams, leftTeamless := teamsgen.GenerateTeams(contest,
+		utils.GetNamesGetter(req.URL.Query().Get("gen-type"))) // the big ass function that am proud AF from :)
 
-	teams, leftTeamless := teamsgen.GenerateTeams(contest, ng) // the big ass function that am proud AF from :)
 	_ = json.NewEncoder(res).Encode(map[string]interface{}{
 		"teams":         teams,
 		"left_teamless": leftTeamless,
 	})
-}
-
-func (o *OrganizerAPI) getNamesGetter(req *http.Request) (utils.NamesGetter, error) {
-	genType, found := req.URL.Query()["gen-type"]
-	if !found {
-		return nil, errors.New("wrong generation type")
-	}
-
-	switch genType[0] {
-	case "numbered":
-		return utils.NewOrderedNames(), nil
-	case "random":
-		return utils.NewHardCodeNames(), nil
-	}
-
-	return nil, errors.New("wrong generation type")
 }
 
 // POST /organizer/register-generated-teams/
@@ -440,6 +419,8 @@ func (o *OrganizerAPI) handleUploadContestLogoFile(res http.ResponseWriter, req 
 }
 
 // GET /organizer/get-contests/
+// 🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂
+// will fix later I swear 😉
 func (o *OrganizerAPI) handleGetContests(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
 	if err != nil {

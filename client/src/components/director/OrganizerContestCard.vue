@@ -1,9 +1,16 @@
 <template>
     <div class="main bg-blue-darken-4">
         <ContestCard :contest="contest" @click="openContestDetails"/>
-        <v-btn @click="deleteContest" icon color="error" class="delete">
-            <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'trash'}"/>
-        </v-btn>
+        <div class="buttons">
+            <v-btn title="delete contest" @click="deleteContest" icon color="error">
+                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'trash'}"/>
+            </v-btn>
+            &nbsp;
+            <v-btn title="generate teams for team less contestants" @click="generateTeams(contest)" icon
+                   color="success">
+                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'cogs'}"/>
+            </v-btn>
+        </div>
     </div>
 </template>
 
@@ -11,12 +18,12 @@
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest.ts";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faTrash} from "@fortawesome/free-solid-svg-icons"
+import {faCogs, faTrash} from "@fortawesome/free-solid-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
-import Organizer from "@/models/Organizer";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
-library.add(faTrash);
+library.add(faTrash, faCogs);
 
 export default defineComponent({
     name: "DirectorContestCard",
@@ -33,9 +40,12 @@ export default defineComponent({
         },
         async deleteContest() {
             if (window.confirm(`Are you sure you want to delete the contest ${this.contest.name}?`)) {
-                await Organizer.deleteContest(this.contest);
+                await OrganizerRequests.deleteContest(this.contest);
                 window.location.reload();
             }
+        },
+        generateTeams(contest: Contest) {
+            this.$router.push(`/organizer/other/?contest=${contest.name}`);
         }
     }
 });
@@ -46,7 +56,7 @@ export default defineComponent({
     border-radius: 5px;
 }
 
-.delete {
-    margin-bottom: 10px;
+.buttons {
+    padding-bottom: 10px;
 }
 </style>

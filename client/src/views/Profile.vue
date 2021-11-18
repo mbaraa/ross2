@@ -49,6 +49,7 @@ import {faFileAlt} from "@fortawesome/free-solid-svg-icons";
 import {faGoogle} from "@fortawesome/free-brands-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import Contestant from "@/models/Contestant";
+import ContestantRequests from "@/utils/requests/ContestantRequests";
 
 library.add(faGoogle, faFileAlt);
 
@@ -65,30 +66,30 @@ export default defineComponent({
     },
     async mounted() {
         this.profile = await this.tokenLogin();
-        this.team = await Contestant.getTeam();
+        this.team = await ContestantRequests.getTeam();
     },
     methods: {
         async login() {
-            await Contestant.googleLogin(
+            await ContestantRequests.googleLogin(
                 (await this.$gapi.login()).currentUser
             );
             window.location.reload();
         },
         async logout() {
             await this.$gapi.logout();
-            await Contestant.logout();
+            await ContestantRequests.logout();
             window.location.reload();
         },
         async deleteAccount() {
             if (window.confirm("Are you sure you want to delete your account?")) {
                 await this.$gapi.logout();
-                await Contestant.deleteUser();
+                await ContestantRequests.deleteUser();
                 window.location.reload();
             }
         },
         async leaveTeam() {
             if (window.confirm("Are you sure you want to leave your team?")) {
-                await Contestant.leaveTeam();
+                await ContestantRequests.leaveTeam();
                 window.location.reload();
             }
         },
@@ -98,12 +99,12 @@ export default defineComponent({
                     window.alert("woah, something went wrong :(");
                     return;
                 }
-                await Contestant.deleteTeam(this.team);
+                await ContestantRequests.deleteTeam(this.team);
                 window.location.reload();
             }
         },
         async tokenLogin(): Promise<Contestant | null> {
-            const contestant = await Contestant.login();
+            const contestant = await ContestantRequests.login();
             if ((await contestant) != null && !(await contestant)?.profile_finished) {
                 await this.$router.push("/finish-profile/");
             }

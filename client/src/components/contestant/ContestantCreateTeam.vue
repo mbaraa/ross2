@@ -37,8 +37,8 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import Contest from "@/models/Contest";
 import Team from "@/models/Team";
-import Contestant from "@/models/Contestant";
 import {checkTokenForAction} from "@/utils";
+import ContestantRequests from "@/utils/requests/ContestantRequests";
 
 library.add(faUserPlus);
 
@@ -59,7 +59,7 @@ export default defineComponent({
     methods: {
         async createTeam() {
             this.team.contests.push(this.contest);
-            await Contestant.createTeam(this.team);
+            await ContestantRequests.createTeam(this.team);
             this.dialog = false;
 
             window.alert(`your team "${this.team.name}" was created successfully ☺️`);

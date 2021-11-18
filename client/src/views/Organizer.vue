@@ -36,6 +36,7 @@ import {faGoogle} from "@fortawesome/free-brands-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import Organizer from "@/models/Organizer";
 import DirectorOperations from "@/components/director/DirectorOperations.vue";
+import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 library.add(faGoogle, faFileAlt);
 
@@ -58,7 +59,7 @@ export default defineComponent({
     },
     methods: {
         async login() {
-            await Organizer.googleLogin(
+            await OrganizerRequests.googleLogin(
                 (await this.$gapi.login()).currentUser
             )
                 .catch(() => {
@@ -68,11 +69,11 @@ export default defineComponent({
         },
         async logout() {
             await this.$gapi.logout();
-            await Organizer.logout();
+            await OrganizerRequests.logout();
             window.location.reload();
         },
         async tokenLogin(): Promise<Organizer> {
-            const organizer = await Organizer.login();
+            const organizer = await OrganizerRequests.login();
             if (!organizer.profile_finished) {
                 await this.$router.push("/finish-org-profile");
             }

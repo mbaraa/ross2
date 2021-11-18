@@ -9,7 +9,8 @@
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users'}"/>
             </v-btn>
             &nbsp;
-            <v-btn @click="checkTokenForAction(joinAsTeamless)" icon color="success" class="delete" title="join as teamless">
+            <v-btn @click="checkTokenForAction(joinAsTeamless)" icon color="success" class="delete"
+                   title="join as teamless">
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>
             </v-btn>
         </div>
@@ -23,9 +24,9 @@ import {faUserPlus, faUsers, faUsersSlash} from "@fortawesome/free-solid-svg-ico
 import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import Contest from "@/models/Contest";
-import Contestant from "@/models/Contestant";
 import ContestantCreateTeam from "@/components/contestant/ContestantCreateTeam.vue";
 import {checkTokenForAction} from "@/utils";
+import ContestantRequests from "@/utils/requests/ContestantRequests";
 
 library.add(faUserPlus, faUsers, faUsersSlash);
 
@@ -46,13 +47,13 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.contestant = await Contestant.login();
-        this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 0) ;
+        this.contestant = await ContestantRequests.login();
+        this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 0);
     },
     methods: {
         async joinAsTeamless() {
             if (window.confirm(`are you sure you want to join the contest "${this.contest.name}" as teamless?`)) {
-                await Contestant.joinAsTeamless(this.contest);
+                await ContestantRequests.joinAsTeamless(this.contest);
                 window.alert(`you have registered as teamless in "${this.contest.name}"`)
             }
         },

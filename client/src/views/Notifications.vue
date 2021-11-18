@@ -22,6 +22,7 @@ import NotificationCard from "@/components/NotificationCard.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
+import NotificationRequests from "@/utils/requests/NotificationRequests";
 
 library.add(faTrash)
 
@@ -34,7 +35,7 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.nots = await Notification.getNotifications();
+        this.nots = await NotificationRequests.getNotifications();
     },
     methods: {
         refresh() {
@@ -42,7 +43,7 @@ export default defineComponent({
         },
         async clearNotifications() {
             if (window.confirm("are you sure you want to delete your notifications?")) {
-                await Notification.clearNotifications();
+                await NotificationRequests.clearNotifications();
                 window.location.reload();
             }
         }
