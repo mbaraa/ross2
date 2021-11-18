@@ -38,9 +38,9 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBars, faBell, faInfoCircle, faTrophy, faUserCircle, faGavel} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faBell, faGavel, faInfoCircle, faTrophy, faUserCircle} from "@fortawesome/free-solid-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import Notification from "@/models/Notification";
+import NotificationRequests from "@/utils/requests/NotificationRequests";
 
 library.add(faBars, faInfoCircle, faTrophy, faUserCircle, faBell, faGavel);
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
         };
     },
     async mounted() {
-        this.newNotification = await Notification.checkNotifications();
+        this.newNotification = await NotificationRequests.checkNotifications();
     },
     methods: {
         toggleDrawer(): void {
@@ -72,7 +72,7 @@ export default defineComponent({
             this.$router.push("/");
         },
         getClass(name: string): string {
-            return this.newNotification && name == "Notifications"? "text-red": "";
+            return this.newNotification && name == "Notifications" ? "text-red" : "";
         }
     }
 })
