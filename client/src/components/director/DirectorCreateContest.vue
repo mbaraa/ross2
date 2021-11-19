@@ -13,38 +13,44 @@
             </div>
         </template>
 
-        <v-card elevation="16" class="contestForm">
+        <v-card
+            elevation="16" class="contestForm">
             <v-card-title>
                 <span class="text-h4">Create Contest</span>
             </v-card-title>
 
-            <v-text-field label="Contest Title" v-model="contest.name" autofocus=""/>
+            <div class="list">
+                <v-text-field label="Contest Title" v-model="contest.name" autofocus=""/>
 
-            <label for="starts">Starts at:</label>
-            <input id="starts" class="starts" type="datetime-local" v-model="startsAt" required/>
+                <label for="starts">Starts at:</label>
+                <input id="starts" class="starts" type="datetime-local" v-model="startsAt" required/>
 
-            <v-text-field label="Duration (in minutes)" v-model="contest.duration" required/>
-            <v-text-field label="Location" v-model="contest.location" required/>
+                <label for="ends">Registration ends at:</label>
+                <input id="ends" class="starts" type="datetime-local" v-model="regEndsAt" required/>
 
-            <v-file-input
-                show-size
-                label="Logo file"
-                prepend-icon=""
-                @change="selectFile"
-            ></v-file-input>
-            <v-text-field label="Description" v-model="contest.description" required/>
-            <!--            <v-text-field label="Allowed Majors" v-model="contest."/>-->
-            <v-text-field label="Minimum team members" v-model="contest.participation_conditions.min_team_members"
-                          required/>
-            <v-text-field label="Maximum team members" v-model="contest.participation_conditions.max_team_members"
-                          required/>
+                <v-text-field label="Duration (in minutes)" v-model="contest.duration" required/>
+                <v-text-field label="Location" v-model="contest.location" required/>
 
-            <v-btn class="bg-red" @click="dialog = false">
-                Close
-            </v-btn>&nbsp;
-            <v-btn class="bg-blue" @click="createContest">
-                Create
-            </v-btn>
+                <v-file-input
+                    show-size
+                    label="Logo file"
+                    prepend-icon=""
+                    @change="selectFile"
+                ></v-file-input>
+                <v-text-field label="Description" v-model="contest.description" required/>
+                <!--            <v-text-field label="Allowed Majors" v-model="contest."/>-->
+                <v-text-field label="Minimum team members" v-model="contest.participation_conditions.min_team_members"
+                              required/>
+                <v-text-field label="Maximum team members" v-model="contest.participation_conditions.max_team_members"
+                              required/>
+
+                <v-btn class="bg-red" @click="hideDialog()">
+                    Close
+                </v-btn>&nbsp;
+                <v-btn class="bg-blue" @click="createContest">
+                    Create
+                </v-btn>
+            </div>
         </v-card>
     </v-dialog>
 </template>
@@ -70,12 +76,14 @@ export default defineComponent({
             dialog: false,
             contest: new Contest(),
             startsAt: new Date(),
+            regEndsAt: new Date(),
             logoFile: undefined,
         }
     },
     methods: {
         async createContest() {
-            this.contest.starts_at = new Date(this.startsAt).getTime();//moment(this.startsAt).format("YYYY-MM-DD HH:mm:ss");
+            this.contest.starts_at = new Date(this.startsAt).getTime();
+            this.contest.registration_ends = new Date(this.regEndsAt).getTime();
 
             this.contest.duration = +this.contest.duration;
             this.contest.participation_conditions.min_team_members = +this.contest.participation_conditions.min_team_members;
@@ -124,6 +132,9 @@ export default defineComponent({
                 })
 
             return res;
+        },
+        hideDialog() {
+            this.dialog = false;
         }
     }
 });
@@ -146,7 +157,7 @@ export default defineComponent({
     padding: 10px;
     margin: 0 auto;
     width: 400px;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .starts {
@@ -162,5 +173,11 @@ export default defineComponent({
     border-radius: 5px 5px 0 0;
 
     border-bottom: #a0a0a0 solid 1px;
+}
+
+.list {
+    overflow: hidden;
+    overflow-y: scroll;
+    height: 500px;
 }
 </style>

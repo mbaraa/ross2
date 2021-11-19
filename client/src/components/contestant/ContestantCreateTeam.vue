@@ -57,7 +57,19 @@ export default defineComponent({
         contest: Contest
     },
     methods: {
+        checkRegisterEnds(): boolean {
+            const regOver = (new Date()).getTime() > this.contest.registration_ends;
+            if (regOver) {
+                window.alert("sorry, the registration for this contest is over!")
+            }
+
+            return regOver;
+        },
         async createTeam() {
+            if (this.checkRegisterEnds()) {
+                return;
+            }
+
             this.team.contests.push(this.contest);
             await ContestantRequests.createTeam(this.team);
             this.dialog = false;

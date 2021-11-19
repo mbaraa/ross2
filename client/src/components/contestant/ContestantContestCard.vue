@@ -9,7 +9,7 @@
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users'}"/>
             </v-btn>
             &nbsp;
-            <v-btn @click="checkTokenForAction(joinAsTeamless)" icon color="success" class="delete"
+            <v-btn @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))" icon color="success" class="delete"
                    title="join as teamless">
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>
             </v-btn>
@@ -51,6 +51,14 @@ export default defineComponent({
         this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 0);
     },
     methods: {
+        checkRegisterEnds(): boolean {
+            const regOver = (new Date()).getTime() > this.contest.registration_ends;
+            if (regOver) {
+                window.alert("sorry, the registration for this contest is over!")
+            }
+
+            return regOver;
+        },
         async joinAsTeamless() {
             if (window.confirm(`are you sure you want to join the contest "${this.contest.name}" as teamless?`)) {
                 await ContestantRequests.joinAsTeamless(this.contest);
@@ -63,6 +71,9 @@ export default defineComponent({
         checkTokenForAction(fn: () => void) {
             checkTokenForAction(fn);
         },
+        checkRegistrationEndsForAction(fn: () => void): () => void {
+            return !this.checkRegisterEnds()? fn: () => {const _ = true};
+        }
     }
 });
 </script>

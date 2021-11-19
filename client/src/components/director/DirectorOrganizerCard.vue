@@ -29,7 +29,10 @@ export default defineComponent({
     },
     methods: {
         async deleteOrganizer() {
-            await OrganizerRequests.deleteOrganizer(this.organizer);
+            if (window.confirm("are you sure you want to delete this organizer?")) {
+                await OrganizerRequests.deleteOrganizer(this.organizer);
+                window.location.reload();
+            }
         }
     }
 });

@@ -7,6 +7,7 @@ class Contest {
     id: number | undefined;
     name: string | undefined;
     starts_at: number | undefined; // timestamp goes brr
+    registration_ends: number | undefined;
     duration: number | undefined;
     location: string | undefined;
     logo_path: string | undefined;

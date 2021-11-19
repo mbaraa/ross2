@@ -1,11 +1,13 @@
 <template>
     <div class="main">
         <div class="basic">
-            <table style="width: 100%">
+            <table class="details" style="width: 100%">
                 <tr>
                     <td v-for="field in fields" :key="field" style="width: 100%">
                         <FontAwesomeIcon :icon="field.icon"/>&nbsp;<b>{{ field.name }}</b>
-                        <br/>{{ field.value }}
+                        <br/>
+                        <div v-if="field.name !== 'Registration ends in'">{{ field.value }}</div>
+                        <div v-else><TimerCountdown :end-timestamp="field.value"/></div>
                     </td>
                 </tr>
             </table>
@@ -15,16 +17,16 @@
             <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'file-alt'}"/>&nbsp;<b>Description:</b><br/>
             <span>{{ contest.description }}</span>
         </div>
-        <v-divider/>
-        <div class="desc">
-            <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'file-alt'}"/>&nbsp;<b>Participation conditions:</b><br/>
-            <span>The contestant must be from one of these majors:</span>
-            <ul class="majors">
-                <li v-for="major in majors" :key="major">
-                    {{ major }}
-                </li>
-            </ul>
-        </div>
+<!--        <v-divider/>-->
+<!--        <div class="desc">-->
+<!--            <FontAwesomeIcon :icon="{prefix: 'fas', iconName: 'file-alt'}"/>&nbsp;<b>Participation conditions:</b><br/>-->
+<!--            <span>The contestant must be from one of these majors:</span>-->
+<!--            <ul class="majors">-->
+<!--                <li v-for="major in majors" :key="major">-->
+<!--                    {{ major }}-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </div>-->
     </div>
 </template>
 
@@ -35,13 +37,15 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faClock, faFileAlt, faMapMarkerAlt, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {formatDuration, getLocaleTime} from "@/utils";
+import TimerCountdown from "@/components/TimerCountdown.vue";
 
 library.add(faClock, faUsers, faMapMarkerAlt, faFileAlt);
 
 export default defineComponent({
     name: "ContestDetails",
     components: {
-        FontAwesomeIcon
+        FontAwesomeIcon,
+        TimerCountdown,
     },
     data() {
         return {
@@ -63,6 +67,11 @@ export default defineComponent({
                 name: "Starts at",
                 icon: {prefix: "fas", iconName: "clock"},
                 value: getLocaleTime(this.contest.starts_at)
+            },
+            {
+                name: "Registration ends in",
+                icon: {prefix: "fas", iconName: "clock"},
+                value: this.contest.registration_ends
             },
             {
                 name: "Duration",
@@ -104,7 +113,7 @@ td {
 
 @media only screen and (max-width: 500px) {
     table {
-        overflow-x: auto;
+        overflow-x: scroll;
         display: block;
     }
 }
@@ -117,4 +126,5 @@ td {
 .majors {
     padding-left: 20px;
 }
+
 </style>

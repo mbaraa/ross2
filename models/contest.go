@@ -9,15 +9,17 @@ import (
 // Contest represents a contest's fields
 type Contest struct {
 	gorm.Model
-	ID          uint          `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Name        string        `gorm:"column:name" json:"name"`
-	StartsAt    int64         `gorm:"-" json:"starts_at"`
-	StartsAt2   time.Time     `gorm:"column:starts_at"` // weird ain't it? :)
-	Duration    time.Duration `gorm:"column:duration" json:"duration"`
-	Location    string        `gorm:"column:location" json:"location"`
-	LogoPath    string        `gorm:"column:logo_path" json:"logo_path"`
-	CoverPath   string        `gorm:"column:cover_path" json:"cover_path"`
-	Description string        `gorm:"column:description" json:"description"`
+	ID                uint          `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	Name              string        `gorm:"column:name" json:"name"`
+	StartsAt          int64         `gorm:"-" json:"starts_at"`
+	StartsAt2         time.Time     `gorm:"column:starts_at"` // weird ain't it? :)
+	RegistrationEnds  int64         `gorm:"-" json:"registration_ends"`
+	RegistrationEnds2 time.Time     `gorm:"column:registration_ends"` // weird ain't it? :)
+	Duration          time.Duration `gorm:"column:duration" json:"duration"`
+	Location          string        `gorm:"column:location" json:"location"`
+	LogoPath          string        `gorm:"column:logo_path" json:"logo_path"`
+	CoverPath         string        `gorm:"column:cover_path" json:"cover_path"`
+	Description       string        `gorm:"column:description" json:"description"`
 
 	ParticipationConditions ParticipationConditions `gorm:"foreignkey:PCsID" json:"participation_conditions"` // the conditions should be a part of the contest instance 🤷‍♂️
 	PCsID                   uint                    `gorm:"column:pc_id"`
@@ -37,6 +39,7 @@ func (c *Contest) BeforeCreate(db *gorm.DB) error {
 
 func (c *Contest) AfterFind(db *gorm.DB) error {
 	c.StartsAt = c.StartsAt2.UnixMilli()
+	c.RegistrationEnds = c.RegistrationEnds2.UnixMilli()
 	c.ParticipationConditions.MajorsNames = getMajors(c.ParticipationConditions.Majors)
 	return nil
 }
@@ -61,4 +64,25 @@ type ParticipationConditions struct {
 	MajorsNames    []string `gorm:"-" json:"majors_names"`
 	MinTeamMembers uint     `gorm:"column:min_team_members" json:"min_team_members"`
 	MaxTeamMembers uint     `gorm:"column:max_team_members" json:"max_team_members"`
+}
+
+type Contest2 struct {
+	gorm.Model
+	Name       string               `gorm:"column:name"`
+	CommServID uint                 `gorm:"column:community_service_data_id"`
+	CommServ   CommunityServiceData `gorm:"foreignkey:CommServID"`
+}
+
+type CommunityServiceData struct {
+	gorm.Model
+	Date            string
+	TargetedPersons string
+	Points          string
+	Semester        string
+}
+
+type Goals struct {
+	gorm.Model
+	CommunityServiceDataID uint   `gorm:"community_service_data_id"`
+	Goal                   string `gorm:"column:goal"`
 }

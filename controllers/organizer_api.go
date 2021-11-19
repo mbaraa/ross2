@@ -59,7 +59,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /update-contest/":           o.authenticateHandler(o.handleUpdateContest),
 		"POST /upload-contest-logo-file/": o.authenticateHandler(o.handleUploadContestLogoFile),
 		"POST /add-organizer/":            o.authenticateHandler(o.handleAddOrganizer),
-		"GET /delete-organizer/":          o.authenticateHandler(o.handleDeleteOrganizer),
+		"POST /delete-organizer/":         o.authenticateHandler(o.handleDeleteOrganizer),
 		"POST /update-organizer/":         o.authenticateHandler(o.handleUpdateOrganizer),
 		"POST /delete-contestant/":        o.authenticateHandler(o.handleDeleteContestant),
 		"GET /get-sub-organizers/":        o.authenticateHandler(o.handleGetSubOrganizers),

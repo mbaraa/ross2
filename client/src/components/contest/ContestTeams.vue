@@ -36,7 +36,18 @@ export default defineComponent({
         this.processInTeam();
     },
     methods: {
+        checkRegisterEnds(): boolean {
+            const regOver = (new Date().getTime()) <= this.contest.registration_ends;
+            if (regOver) {
+                window.alert("sorry, the registration for this contest is over!")
+            }
+
+            return regOver;
+        },
         async joinTeam(team: Team) {
+            if (this.checkRegisterEnds()) {
+                return;
+            }
             const resp = await ContestantRequests.requestJoinTeam(<JoinRequest>{
                 requested_team: team,
                 requested_team_id: team.id,
