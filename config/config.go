@@ -17,6 +17,7 @@ type Config struct {
 	AllowedClients string `json:"allowed_clients"`
 	MachineAddress string `json:"machine_address"`
 	GoogleClientID string `json:"google_client_id"`
+	Development    bool   `json:"development"`
 }
 
 var instance *Config = nil
@@ -24,10 +25,22 @@ var instance *Config = nil
 // GetInstance returns a singleton instance of type Config
 func GetInstance() *Config {
 	if instance == nil {
-		instance = new(Config).loadConfigFromFile()
+		instance = getInstanceUsingOSArgs()
 		instance.setMachineIP()
 	}
 	return instance
+}
+
+func getInstanceUsingOSArgs() *Config {
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "env":
+			return new(Config).loadConfigFromENV()
+		case "json":
+			return new(Config).loadConfigFromFile()
+		}
+	}
+	return new(Config).loadConfigFromFile() // default config is using JSON
 }
 
 func (c *Config) getMachineIP() string {
@@ -58,7 +71,9 @@ func (c *Config) loadConfigFromENV() *Config {
 		DBPassword:     os.Getenv("DB_PASSWORD"),
 		DBHost:         os.Getenv("DB_HOST"),
 		AllowedClients: os.Getenv("ALLOWED_CLIENTS"),
-		MachineAddress: os.Getenv("MACCHINE_ADDRESS"),
+		MachineAddress: os.Getenv("MACHINE_ADDRESS"),
+		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"),
+		Development:    os.Getenv("DEVELOPMENT") == "true",
 	}
 }
 

@@ -4,5 +4,6 @@
     "db_password": "",
     "allowed_clients": "*",
     "machine_ip": "",
-    "google_client_id": ""
+    "google_client_id": "",
+    "development": true
 }

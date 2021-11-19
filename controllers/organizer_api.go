@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mbaraa/ross2/config"
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
@@ -414,7 +415,11 @@ func (o *OrganizerAPI) handleUploadContestLogoFile(res http.ResponseWriter, req 
 		return
 	}
 
-	newFile, _ := os.Create( /*"./client/dist/" + */ fileHeader.Filename)
+	uploadedFilePath := fileHeader.Filename
+	if !config.GetInstance().Development {
+		uploadedFilePath = "./client/dist/" + uploadedFilePath
+	}
+	newFile, _ := os.Create(uploadedFilePath)
 	_, _ = io.Copy(newFile, file)
 }
 
