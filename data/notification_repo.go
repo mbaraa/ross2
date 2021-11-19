@@ -7,6 +7,7 @@ import "github.com/mbaraa/ross2/models"
 type NotificationCreatorRepo interface {
 	// Add has pointer to Notification so that the generated id can be used
 	Add(notification *models.Notification) error
+	AddMany(notifications []*models.Notification) error
 }
 
 // NotificationGetterRepo is an interface that allows getting values of a notification

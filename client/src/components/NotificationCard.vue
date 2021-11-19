@@ -1,7 +1,7 @@
 <template>
     <div class="main bg-purple">
         <!-- non-request -->
-        <h2>{{ filterContent() }}</h2>
+        <div class="content" v-html="filterContent()"/>
         <!-- request -->
         <div v-if="isRequest()">
             <v-btn color="success" @click="acReq">Accept</v-btn>
@@ -51,5 +51,9 @@ export default defineComponent({
     padding: 10px;
     margin: 10px;
     color: white;
+}
+
+.content {
+    font-size: 1.8em;
 }
 </style>

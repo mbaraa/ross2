@@ -24,17 +24,18 @@ func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, con
 	notificationRepo data.NotificationCRUDRepo) *Router {
 
 	var (
-		sessionManager    = managers.NewSessionManager(sessionRepo)
-		contestantManager = managers.NewContestantManager(contestantRepo, sessionManager, contestRepo, teamRepo)
-		teamManager       = managers.NewTeamManager(teamRepo, contestantRepo)
-		organizerManager  = managers.NewOrganizerManager(organizerRepo, sessionManager, contestRepo)
-		joinReqManager    = managers.NewJoinRequestManager(joinReqRepo, notificationRepo, contestRepo, teamManager)
+		sessionManager      = managers.NewSessionManager(sessionRepo)
+		contestantManager   = managers.NewContestantManager(contestantRepo, sessionManager, contestRepo, teamRepo)
+		teamManager         = managers.NewTeamManager(teamRepo, contestantRepo)
+		organizerManager    = managers.NewOrganizerManager(organizerRepo, sessionManager, contestRepo)
+		joinReqManager      = managers.NewJoinRequestManager(joinReqRepo, notificationRepo, contestRepo, teamManager)
+		notificationManager = managers.NewNotificationManager(notificationRepo)
 	)
 
 	return &Router{
 		contestAPI:      controllers.NewContestAPI(contestRepo),
 		contestantAPI:   controllers.NewContestantAPI(contestantManager, sessionManager, teamManager, joinReqManager),
-		orgAPI:          controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager, contestRepo),
+		orgAPI:          controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager, contestRepo, notificationManager),
 		notificationAPI: controllers.NewNotificationAPI(notificationRepo, sessionManager, contestantManager),
 		googleLoginAPI:  auth.NewGoogleLoginAPI(sessionManager, contestantRepo, organizerRepo),
 	}
@@ -47,6 +48,7 @@ func (r *Router) getHandler() *http.ServeMux {
 	handler.Handle("/organizer/", r.orgAPI)
 	handler.Handle("/notification/", r.notificationAPI)
 	handler.Handle("/gauth/", r.googleLoginAPI)
+	handler.Handle("/", http.FileServer(http.Dir("./client/dist/")))
 
 	return handler
 }

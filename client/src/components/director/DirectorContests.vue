@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import DirectorContestCard from "@/components/director/OrganizerContestCard.vue";
+import DirectorContestCard from "@/components/director/DirectorContestCard.vue";
 import DirectorCreateContest from "@/components/director/DirectorCreateContest.vue";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 

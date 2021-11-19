@@ -25,6 +25,12 @@ func (n *NotificationDB) Add(notification *models.Notification) error {
 		Error
 }
 
+func (n *NotificationDB) AddMany(notifications []*models.Notification) error {
+	return n.db.
+		Create(notifications).
+		Error
+}
+
 // GETTER REPO
 
 func (n *NotificationDB) Exists(notification models.Notification) (bool, error) {

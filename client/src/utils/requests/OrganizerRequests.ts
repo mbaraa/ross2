@@ -7,6 +7,16 @@ import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Organizer from "@/models/Organizer";
 
 class OrganizerRequests {
+    public static async sendContestOverNotifications(contest: Contest): Promise<void> {
+        await RequestsManager.makeAuthPostRequest("send-sheev-notifications", UserType.Organizer, contest)
+            .then(() => {
+                window.alert("done :)");
+            })
+            .catch(() => {
+                window.alert("something went wrong!");
+            });
+    }
+
     public static async saveTeams(teams: Team[]): Promise<void> {
         await RequestsManager.makeAuthPostRequest("register-generated-teams", UserType.Organizer, teams);
     }

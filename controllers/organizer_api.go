@@ -12,6 +12,7 @@ import (
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/utils"
+	"github.com/mbaraa/ross2/utils/sheevhelper"
 	"github.com/mbaraa/ross2/utils/teamsgen"
 )
 
@@ -23,16 +24,18 @@ type OrganizerAPI struct {
 	teamMgr     *managers.TeamManager
 	contMgr     *managers.ContestantManager
 	contestRepo data.ContestCRUDRepo
+	notsMgr     *managers.NotificationManager
 }
 
-func NewOrganizerAPI(orgMgr *managers.OrganizerManager, sessMgr *managers.SessionManager,
-	teamMgr *managers.TeamManager, contMgr *managers.ContestantManager, contestRepo data.ContestCRUDRepo) *OrganizerAPI {
+func NewOrganizerAPI(orgMgr *managers.OrganizerManager, sessMgr *managers.SessionManager, teamMgr *managers.TeamManager,
+	contMgr *managers.ContestantManager, contestRepo data.ContestCRUDRepo, notificationMgr *managers.NotificationManager) *OrganizerAPI {
 	return (&OrganizerAPI{
 		orgMgr:      orgMgr,
 		sessMgr:     sessMgr,
 		teamMgr:     teamMgr,
 		contMgr:     contMgr,
 		contestRepo: contestRepo,
+		notsMgr:     notificationMgr,
 	}).initEndPoints()
 }
 
@@ -70,7 +73,8 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		// "GET /get-contestants-for-contest/": nil,
 		// "GET /get-organizers-for-contest/":  nil,
 
-		"GET /get-contests/": o.authenticateHandler(o.handleGetContests),
+		"GET /get-contests/":              o.authenticateHandler(o.handleGetContests),
+		"POST /send-sheev-notifications/": o.authenticateHandler(o.handleSendSheevNotifications),
 	}
 	return o
 }
@@ -457,4 +461,41 @@ func (o *OrganizerAPI) handleGetSubOrganizers(res http.ResponseWriter, req *http
 	}
 
 	_ = json.NewEncoder(res).Encode(orgs)
+}
+
+// POST /organizer/send-sheev-notifications/
+// TODO:
+// do this using a cron job :)
+func (o *OrganizerAPI) handleSendSheevNotifications(res http.ResponseWriter, req *http.Request, session models.Session) {
+	org, err := o.orgMgr.GetOrganizer(session.ID)
+	if err != nil || org.Roles&models.RoleDirector == 0 {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	var contest models.Contest
+	err = json.NewDecoder(req.Body).Decode(&contest)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	contest, err = o.contestRepo.Get(contest) // lazy loading :)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	notifications, err := sheevhelper.GetSheevNotifications(contest)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = o.notsMgr.SendMany(notifications)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
