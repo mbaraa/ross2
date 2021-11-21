@@ -74,7 +74,7 @@ func (db *dbManager) InitTables() {
 
 // needed for new registered contestants :)
 func createNoTeam(db *gorm.DB) error {
-	err := db.
+	return db.
 		Exec(`
 INSERT INTO ross2.teams (name, leader_id)
 SELECT *
@@ -84,11 +84,4 @@ WHERE NOT EXISTS(
     )
 LIMIT 1`).
 		Error
-
-	if err != nil {
-		return err
-	}
-	err = db.Exec("update ross2.teams set id=0 where id=1").Error
-
-	return err
 }

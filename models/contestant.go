@@ -36,6 +36,12 @@ func (c *Contestant) AfterFind(db *gorm.DB) error {
 	return nil
 }
 
+func (c *Contestant) BeforeCreate(db *gorm.DB) error {
+	c.TeamID = 1
+	c.Team = Team{ID: 1}
+	return nil
+}
+
 // ContestantSortable is just a sortable by creation date Contestant slice
 type ContestantSortable []Contestant
 

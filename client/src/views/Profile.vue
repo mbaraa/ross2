@@ -112,7 +112,7 @@ export default defineComponent({
             return contestant;
         },
         checkTeam(): boolean {
-            return this.team != null && this.team.id > 0;
+            return this.team != null && this.team.id > 1;
         },
         checkLeader(): boolean {
             return this.profile.id == this.team.leader_id;

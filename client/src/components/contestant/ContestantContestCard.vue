@@ -48,7 +48,7 @@ export default defineComponent({
     },
     async mounted() {
         this.contestant = await ContestantRequests.login();
-        this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 0);
+        this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 1);
     },
     methods: {
         checkRegisterEnds(): boolean {

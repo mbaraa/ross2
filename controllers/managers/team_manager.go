@@ -69,7 +69,12 @@ func (t *TeamManager) DeleteContestantFromTeam(cont models.Contestant) error {
 
 	if team.LeaderId == cont.ID {
 		if len(team.Members) > 1 {
-			team.LeaderId = team.Members[1].ID
+			for _, member := range team.Members { // change leadership!
+				if member.ID != team.LeaderId {
+					team.LeaderId = member.ID
+					break
+				}
+			}
 			err = t.teamRepo.Update(team)
 		} else {
 			err = t.DeleteTeam(team)
@@ -92,12 +97,16 @@ func (t *TeamManager) DeleteContestantFromTeam(cont models.Contestant) error {
 		return err
 	}
 
-	cont.TeamID = 0 // add to the no_team team
+	cont.TeamID = 1 // add to the no_team team
 	return t.contRepo.Update(cont)
 }
 
 func (t *TeamManager) DeleteTeam(team models.Team) error {
 	team, _ = t.GetTeam(team.ID) // better safe than sorry :\
+	for _, member := range team.Members {
+		member.TeamID = 1
+		_ = t.contRepo.Update(member)
+	}
 	team.Members = []models.Contestant{}
 
 	return t.teamRepo.Delete(team)
