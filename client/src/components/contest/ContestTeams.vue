@@ -31,13 +31,13 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.contest = await Contest.getContestFromServer(this.$route.query.id);
+        this.contest = await Contest.getContestFromServer(this.$route.query["id"]);
         this.teams = this.contest.teams;
         this.processInTeam();
     },
     methods: {
         checkRegisterEnds(): boolean {
-            const regOver = (new Date().getTime()) <= this.contest.registration_ends;
+            const regOver = (new Date().getTime()) > this.contest.registration_ends;
             if (regOver) {
                 window.alert("sorry, the registration for this contest is over!")
             }

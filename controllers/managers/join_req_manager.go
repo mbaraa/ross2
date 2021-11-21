@@ -48,13 +48,11 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 		return err
 	}
 
-	err = j.jrRepo.Add(models.JoinRequest{
-		RequesterID:     cont.ID,
-		RequestedTeamID: jr.RequestedTeamID,
-		RequestMessage:  reqMsg[4:],
-		NotificationID:  notification.ID,
-	})
+	jr.NotificationID = notification.ID
+	jr.Notification = notification
+	jr.RequestMessage = reqMsg[4:]
 
+	err = j.jrRepo.Add(jr)
 	if err != nil { // join request didn't go well :(
 		_ = j.notificationRepo.Delete(notification)
 		return err

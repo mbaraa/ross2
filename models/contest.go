@@ -33,6 +33,7 @@ type Contest struct {
 
 func (c *Contest) BeforeCreate(db *gorm.DB) error {
 	c.StartsAt2 = time.UnixMilli(c.StartsAt)
+	c.RegistrationEnds2 = time.UnixMilli(c.RegistrationEnds)
 	c.Duration *= 1e9 * 60
 	return nil
 }
@@ -64,25 +65,4 @@ type ParticipationConditions struct {
 	MajorsNames    []string `gorm:"-" json:"majors_names"`
 	MinTeamMembers uint     `gorm:"column:min_team_members" json:"min_team_members"`
 	MaxTeamMembers uint     `gorm:"column:max_team_members" json:"max_team_members"`
-}
-
-type Contest2 struct {
-	gorm.Model
-	Name       string               `gorm:"column:name"`
-	CommServID uint                 `gorm:"column:community_service_data_id"`
-	CommServ   CommunityServiceData `gorm:"foreignkey:CommServID"`
-}
-
-type CommunityServiceData struct {
-	gorm.Model
-	Date            string
-	TargetedPersons string
-	Points          string
-	Semester        string
-}
-
-type Goals struct {
-	gorm.Model
-	CommunityServiceDataID uint   `gorm:"community_service_data_id"`
-	Goal                   string `gorm:"column:goal"`
 }

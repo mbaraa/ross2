@@ -81,9 +81,12 @@ export default defineComponent({
         }
     },
     methods: {
+        checkRegAndStartDate(): boolean {
+            return (<number>this.contest.registration_ends < <number>this.contest.starts_at);
+        },
         async createContest() {
-            this.contest.starts_at = new Date(this.startsAt).getTime();
-            this.contest.registration_ends = new Date(this.regEndsAt).getTime();
+            this.contest.starts_at = (new Date(this.startsAt)).getTime();
+            this.contest.registration_ends = (new Date(this.regEndsAt)).getTime();
 
             this.contest.duration = +this.contest.duration;
             this.contest.participation_conditions.min_team_members = +this.contest.participation_conditions.min_team_members;
@@ -92,6 +95,11 @@ export default defineComponent({
             const errMsg = await this.uploadLogo();
             if (errMsg.length > 0) {
                 window.alert(errMsg)
+                return;
+            }
+
+            if (!this.checkRegAndStartDate()) {
+                window.alert("woah... start date should be after end of registration date!");
                 return;
             }
 
@@ -178,6 +186,6 @@ export default defineComponent({
 .list {
     overflow: hidden;
     overflow-y: scroll;
-    height: 500px;
+    height: 75vh;
 }
 </style>

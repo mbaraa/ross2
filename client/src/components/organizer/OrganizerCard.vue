@@ -9,8 +9,8 @@
 
         <p>
             <a class="text-blue-darken-4" :href="contact.facebook_url"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'facebook'}"/></a>&nbsp;
-            <a class="text-blue" :href="contact.telegram_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'telegram'}"/></a>&nbsp;
-            <a class="text-green" :href="contact.whatsapp_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'whatsapp'}"/></a>&nbsp;
+<!--            <a class="text-blue" :href="contact.telegram_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'telegram'}"/></a>&nbsp;-->
+<!--            <a class="text-green" :href="contact.whatsapp_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'whatsapp'}"/></a>&nbsp;-->
         </p>
     </div>
 </template>

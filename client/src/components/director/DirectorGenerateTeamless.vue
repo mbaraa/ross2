@@ -118,6 +118,7 @@ export default defineComponent({
             }
 
             this.generated = true;
+            this.noTeamless = false;
         },
         async saveTeams() {
             if (window.confirm("are you sure of the teams you are about to register?")) {
