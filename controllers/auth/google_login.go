@@ -3,13 +3,14 @@ package auth
 import (
 	"encoding/json"
 	"errors"
-	"github.com/mbaraa/ross2/config"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/mbaraa/ross2/config"
+
+	"github.com/golang-jwt/jwt"
 	"github.com/mbaraa/ross2/controllers"
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
