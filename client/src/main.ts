@@ -5,9 +5,13 @@ import App from './App.vue';
 import router from './router';
 import VueGapi from 'vue-gapi';
 import config from './config';
+import {PublicClientApplication} from "@azure/msal-browser";
 
-createApp(App)
-    .use(router)
+const app = createApp(App);
+
+app.config.globalProperties.$msal = new PublicClientApplication(config.msalConfig);
+
+app.use(router)
     .use(createVuetify())
     .use(VueGapi, {
         clientId: config.googleClientID,

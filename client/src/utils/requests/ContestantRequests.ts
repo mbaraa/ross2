@@ -5,6 +5,7 @@ import JoinRequest from "@/models/JoinRequest";
 import GoogleLogin from "@/utils/requests/GoogleLogin";
 import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Contestant from "@/models/Contestant";
+import MicrosoftLogin from "@/utils/requests/MicrosoftLogin";
 
 class ContestantRequests {
     public static async getTeam(): Promise<Team> {
@@ -58,6 +59,10 @@ class ContestantRequests {
 
     public static async requestJoinTeam(jr: JoinRequest): Promise<Response> {
         return await RequestsManager.makeAuthPostRequest("req-join-team", UserType.Contestant, jr)
+    }
+
+    public static async microsoftLogin(user: any): Promise<void> {
+        await MicrosoftLogin.loginContestantWithMicrosoft(user);
     }
 
     public static async googleLogin(user: any): Promise<void> {

@@ -8,7 +8,7 @@
         <br/><br/>
         <v-divider/>
         <div class="buttons">
-            <v-btn @click="logout" class="text-red-darken-4">Logout</v-btn>&nbsp;
+            <v-btn @click="logout()" class="text-red-darken-4">Logout</v-btn>&nbsp;
             <v-btn @click="deleteAccount" class="text-red-darken-4">Delete account</v-btn>
         </div>
         <div v-if="checkTeam()">
@@ -36,8 +36,12 @@
     </div>
     <div v-else style="padding-top: 20px; text-align: center;">
         <h1 style="font-size: 3em">Oops! you're not logged in</h1>
-        <v-btn @click="login" class="bg-red" style="font-size: 2em; padding: 20px">
+        <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">
             <FontAwesomeIcon :icon="{prefix:'fab', iconName:'google'}"/>&nbsp;Login with Google
+        </v-btn>
+        <br/><br/>
+        <v-btn @click="loginMS()" class="bg-grey" style="font-size: 2em; padding: 20px">
+            <FontAwesomeIcon :icon="{prefix:'fab', iconName:'microsoft'}"/>&nbsp;Login with ASU Account
         </v-btn>
     </div>
 </template>
@@ -46,12 +50,12 @@
 import {defineComponent} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faFileAlt} from "@fortawesome/free-solid-svg-icons";
-import {faGoogle} from "@fortawesome/free-brands-svg-icons";
+import {faGoogle, faMicrosoft} from "@fortawesome/free-brands-svg-icons";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import Contestant from "@/models/Contestant";
 import ContestantRequests from "@/utils/requests/ContestantRequests";
 
-library.add(faGoogle, faFileAlt);
+library.add(faGoogle, faFileAlt, faMicrosoft);
 
 export default defineComponent({
     name: "Profile",
@@ -60,7 +64,7 @@ export default defineComponent({
     },
     data() {
         return {
-            profile: null,
+            profile: new Contestant(),
             team: null,
         }
     },
@@ -69,20 +73,36 @@ export default defineComponent({
         this.team = await ContestantRequests.getTeam();
     },
     methods: {
-        async login() {
+        async loginGoogle() {
             await ContestantRequests.googleLogin(
                 (await this.$gapi.login()).currentUser
             );
             window.location.reload();
         },
+        async $logout() {
+            if (this.profile.email.indexOf("@gmail") > -1) {
+                await this.$gapi.logout();
+            } else {
+                await this.$msal.logoutPopup();
+            }
+        },
         async logout() {
-            await this.$gapi.logout();
+            await this.$logout();
+
             await ContestantRequests.logout();
+            window.location.reload();
+        },
+        async loginMS() {
+            await this.$msal.loginPopup({
+                scopes: ["openid", "profile", "User.Read"]
+            })
+                .then((resp: any) => ContestantRequests.microsoftLogin(resp));
             window.location.reload();
         },
         async deleteAccount() {
             if (window.confirm("Are you sure you want to delete your account?")) {
-                await this.$gapi.logout();
+                await this.$logout();
+
                 await ContestantRequests.deleteUser();
                 window.location.reload();
             }

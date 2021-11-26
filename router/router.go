@@ -12,11 +12,12 @@ import (
 )
 
 type Router struct {
-	contestAPI      *controllers.ContestAPI
-	contestantAPI   *controllers.ContestantAPI
-	orgAPI          *controllers.OrganizerAPI
-	notificationAPI *controllers.NotificationAPI
-	googleLoginAPI  *auth.GoogleLoginAPI
+	contestAPI        *controllers.ContestAPI
+	contestantAPI     *controllers.ContestantAPI
+	orgAPI            *controllers.OrganizerAPI
+	notificationAPI   *controllers.NotificationAPI
+	googleLoginAPI    *auth.GoogleLoginAPI
+	microsoftLoginAPI *auth.MicrosoftLoginAPI
 }
 
 func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, contestantRepo data.ContestantCRUDRepo,
@@ -33,11 +34,12 @@ func New(contestRepo data.ContestCRUDRepo, sessionRepo data.SessionCRUDRepo, con
 	)
 
 	return &Router{
-		contestAPI:      controllers.NewContestAPI(contestRepo),
-		contestantAPI:   controllers.NewContestantAPI(contestantManager, sessionManager, teamManager, joinReqManager),
-		orgAPI:          controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager, contestRepo, notificationManager),
-		notificationAPI: controllers.NewNotificationAPI(notificationRepo, sessionManager, contestantManager),
-		googleLoginAPI:  auth.NewGoogleLoginAPI(sessionManager, contestantRepo, organizerRepo),
+		contestAPI:        controllers.NewContestAPI(contestRepo),
+		contestantAPI:     controllers.NewContestantAPI(contestantManager, sessionManager, teamManager, joinReqManager),
+		orgAPI:            controllers.NewOrganizerAPI(organizerManager, sessionManager, teamManager, contestantManager, contestRepo, notificationManager),
+		notificationAPI:   controllers.NewNotificationAPI(notificationRepo, sessionManager, contestantManager),
+		googleLoginAPI:    auth.NewGoogleLoginAPI(sessionManager, contestantRepo, organizerRepo),
+		microsoftLoginAPI: auth.NewMicrosoftLoginAPI(sessionManager, contestantRepo, organizerRepo),
 	}
 }
 
@@ -48,6 +50,7 @@ func (r *Router) getHandler() *http.ServeMux {
 	handler.Handle("/organizer/", r.orgAPI)
 	handler.Handle("/notification/", r.notificationAPI)
 	handler.Handle("/gauth/", r.googleLoginAPI)
+	handler.Handle("/msauth/", r.microsoftLoginAPI)
 	handler.Handle("/", http.FileServer(http.Dir("./client/dist/")))
 
 	return handler
