@@ -48,9 +48,11 @@ func (c *ContestDB) Get(contest models.Contest) (fetchedContest models.Contest, 
 		return
 	}
 
-	fetchedContest.Teams, err = c.teamRepo.GetAllByContest(contest)
-	if err != nil {
-		return
+	if !fetchedContest.TeamsHidden {
+		fetchedContest.Teams, err = c.teamRepo.GetAllByContest(contest)
+		if err != nil {
+			return
+		}
 	}
 
 	err = c.db.

@@ -1,5 +1,6 @@
 <template>
     <div class="main" v-if="profile != null">
+        <br/>
         <img class="contestantLogo" alt="contestant picture" :src="profile.avatar_url"/>
         <br/>
         <span class="contestName"><b>{{ profile.name }}</b></span>
@@ -21,6 +22,7 @@
 
             <ul>
                 <li>Team name: {{ team.name }}</li>
+                <li title="share this id with team members you want to join this team">Team ID: {{ team.id }}</li>
                 <li>Team members:
                     <ul v-for="member in team.members" :key="member">
                         <li>{{ member.name }}</li>
@@ -162,7 +164,7 @@ export default defineComponent({
     height: 125px;
     border-radius: 100%;
     background-color: white;
-    padding: 5px;
+    border: 2px #212121 solid;
 }
 
 .buttons {

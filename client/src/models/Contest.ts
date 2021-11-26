@@ -13,6 +13,7 @@ class Contest {
     logo_path: string | undefined;
     description: string | undefined;
     participation_conditions: ParticipationConditions | undefined;
+    teams_hidden?: boolean;
     teams: Team[] | undefined;
     organizers: Organizer[] | undefined;
     teamless_contestants: Contestant[] | undefined;
@@ -63,10 +64,6 @@ export class ParticipationConditions {
     majors_names: string[] | undefined;
     min_team_members: number | undefined;
     max_team_members: number | undefined;
-
-    constructor() {
-        const _ = true;
-    }
 }
 
 export default Contest;

@@ -7,8 +7,9 @@
         scrollable>
         <template v-slot:activator="{on, attrs}">
             <div v-bind="attrs" v-on="on" @click="checkTokenForAction(openDialog)" style="display: inline">
-                <v-btn icon color="error" title="create team">
-                    <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'user-plus'}"/>
+                <v-btn color="error" title="create a team so other contestants can join">
+                    <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'user-plus'}"/>&nbsp;
+                    Create team
                 </v-btn>
             </div>
         </template>

@@ -36,6 +36,12 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 		reqMsg += "\nRequest message: " + jr.RequestMessage
 	}
 
+	var err error
+	jr.RequestedTeam, err = j.teamManager.GetTeam(jr.RequestedTeamID)
+	if err != nil {
+		return err
+	}
+
 	reqMsg += fmt.Sprintf("_IDS%d:%d:%d", cont.ID, jr.RequestedTeamID, jr.RequestedContestID) // a weird way to store ids in the notification text(they won't appear)
 
 	notification := models.Notification{ // send a join request notification to the team leader!
@@ -43,7 +49,7 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 		Content: reqMsg,
 	}
 
-	err := j.notificationRepo.Add(&notification)
+	err = j.notificationRepo.Add(&notification)
 	if err != nil {
 		return err
 	}

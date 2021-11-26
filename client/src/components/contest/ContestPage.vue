@@ -6,19 +6,19 @@
         <br/><br/>
         <div>
             <div class="pagesLinks">
-            <router-link :to="{ name:'details', query: { id:getContestId()} }">
-                Details
-            </router-link>
-            <router-link :to="{ name:'teams', query: { id:getContestId()} }">
-                Teams
-            </router-link>
-            <router-link :to="{ name:'teamless', query: { id:getContestId()} }">
-                Teamless
-            </router-link>
-            <router-link :to="{ name:'support', query: { id:getContestId()} }">
-                Support
-            </router-link>
-        </div>
+                <router-link :to="{ name:'details', query: { id:getContestId()} }">
+                    Details
+                </router-link>
+                <router-link v-if="!contest.teams_hidden" :to="{ name:'teams', query: { id:getContestId()} }">
+                    Teams
+                </router-link>
+                <!--            <router-link :to="{ name:'teamless', query: { id:getContestId()} }">-->
+                <!--                Teamless-->
+                <!--            </router-link>-->
+                <router-link :to="{ name:'support', query: { id:getContestId()} }">
+                    Support
+                </router-link>
+            </div>
             <div class="subpage">
                 <router-view/>
             </div>
@@ -41,7 +41,7 @@ export default defineComponent({
         this.contest = await Contest.getContestFromServer(this.$route.query.id);
     },
     methods: {
-        getContestId() {
+        getContestId(): number {
             return this.contest.id;
         },
     },
@@ -98,9 +98,6 @@ export default defineComponent({
     display: block;
 
     width: 90%;
-    border: #212121 solid 2px;
-    border-top: white solid 0;
-    background-color: #e0e0e0;
 }
 
 </style>

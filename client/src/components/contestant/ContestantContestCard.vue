@@ -2,16 +2,19 @@
     <div class="main bg-blue-darken-4">
         <ContestCard :contest="contest"/>
         <v-divider style="padding-bottom: 10px"/>
-        <div class="buttons">
-            <ContestantCreateTeam v-if="!hasTeam" class="delete" :contest="contest"/>
-            &nbsp;
-            <v-btn @click="checkTokenForAction(joinTeam)" icon color="warning" class="delete" title="join a team">
-                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users'}"/>
-            </v-btn>
-            &nbsp;
-            <v-btn @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))" icon color="success" class="delete"
-                   title="join as teamless">
-                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>
+        <div>
+            <div class="buttons" v-if="!hasTeam">
+                <ContestantCreateTeam :contest="contest"/>
+            </div>
+            <div class="buttons">
+                <ContestantJoinTeam :contest="contest"/>
+            </div>
+            <br/>
+            <v-btn @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))" color="success"
+                   class="buttons"
+                   title="you will be put in a team at the end of registration">
+                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>&nbsp;
+                Join as teamless
             </v-btn>
         </div>
     </div>
@@ -27,6 +30,7 @@ import Contest from "@/models/Contest";
 import ContestantCreateTeam from "@/components/contestant/ContestantCreateTeam.vue";
 import {checkTokenForAction} from "@/utils";
 import ContestantRequests from "@/utils/requests/ContestantRequests";
+import ContestantJoinTeam from "@/components/contestant/ContestantJoinTeam.vue";
 
 library.add(faUserPlus, faUsers, faUsersSlash);
 
@@ -36,6 +40,7 @@ export default defineComponent({
         contest: Contest
     },
     components: {
+        ContestantJoinTeam,
         ContestantCreateTeam,
         ContestCard,
         FontAwesomeIcon
@@ -72,7 +77,9 @@ export default defineComponent({
             checkTokenForAction(fn);
         },
         checkRegistrationEndsForAction(fn: () => void): () => void {
-            return !this.checkRegisterEnds()? fn: () => {const _ = true};
+            return !this.checkRegisterEnds() ? fn : () => {
+                const _ = true
+            };
         }
     }
 });
@@ -85,6 +92,8 @@ export default defineComponent({
 }
 
 .buttons {
-    padding-bottom: 10px;
+    display: inline-block;
+    padding: 5px;
+    margin-bottom: 5px;
 }
 </style>

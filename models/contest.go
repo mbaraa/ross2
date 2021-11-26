@@ -20,6 +20,7 @@ type Contest struct {
 	LogoPath          string        `gorm:"column:logo_path" json:"logo_path"`
 	CoverPath         string        `gorm:"column:cover_path" json:"cover_path"`
 	Description       string        `gorm:"column:description" json:"description"`
+	TeamsHidden       bool          `gorm:"column:teams_hidden" json:"teams_hidden"`
 
 	ParticipationConditions ParticipationConditions `gorm:"foreignkey:PCsID" json:"participation_conditions"` // the conditions should be a part of the contest instance 🤷‍♂️
 	PCsID                   uint                    `gorm:"column:pc_id"`

@@ -13,7 +13,7 @@
             </div>
         </template>
 
-        <v-card
+        <v-card @click="log"
             elevation="16" class="contestForm">
             <v-card-title>
                 <span class="text-h4">Create Contest</span>
@@ -30,6 +30,15 @@
 
                 <v-text-field label="Duration (in minutes)" v-model="contest.duration" required/>
                 <v-text-field label="Location" v-model="contest.location" required/>
+
+                <label style="font-size: 1.2em">Show registered teams for everyone? </label>
+                <br/>
+                <input type="radio" id="yes" value="true" v-model="contest.teams_hidden">
+                <label for="yes"> Yes</label>
+                &nbsp;
+                <input type="radio" id="no" value="false" v-model="contest.teams_hidden">
+                <label for="no"> No</label>
+                <br/><br/>
 
                 <v-file-input
                     show-size
@@ -91,6 +100,7 @@ export default defineComponent({
             this.contest.duration = +this.contest.duration;
             this.contest.participation_conditions.min_team_members = +this.contest.participation_conditions.min_team_members;
             this.contest.participation_conditions.max_team_members = +this.contest.participation_conditions.max_team_members;
+            this.contest.teams_hidden = this.contest.teams_hidden == "true";
 
             const errMsg = await this.uploadLogo();
             if (errMsg.length > 0) {

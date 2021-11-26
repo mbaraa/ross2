@@ -1,5 +1,8 @@
 <template>
-    <div v-if="teams.length > 0">
+    <div v-if="contest.teams_hidden">
+        <h1>This contest's teams are private!</h1>
+    </div>
+    <div v-else-if="teams.length > 0">
         <div class="main bg-green-accent-4 team" v-for="team in teams" :key="team">
             <TeamCard :team="team"/>
             <v-btn v-if="checkTeam(team)" @click="joinTeam(team)">Join team</v-btn>
