@@ -73,6 +73,11 @@ const routes: Array<RouteRecordRaw> = [
                 name: 'other',
                 component: () => import("@/components/director/DirectorOther.vue")
             },
+            {
+                path: 'org-teams/',
+                name: 'org-teams',
+                component: () => import("@/components/director/DirectorTeams.vue")
+            },
         ]
     },
     {

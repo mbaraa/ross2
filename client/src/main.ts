@@ -6,6 +6,7 @@ import router from './router';
 import VueGapi from 'vue-gapi';
 import config from './config';
 import {PublicClientApplication} from "@azure/msal-browser";
+import store from './store'
 
 const app = createApp(App);
 
@@ -17,4 +18,5 @@ app.use(router)
         clientId: config.googleClientID,
         scope: 'https://www.googleapis.com/auth/userinfo.email',
     })
+    .use(store)
     .mount('#app');

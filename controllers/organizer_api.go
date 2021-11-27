@@ -70,10 +70,12 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /auto-generate-teams/":      o.authenticateHandler(o.handleAutoGenerateTeams),
 		// "POST /man-generate-teams/":         nil,
 		"POST /register-generated-teams/": o.authenticateHandler(o.handleRegisterGeneratedTeams),
+		"POST /update-teams/":             o.authenticateHandler(o.handleUpdateTeams),
 		// "GET /get-contestants-for-contest/": nil,
 		// "GET /get-organizers-for-contest/":  nil,
 
 		"GET /get-contests/":              o.authenticateHandler(o.handleGetContests),
+		"POST /get-contest/":              o.authenticateHandler(o.handleGetContest),
 		"POST /send-sheev-notifications/": o.authenticateHandler(o.handleSendSheevNotifications),
 	}
 	return o
@@ -388,6 +390,36 @@ func (o *OrganizerAPI) handleRegisterGeneratedTeams(res http.ResponseWriter, req
 	}
 }
 
+// POST /organizer/update-teams/
+func (o *OrganizerAPI) handleUpdateTeams(res http.ResponseWriter, req *http.Request, session models.Session) {
+	org, err := o.orgMgr.GetOrganizer(session.ID)
+	if err != nil || org.Roles&models.RoleDirector == 0 {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	teamsAndRemovedConts := struct {
+		Teams              []models.Team       `json:"teams"`
+		RemovedContestants []models.Contestant `json:"removed_contestants"`
+	}{} // God will burn me very deep in hell for this :)
+
+	err = json.NewDecoder(req.Body).Decode(&teamsAndRemovedConts)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = o.teamMgr.UpdateTeams(
+		teamsAndRemovedConts.Teams,
+		teamsAndRemovedConts.RemovedContestants,
+		org)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
 // POST /organizer/upload-contest-logo-file/
 func (o *OrganizerAPI) handleUploadContestLogoFile(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
@@ -444,6 +476,26 @@ func (o *OrganizerAPI) handleGetContests(res http.ResponseWriter, req *http.Requ
 	}
 
 	_ = json.NewEncoder(res).Encode(contests)
+}
+
+// POST /organizer/get-contest/
+// this is needed because the get contest in the ContestAPI doesn't get private teams :)
+func (o *OrganizerAPI) handleGetContest(res http.ResponseWriter, req *http.Request, session models.Session) {
+	var contest models.Contest
+	err := json.NewDecoder(req.Body).Decode(&contest)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	contest, err = o.contestRepo.Get(contest)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_ = json.NewEncoder(res).Encode(contest)
 }
 
 // GET /organizer/get-sub-organizers/

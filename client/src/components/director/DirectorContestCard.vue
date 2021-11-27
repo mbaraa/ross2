@@ -15,6 +15,11 @@
                    color="info">
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'calendar-check'}"/>
             </v-btn>
+            &nbsp;
+            <v-btn title="manage contest's teams" @click="manageTeams(contest)" icon
+                   color="warning">
+                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users'}"/>
+            </v-btn>
         </div>
     </div>
 </template>
@@ -23,12 +28,12 @@
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest.ts";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faCogs, faTrash, faCalendarCheck} from "@fortawesome/free-solid-svg-icons"
+import {faCogs, faTrash, faCalendarCheck, faUsers} from "@fortawesome/free-solid-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
-library.add(faTrash, faCogs, faCalendarCheck);
+library.add(faTrash, faCogs, faCalendarCheck, faUsers);
 
 export default defineComponent({
     name: "DirectorContestCard",
@@ -54,6 +59,9 @@ export default defineComponent({
         },
         async finishContest(contest: Contest) {
             await OrganizerRequests.sendContestOverNotifications(contest);
+        },
+        manageTeams(contest: Contest) {
+            this.$router.push(`/organizer/org-teams/?contest=${contest.id}`)
         }
     }
 });

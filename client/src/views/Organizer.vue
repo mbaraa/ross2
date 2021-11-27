@@ -1,6 +1,7 @@
 <template>
     <div v-if="!notOrg">
         <div class="main" v-if="profile != null">
+            <br/>
             <img class="organizerLogo" alt="organizer picture" :src="profile.avatar_url"/>
             <br/>
             <span class="organizerName"><b>{{ profile.name }}</b></span>
@@ -107,8 +108,7 @@ export default defineComponent({
     width: 125px;
     height: 125px;
     border-radius: 100%;
-    background-color: white;
-    padding: 5px;
+    border: 2px #212121 solid;
 }
 
 .buttons {

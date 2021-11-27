@@ -21,7 +21,7 @@
                 </td>
                 <td>
                     <select style="background-color: #eeeeee" id="contest" v-model="genType">
-                        <option value="numbered">Numbered</option>
+                        <option value="ordered">Numbered</option>
                         <option value="random">Random teams names</option>
                     </select>
                 </td>
@@ -119,6 +119,9 @@ export default defineComponent({
 
             this.generated = true;
             this.noTeamless = false;
+            if (this.leftTeamless.length > 0) { // so left contestants can be assigned to any team later :)
+                await this.$store.dispatch("addContestantToRemoved", ...this.leftTeamless);
+            }
         },
         async saveTeams() {
             if (window.confirm("are you sure of the teams you are about to register?")) {

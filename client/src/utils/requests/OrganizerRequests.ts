@@ -17,6 +17,12 @@ class OrganizerRequests {
             });
     }
 
+    public static async updateTeams(teams: Team[], removedContestants: Contestant[]): Promise<void> {
+        await RequestsManager.makeAuthPostRequest("update-teams", UserType.Organizer,
+            {"teams": teams, "removed_contestants": removedContestants})
+            .catch(err => window.alert(err));
+    }
+
     public static async saveTeams(teams: Team[]): Promise<void> {
         await RequestsManager.makeAuthPostRequest("register-generated-teams", UserType.Organizer, teams);
     }
@@ -77,6 +83,18 @@ class OrganizerRequests {
 
     public static async createContest(contest: Contest): Promise<void> {
         await RequestsManager.makeAuthPostRequest("create-contest", UserType.Organizer, contest);
+    }
+
+    public static async getContest(contestID: number): Promise<Contest> {
+        let contest = new Contest();
+        await RequestsManager.makeAuthPostRequest("get-contest", UserType.Organizer, <Contest>{id: contestID})
+            .then(resp => resp.json())
+            .then(resp => {
+                contest = <Contest>resp;
+            })
+            .catch(err => window.alert("oi mama" + err.message));
+
+        return contest;
     }
 
     public static async getContests(): Promise<Array<Contest>> {

@@ -66,6 +66,10 @@ func (c *ContestAPI) handleGetSingleContest(res http.ResponseWriter, req *http.R
 		return
 	}
 
+	if contest.TeamsHidden {
+		contest.Teams = nil
+	}
+
 	err = json.NewEncoder(res).Encode(contest)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)

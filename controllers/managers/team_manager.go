@@ -1,7 +1,8 @@
 package managers
 
 import (
-	"errors"
+	"math"
+	"time"
 
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
@@ -22,6 +23,9 @@ func NewTeamManager(teamRepo data.TeamCRUDRepo, contRepo data.ContestantCRUDRepo
 func (t *TeamManager) CreateTeam(team models.Team) error {
 	return t.teamRepo.Add(team)
 }
+
+// TODO
+// check for director permissions
 
 func (t *TeamManager) CreateTeams(teams []models.Team) error {
 	return t.teamRepo.AddMany(teams)
@@ -50,11 +54,52 @@ func (t *TeamManager) AddContestantToTeam(contID, teamID uint) (team models.Team
 
 func (t *TeamManager) UpdateTeam(team models.Team, org models.Organizer) error {
 	for _, contest := range org.Contests {
-		if contest.ID == team.Contests[0].ID { // the team will be stripped from all of the other contests :)
+		if contest.ID == team.Contests[0].ID { // the team will be stripped from all the other contests :)
 			return t.teamRepo.Update(team)
 		}
 	}
-	return errors.New("not authorized to modify team")
+	return nil
+}
+
+func (t *TeamManager) UpdateTeams(teams []models.Team, removedContestants []models.Contestant, org models.Organizer) error {
+	for _, cont := range removedContestants {
+		cont.Team = models.Team{}
+		cont.TeamID = 1
+
+		err := t.contRepo.Update(cont)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, team := range teams {
+		for _, cont := range team.Members {
+			if cont.TeamID != team.ID {
+				cont.Team = team
+				cont.TeamID = team.ID
+				cont.TeamlessContestID = math.MaxInt
+				cont.TeamlessedAt = time.Time{}
+
+				err := t.contRepo.Update(cont)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		err := t.teamRepo.Update(team)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, team := range teams {
+		err := t.UpdateTeam(team, org)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (t *TeamManager) GetTeam(id uint) (models.Team, error) {
