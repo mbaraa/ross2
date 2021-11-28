@@ -7,6 +7,18 @@ import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Organizer from "@/models/Organizer";
 
 class OrganizerRequests {
+    public static async getParticipants(contest: Contest): Promise<string> {
+        let parts = "";
+        await RequestsManager.makeAuthPostRequest("get-participants", UserType.Organizer, contest)
+            .then(resp => resp.text())
+            .then(resp => {
+                parts = <string>resp;
+                return parts;
+            });
+
+        return parts;
+    }
+
     public static async sendContestOverNotifications(contest: Contest): Promise<void> {
         await RequestsManager.makeAuthPostRequest("send-sheev-notifications", UserType.Organizer, contest)
             .then(() => {

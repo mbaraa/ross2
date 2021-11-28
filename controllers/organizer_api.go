@@ -12,6 +12,7 @@ import (
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/utils"
+	"github.com/mbaraa/ross2/utils/partsexport"
 	"github.com/mbaraa/ross2/utils/sheevhelper"
 	"github.com/mbaraa/ross2/utils/teamsgen"
 )
@@ -77,6 +78,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"GET /get-contests/":              o.authenticateHandler(o.handleGetContests),
 		"POST /get-contest/":              o.authenticateHandler(o.handleGetContest),
 		"POST /send-sheev-notifications/": o.authenticateHandler(o.handleSendSheevNotifications),
+		"POST /get-participants/":         o.authenticateHandler(o.handleGetParticipants),
 	}
 	return o
 }
@@ -550,4 +552,29 @@ func (o *OrganizerAPI) handleSendSheevNotifications(res http.ResponseWriter, req
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+// POST /organizer/get-participants/
+func (o *OrganizerAPI) handleGetParticipants(res http.ResponseWriter, req *http.Request, session models.Session) {
+	org, err := o.orgMgr.GetOrganizer(session.ID)
+	if err != nil || org.Roles&models.RoleDirector == 0 {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	var contest models.Contest
+	err = json.NewDecoder(req.Body).Decode(&contest)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	contest, err = o.contestRepo.Get(contest)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = res.Write([]byte(partsexport.GetParticipants(contest)))
 }

@@ -20,6 +20,11 @@
                    color="warning">
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users'}"/>
             </v-btn>
+            &nbsp;
+            <v-btn title="get csv of the participated people" @click="getParticipants(contest)" icon
+                   class="bg-purple">
+                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'table'}"/>
+            </v-btn>
         </div>
     </div>
 </template>
@@ -28,12 +33,12 @@
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest.ts";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faCogs, faTrash, faCalendarCheck, faUsers} from "@fortawesome/free-solid-svg-icons"
+import {faCogs, faTrash, faCalendarCheck, faUsers, faTable} from "@fortawesome/free-solid-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
-library.add(faTrash, faCogs, faCalendarCheck, faUsers);
+library.add(faTrash, faCogs, faCalendarCheck, faUsers, faTable);
 
 export default defineComponent({
     name: "DirectorContestCard",
@@ -62,6 +67,15 @@ export default defineComponent({
         },
         manageTeams(contest: Contest) {
             this.$router.push(`/organizer/org-teams/?contest=${contest.id}`)
+        },
+        async getParticipants(contest: Contest) {
+            const parts = await OrganizerRequests.getParticipants(contest);
+
+            const f = document.createElement("a");
+            const blob = new Blob(["\ufeff", parts]);
+            f.href = URL.createObjectURL(blob);
+            f.download = `${this.contest.name} participants.csv`;
+            f.click();
         }
     }
 });
