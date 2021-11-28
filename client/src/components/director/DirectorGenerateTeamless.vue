@@ -36,7 +36,7 @@
         <!-- obaa -->
         <div v-if="generatedTeams.length > 0">
             <div class="teams" v-for="team in generatedTeams" :key="team">
-                <TeamCard :team="team"/>
+                <DirectorTeamCard :team="team"/>
             </div>
             <br/>
             <v-btn class="bg-red-darken-4 text-white" @click="saveTeams()">Save teams</v-btn>
@@ -47,13 +47,15 @@
             <br/>
             <h2>Contestants left with no teams:</h2>
             <table class="tls">
-                <tr>
+                <tr class="bg-green">
+                    <th title="use it to add a contestant to a specific team">ID</th>
                     <th>Contestant name</th>
                     <th>University ID</th>
                     <th>Gender</th>
                     <th>Can participate with the other gender</th>
                 </tr>
                 <tr v-for="cont in leftTeamless" :key="cont" :class="getContClass(cont)">
+                    <td title="use it to add this contestant to a specific team">{{ cont.id }}</td>
                     <td>{{ cont.name }}</td>
                     <td>{{ cont.university_id }}</td>
                     <td>{{ cont.gender ? "Male" : "Female" }}</td>
@@ -74,13 +76,13 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest";
-import TeamCard from "@/components/team/TeamCard.vue";
 import Contestant from "@/models/Contestant";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
+import DirectorTeamCard from "@/components/director/DirectorTeamCard.vue";
 
 export default defineComponent({
     name: "DirectorGenerateTeamless",
-    components: {TeamCard},
+    components: {DirectorTeamCard},
     data() {
         return {
             contests: [],
@@ -95,7 +97,7 @@ export default defineComponent({
     async mounted() {
         this.contests = await OrganizerRequests.getContests();
         const name = this.$route.query["contest"];
-        this.selection = name == undefined ? this.contests[0].name : name;
+        this.selection = name ?? this.contests[0].name;
     },
     methods: {
         openContests() {
@@ -120,7 +122,9 @@ export default defineComponent({
             this.generated = true;
             this.noTeamless = false;
             if (this.leftTeamless.length > 0) { // so left contestants can be assigned to any team later :)
-                await this.$store.dispatch("addContestantToRemoved", ...this.leftTeamless);
+                for (const c of this.leftTeamless) {
+                    await this.$store.dispatch("addContestantToRemoved", c);
+                }
             }
         },
         async saveTeams() {
@@ -151,11 +155,11 @@ tr, td {
 }
 
 .cont1 {
-    background-color: #d0d0d0;
+    background-color: #C8E6C9;
 }
 
 .cont2 {
-    background-color: #a0a0a0;
+    background-color: #A5D6A7;
 }
 
 .tls {

@@ -73,6 +73,16 @@ func (t *TeamManager) UpdateTeams(teams []models.Team, removedContestants []mode
 	}
 
 	for _, team := range teams {
+		if _, err := t.GetTeam(team.ID); err != nil {
+			team.LeaderId = team.Members[0].ID
+			team.Leader = &team.Members[0]
+
+			err = t.CreateTeam(team)
+			if err != nil {
+				return err
+			}
+		}
+
 		for _, cont := range team.Members {
 			if cont.TeamID != team.ID {
 				cont.Team = team

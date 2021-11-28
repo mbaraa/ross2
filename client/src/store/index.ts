@@ -8,10 +8,16 @@ export default createStore({
             <Contestant[]>JSON.parse(<string>localStorage.getItem("removedContestants")) ?? new Array<Contestant>(),
         modifiedTeams:
             <Team[]>JSON.parse(<string>localStorage.getItem("modifiedTeams")) ?? new Array<Team>(),
+        currentTeams: new Array<Team>(),
     },
     mutations: {
-        ADD_CONTESTANT_TO_REMOVED(state, ...contestant: Contestant[]) {
-            state.removedContestants.push(...contestant);
+        ADD_CONTESTANT_TO_REMOVED(state, contestant: Contestant) {
+            const index = state.removedContestants.findIndex((c) => c.id == contestant.id);
+            if (index == -1) {
+                state.removedContestants.push(contestant);
+            } else {
+                state.removedContestants[index] = contestant;
+            }
 
             localStorage.setItem("removedContestants", JSON.stringify(state.removedContestants));
         },
@@ -22,7 +28,7 @@ export default createStore({
             localStorage.setItem("removedContestants", JSON.stringify(state.removedContestants));
         },
         ADD_TEAM(state, team: Team) {
-            const index = state.modifiedTeams.indexOf(team);
+            const index = state.modifiedTeams.findIndex((t) => t.id == team.id);
             if (index == -1) {
                 state.modifiedTeams.push(team);
             } else {
@@ -30,11 +36,14 @@ export default createStore({
             }
 
             localStorage.setItem("modifiedTeams", JSON.stringify(state.modifiedTeams));
+        },
+        ADD_TEAM_TO_CURRENT(state, team: Team) {
+            state.modifiedTeams.push(team);
         }
     },
     actions: {
-        addContestantToRemoved({commit}, ...contestant: Contestant[]) {
-            commit("ADD_CONTESTANT_TO_REMOVED", ...contestant);
+        addContestantToRemoved({commit}, contestant: Contestant) {
+            commit("ADD_CONTESTANT_TO_REMOVED", contestant);
         },
         delContestantFromRemoved({commit}, contestant: Contestant) {
             commit("DEL_CONTESTANT_FROM_REMOVED", contestant)
@@ -42,6 +51,9 @@ export default createStore({
         addTeam({commit}, team: Team) {
             commit("ADD_TEAM", team);
         },
+        addTeamToCurrent({commit}, team: Team) {
+            commit("ADD_TEAM_TO_CURRENT", team);
+        }
     },
     getters: {
         getRemovedContestants(state) {
@@ -49,6 +61,9 @@ export default createStore({
         },
         getModifiedTeams(state) {
             return state.modifiedTeams;
+        },
+        getCurrentTeams(state) {
+            return state.currentTeams
         }
     },
     modules: {}
