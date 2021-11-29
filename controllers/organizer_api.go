@@ -11,7 +11,7 @@ import (
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
-	"github.com/mbaraa/ross2/utils"
+	"github.com/mbaraa/ross2/utils/namesgetter"
 	"github.com/mbaraa/ross2/utils/partsexport"
 	"github.com/mbaraa/ross2/utils/sheevhelper"
 	"github.com/mbaraa/ross2/utils/teamsgen"
@@ -346,22 +346,26 @@ func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *htt
 		return
 	}
 
-	var contest models.Contest
-	err = json.NewDecoder(req.Body).Decode(&contest)
+	resp := struct {
+		Contest models.Contest `json:"contest"`
+		Names   []string       `json:"names"`
+	}{}
+	err = json.NewDecoder(req.Body).Decode(&resp)
 	_ = req.Body.Close()
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	contest, err = o.contestRepo.Get(contest)
+	contest, err := o.contestRepo.Get(resp.Contest)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	teams, leftTeamless := teamsgen.GenerateTeams(contest,
-		utils.GetNamesGetter(req.URL.Query().Get("gen-type"))) // the big ass function that am proud AF from :)
+	teams, leftTeamless :=
+		teamsgen.GenerateTeams(contest, // the big ass function that am proud AF from :)
+			namesgetter.GetNamesGetter(req.URL.Query().Get("gen-type"), resp.Names...))
 
 	_ = json.NewEncoder(res).Encode(map[string]interface{}{
 		"teams":         teams,

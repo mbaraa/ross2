@@ -39,7 +39,7 @@ class OrganizerRequests {
         await RequestsManager.makeAuthPostRequest("register-generated-teams", UserType.Organizer, teams);
     }
 
-    public static async generateTeams(contest: Contest, genType: string): Promise<[Array<Team>, Array<Contestant>]> {
+    public static async generateTeams(contest: Contest, genType: string, names: string[]): Promise<[Array<Team>, Array<Contestant>]> {
         let teams = new Array<Team>();
         let leftTeamless = new Array<Contestant>();
 
@@ -49,7 +49,7 @@ class OrganizerRequests {
             headers: {
                 "Authorization": <string>localStorage.getItem("org_token"),
             },
-            body: JSON.stringify(contest),
+            body: JSON.stringify({"contest": contest, "names": names}),
         })
             .then(resp => resp.json())
             .then(jResp => {
@@ -58,6 +58,7 @@ class OrganizerRequests {
 
                 return [teams, leftTeamless];
             })
+            .catch(err => window.alert(err));
 
         return [teams, leftTeamless];
     }

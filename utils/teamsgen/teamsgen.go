@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/mbaraa/ross2/models"
-	"github.com/mbaraa/ross2/utils"
+	"github.com/mbaraa/ross2/utils/namesgetter"
 )
 
 var (
@@ -30,7 +30,7 @@ func getLeftMembers(teamless []models.Contestant) (left []models.Contestant) {
 
 // GenerateTeams generates teams for the sad teamless contestants of the given contest
 // also it uses the NamesGetter interface to assign names for the created teams :)
-func GenerateTeams(contest models.Contest, names utils.NamesGetter) ([]models.Team, []models.Contestant) {
+func GenerateTeams(contest models.Contest, names namesgetter.NamesGetter) ([]models.Team, []models.Contestant) {
 	sConts := splitContestantsByGender(contest.TeamlessContestants)
 
 	markMembers(contest.TeamlessContestants)
@@ -48,7 +48,7 @@ func combineTeams(teamsGroups ...[]models.Team) []models.Team {
 }
 
 // generateTeams this is where the fun begins...
-func generateTeams(teamless []models.Contestant, contest models.Contest, names utils.NamesGetter) []models.Team {
+func generateTeams(teamless []models.Contestant, contest models.Contest, names namesgetter.NamesGetter) []models.Team {
 	minMembers := contest.ParticipationConditions.MinTeamMembers
 	maxMembers := contest.ParticipationConditions.MaxTeamMembers
 
@@ -161,7 +161,7 @@ func fillLastTeam(teams []models.Team, minMembers, maxMembers, lastTeamIndex uin
 }
 
 // generateEmptyTeams generates teams w/ just names
-func generateEmptyTeams(numTeams int, names utils.NamesGetter) []models.Team {
+func generateEmptyTeams(numTeams int, names namesgetter.NamesGetter) []models.Team {
 	teams := make([]models.Team, numTeams)
 	for teamIndex := range teams {
 		teams[teamIndex] = models.Team{

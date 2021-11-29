@@ -21,9 +21,25 @@
                 </td>
                 <td>
                     <select style="background-color: #eeeeee" id="contest" v-model="genType">
-                        <option value="ordered">Numbered</option>
-                        <option value="random">Random teams names</option>
+                        <option value="ordered" @click="closeNamesFileUpload()">Numbered</option>
+                        <option value="random" @click="closeNamesFileUpload()">Random teams names</option>
+                        <option value="given" @click="openNamesFileUpload()">Given teams names</option>
                     </select>
+                </td>
+            </tr>
+            <tr v-if="!hideNamesFileUpload">
+                <td colspan="2" style="color: #212121">
+                    upload a file with the wanted teams names <b>separated by a comma(,)</b>
+                    <br/>eg: name1,name2,name3...
+                </td>
+            </tr>
+            <tr v-if="!hideNamesFileUpload">
+                <td colspan="2">
+                    <v-file-input
+                        show-size
+                        label="Names file"
+                        prepend-icon=""
+                        @change="selectFile"/>
                 </td>
             </tr>
             <tr>
@@ -92,6 +108,8 @@ export default defineComponent({
             generatedTeams: [],
             leftTeamless: [],
             noTeamless: false,
+            hideNamesFileUpload: true,
+            namesFile: undefined,
         }
     },
     async mounted() {
@@ -111,8 +129,19 @@ export default defineComponent({
             }
             return null
         },
+        checkNamesFile(): boolean {
+            return (this.genType != "given") || (this.genType == "given" && this.namesFile != undefined);
+        },
+        async readNamesFile(): Promise<string[]> {
+            return (await this.namesFile.text()).replace("\n", "").split(",");
+        },
         async generateTeams() {
-            [this.generatedTeams, this.leftTeamless] = await OrganizerRequests.generateTeams(this.selectContest(), this.genType);
+            if (!this.checkNamesFile()) {
+                window.alert("select file to upload!");
+                return;
+            }
+            [this.generatedTeams, this.leftTeamless] =
+                await OrganizerRequests.generateTeams(this.selectContest(), this.genType, await this.readNamesFile());
 
             if (this.generatedTeams.length == 0 && this.leftTeamless == null) {
                 this.noTeamless = true;
@@ -131,6 +160,19 @@ export default defineComponent({
             if (window.confirm("are you sure of the teams you are about to register?")) {
                 await OrganizerRequests.saveTeams(this.generatedTeams);
                 window.location.reload();
+            }
+        },
+        openNamesFileUpload() {
+            this.hideNamesFileUpload = false;
+        },
+        closeNamesFileUpload() {
+            this.hideNamesFileUpload = true;
+        },
+        selectFile(file: any) {
+            this.namesFile = file.target.files[0];
+            if (this.namesFile.type != "text/plain") {
+                window.alert("file must be of text type!");
+                this.namesFile = undefined;
             }
         },
         getContClass(cont: Contestant): string {
