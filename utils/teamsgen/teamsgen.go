@@ -56,14 +56,23 @@ func generateTeams(teamless []models.Contestant, contest models.Contest, names n
 		teamless = deleteLastAddedTeamless(teamless, minMembers)
 	}
 
-	return deleteEmptySlots(
-		finalizeTeams(
-			fillTeams(teamless,
-				generateEmptyTeams(1+(len(teamless)/int(minMembers)), names),
-				minMembers, maxMembers),
-			contest,
-		),
-	)
+	return stripContests(
+		deleteEmptySlots(
+			finalizeTeams(
+				fillTeams(teamless,
+					generateEmptyTeams(1+(len(teamless)/int(minMembers)), names),
+					minMembers, maxMembers),
+				contest,
+			)))
+}
+
+// stripContests removes generated teams' contests to reduce size,
+// but it might fuck things up, I'll keep an eye on it 😉
+func stripContests(teams []models.Team) []models.Team {
+	for i := range teams {
+		teams[i].Contests = nil
+	}
+	return teams
 }
 
 // isCompletelyFillable reports whether all the teamless will be filled in teams
