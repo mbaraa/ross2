@@ -1,23 +1,21 @@
 <template>
     <div v-if="contests.length > 0">
         <h1>Generate teams for teamless contestants:</h1>
-        <v-divider/>
+        <v-divider />
         <table class="opts">
             <tr>
                 <td>
-                    <label for="contest">Select contest: </label>
+                    <label for="contest">Select contest:</label>
                 </td>
                 <td>
                     <select style="background-color: #eeeeee" id="contest" v-model="selection">
-                        <option v-for="contest in contests" :key="contest">
-                            {{ contest.name }}
-                        </option>
+                        <option v-for="contest in contests" :key="contest">{{ contest.name }}</option>
                     </select>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label for="genType">Select generation type: </label>
+                    <label for="genType">Select generation type:</label>
                 </td>
                 <td>
                     <select style="background-color: #eeeeee" id="contest" v-model="genType">
@@ -29,17 +27,14 @@
             </tr>
             <tr v-if="!hideNamesFileUpload">
                 <td colspan="2" style="color: #212121">
-                    upload a file with the wanted teams names <b>separated by a comma(,)</b>
-                    <br/>eg: name1,name2,name3...
+                    upload a file with the wanted teams names
+                    <b>separated by a comma(,)</b>
+                    <br />eg: name1,name2,name3...
                 </td>
             </tr>
             <tr v-if="!hideNamesFileUpload">
                 <td colspan="2">
-                    <v-file-input
-                        show-size
-                        label="Names file"
-                        prepend-icon=""
-                        @change="selectFile"/>
+                    <v-file-input show-size label="Names file" prepend-icon @change="selectFile" />
                 </td>
             </tr>
             <tr>
@@ -52,15 +47,15 @@
         <!-- obaa -->
         <div v-if="generatedTeams.length > 0">
             <div class="teams" v-for="team in generatedTeams" :key="team">
-                <DirectorTeamCard :team="team"/>
+                <DirectorTeamCard :team="team" />
             </div>
-            <br/>
+            <br />
             <v-btn class="bg-red-darken-4 text-white" @click="saveTeams()">Save teams</v-btn>
         </div>
 
         <!-- hmm -->
         <div v-if="leftTeamless != null && leftTeamless.length > 0">
-            <br/>
+            <br />
             <h2>Contestants left with no teams:</h2>
             <table class="tls">
                 <tr class="bg-green">
@@ -80,8 +75,10 @@
             </table>
         </div>
 
-        <h1 class="text-red" v-if="noTeamless">no teamless contestants were found for this contest :)</h1>
-
+        <h1
+            class="text-red"
+            v-if="noTeamless"
+        >no teamless contestants were found for this contest :)</h1>
     </div>
     <div v-else>
         <h2>no contests were found 🙂</h2>
@@ -90,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
 import Contest from "@/models/Contest";
 import Contestant from "@/models/Contestant";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
@@ -98,7 +95,7 @@ import DirectorTeamCard from "@/components/director/DirectorTeamCard.vue";
 
 export default defineComponent({
     name: "DirectorGenerateTeamless",
-    components: {DirectorTeamCard},
+    components: { DirectorTeamCard },
     data() {
         return {
             contests: [],
@@ -130,18 +127,18 @@ export default defineComponent({
             return null
         },
         checkNamesFile(): boolean {
-            return (this.genType != "given") || (this.genType == "given" && this.namesFile != undefined);
+            return (this.genType != "given") || (this.genType == "given" && this.namesFile !== undefined);
         },
         async readNamesFile(): Promise<string[]> {
             return (await this.namesFile.text()).replace("\n", "").split(",");
         },
         async generateTeams() {
-            if (!this.checkNamesFile()) {
+            if (!this.checkNamesFile()) { // had to do it this way :(
                 window.alert("select file to upload!");
                 return;
             }
             [this.generatedTeams, this.leftTeamless] =
-                await OrganizerRequests.generateTeams(this.selectContest(), this.genType, await this.readNamesFile());
+                await OrganizerRequests.generateTeams(this.selectContest(), this.genType, this.namesFile !== undefined ? (await this.readNamesFile()) : []);
 
             if (this.generatedTeams.length == 0 && this.leftTeamless == null) {
                 this.noTeamless = true;
@@ -187,7 +184,8 @@ export default defineComponent({
     margin: 0 auto;
 }
 
-tr, td {
+tr,
+td {
     padding: 3px;
 }
 
@@ -197,11 +195,11 @@ tr, td {
 }
 
 .cont1 {
-    background-color: #C8E6C9;
+    background-color: #c8e6c9;
 }
 
 .cont2 {
-    background-color: #A5D6A7;
+    background-color: #a5d6a7;
 }
 
 .tls {
