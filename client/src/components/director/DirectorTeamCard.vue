@@ -1,9 +1,9 @@
 <template>
-    <div class="main2 bg-green-accent-4">
+    <div class="main2" :class="getGenderClass()">
         <FontAwesomeIcon class="icon" :icon="{ prefix: 'fas', iconName: 'users' }"/>
         <br/>
-        <v-text-field label="Team name" class="text-blue-darken-4 name" bg-color="success" v-model="newTeam.name"
-                      @change="updateTeam()"/>
+        <v-text-field label="Team name" class="text-blue-darken-4 name" v-model="newTeam.name"
+                      @change="updateTeam()" :class="getGenderBoxClass()"/>
         <h2>Gender: {{ getGender() }}</h2>
         <v-divider/>
 
@@ -15,8 +15,8 @@
             </v-btn>
         </div>
         <v-divider/>
-        <v-text-field class="text-white name" bg-color="success" label="New member ID" v-model="addedContID"/>
-        <v-btn @click="addContestantToTeam()">add</v-btn>
+        <v-text-field class="text-white name" label="New member ID" v-model="addedContID" :class="getGenderBoxClass()"/>
+        <v-btn @click="addContestantToTeam()">Add Contestant</v-btn>
     </div>
 </template>
 
@@ -84,7 +84,13 @@ export default defineComponent({
         },
         updateTeam() {
             this.$store.dispatch("addTeam", this.newTeam);
-        }
+        },
+        getGenderClass(): string {
+            return this.getGender() == "Males"? "males": this.getGender() == "Females"? "females": "any";
+        },
+        getGenderBoxClass(): string {
+            return this.getGender() == "Males"? "malesBox": this.getGender() == "Females"? "femalesBox": "anyBox";
+        },
     }
 });
 </script>
@@ -108,5 +114,29 @@ export default defineComponent({
     font-size: 1.5em;
     width: auto;
     margin-bottom: 1px;
+}
+
+.males {
+    background-color: #1E88E5;
+}
+
+.females {
+    background-color: #D81B60;
+}
+
+.any {
+    background-color: #43A047;
+}
+
+.malesBox {
+    background-color: #1565C0;
+}
+
+.femalesBox {
+    background-color: #AD1457;
+}
+
+.anyBox {
+    background-color: #2E7D32;
 }
 </style>

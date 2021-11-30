@@ -1,7 +1,7 @@
 <template>
     <br/>
     <div v-if="teams != null && teams.length > 0">
-        <div class="grid">
+        <div>
             <div class="teams" v-for="team in teams" :key="team">
                 <DirectorTeamCard :team="team"/>
             </div>
@@ -44,7 +44,9 @@
         </div>
 
         <div>
-            <v-btn class="bg-red-darken-4 text-white" @click="saveTeams()">Update teams</v-btn>
+            <v-btn class="bg-red-darken-4 text-white"
+                style="margin-top: 10px;"
+                @click="saveTeams()">Update teams</v-btn>
 
             <br/>
             <div v-if="removedMembers.length > 0">
