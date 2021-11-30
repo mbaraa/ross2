@@ -155,6 +155,12 @@ export default defineComponent({
         },
         async saveTeams() {
             if (window.confirm("are you sure of the teams you are about to register?")) {
+                const selectedContest = this.selectContest();
+
+                for (const team of this.generatedTeams) {
+                    team.contests = [selectedContest];
+                }
+
                 await OrganizerRequests.saveTeams(this.generatedTeams);
                 window.location.reload();
             }
