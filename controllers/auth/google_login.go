@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mbaraa/ross2/config"
+	"github.com/mbaraa/ross2/utils/multiavatar"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/mbaraa/ross2/controllers"
@@ -81,12 +82,10 @@ func (g *GoogleLoginAPI) finishContestantLogin(cont0 models.Contestant, res http
 		cont = models.Contestant{
 			Name:            cont0.Name,
 			Email:           cont0.Email,
-			AvatarURL:       cont0.AvatarURL,
+			AvatarURL:       multiavatar.GetAvatarURL(),
 			ProfileFinished: false,
 			ContactInfo: models.ContactInfo{
-				FacebookURL:    "/",
-				WhatsappNumber: "/",
-				TelegramNumber: "/",
+				FacebookURL: "/",
 			},
 		}
 		err = g.contRepo.Add(&cont)

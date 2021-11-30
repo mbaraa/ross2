@@ -9,6 +9,7 @@ import (
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/ross2/utils/multiavatar"
 )
 
 // MicrosoftLoginAPI holds microsoft login handlers
@@ -77,12 +78,10 @@ func (m *MicrosoftLoginAPI) finishContestantLogin(cont0 models.Contestant, res h
 		cont = models.Contestant{
 			Name:            cont0.Name,
 			Email:           cont0.Email,
-			AvatarURL:       cont0.AvatarURL,
+			AvatarURL:       multiavatar.GetAvatarURL(),
 			ProfileFinished: false,
 			ContactInfo: models.ContactInfo{
-				FacebookURL:    "/",
-				WhatsappNumber: "/",
-				TelegramNumber: "/",
+				FacebookURL: "/",
 			},
 		}
 		err = m.contRepo.Add(&cont)

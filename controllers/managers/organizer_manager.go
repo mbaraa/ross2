@@ -3,6 +3,7 @@ package managers
 import (
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/ross2/utils/multiavatar"
 )
 
 type OrganizerManager struct {
@@ -25,6 +26,7 @@ func (o *OrganizerManager) CreateContest(contest models.Contest) error {
 }
 
 func (o *OrganizerManager) AddOrganizer(org *models.Organizer) error {
+	org.AvatarURL = multiavatar.GetAvatarURL()
 	return o.orgRepo.Add(org)
 }
 

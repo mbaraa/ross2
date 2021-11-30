@@ -5,6 +5,7 @@ import (
 
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/ross2/utils/multiavatar"
 )
 
 type ContestantManager struct {
@@ -35,6 +36,7 @@ func (c *ContestantManager) CreateUserSession(email string) error {
 }
 
 func (c *ContestantManager) FinishUser(cont models.Contestant) error {
+	cont.AvatarURL = multiavatar.GetAvatarURL()
 	return c.contestantRepo.Update(cont)
 }
 
