@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -17,6 +18,81 @@ import (
 	"github.com/mbaraa/ross2/utils/teamsgen"
 )
 
+type OrganizerAPIBuilder struct {
+	orgMgr          *managers.OrganizerManager
+	sessMgr         *managers.SessionManager
+	teamMgr         *managers.TeamManager
+	contMgr         *managers.ContestantManager
+	contestRepo     data.ContestCRUDRepo
+	notificationMgr *managers.NotificationManager
+}
+
+func NewOrganizerAPIBuilder() *OrganizerAPIBuilder {
+	return new(OrganizerAPIBuilder)
+}
+
+func (b *OrganizerAPIBuilder) OrganizerMgr(o *managers.OrganizerManager) *OrganizerAPIBuilder {
+	b.orgMgr = o
+	return b
+}
+
+func (b *OrganizerAPIBuilder) SessionMgr(s *managers.SessionManager) *OrganizerAPIBuilder {
+	b.sessMgr = s
+	return b
+}
+
+func (b *OrganizerAPIBuilder) TeamMgr(t *managers.TeamManager) *OrganizerAPIBuilder {
+	b.teamMgr = t
+	return b
+}
+
+func (b *OrganizerAPIBuilder) ContestantMgr(c *managers.ContestantManager) *OrganizerAPIBuilder {
+	b.contMgr = c
+	return b
+}
+
+func (b *OrganizerAPIBuilder) ContestRepo(c data.ContestCRUDRepo) *OrganizerAPIBuilder {
+	b.contestRepo = c
+	return b
+}
+
+func (b *OrganizerAPIBuilder) NotificationMgr(n *managers.NotificationManager) *OrganizerAPIBuilder {
+	b.notificationMgr = n
+	return b
+}
+
+func (b *OrganizerAPIBuilder) verify() bool {
+	if b.contestRepo == nil {
+		fmt.Println("Organizer API Builder: missing contest repo!")
+	}
+	if b.orgMgr == nil {
+		fmt.Println("Organizer API Builder: missing organizer manager!")
+	}
+	if b.sessMgr == nil {
+		fmt.Println("Organizer API Builder: missing session manager!")
+	}
+	if b.teamMgr == nil {
+		fmt.Println("Organizer API Builder: missing team manager!")
+	}
+	if b.contMgr == nil {
+		fmt.Println("Organizer API Builder: missing contestant manager!")
+	}
+	if b.notificationMgr == nil {
+		fmt.Println("Organizer API Builder: missing notification manager!")
+	}
+
+	return b.contestRepo != nil && b.orgMgr != nil &&
+		b.sessMgr != nil && b.notificationMgr != nil &&
+		b.teamMgr != nil && b.contMgr != nil
+}
+
+func (b *OrganizerAPIBuilder) GetOrganizerAPI() *OrganizerAPI {
+	if !b.verify() {
+		return nil
+	}
+	return NewOrganizerAPI(b)
+}
+
 type OrganizerAPI struct {
 	endPoints map[string]http.HandlerFunc
 
@@ -28,15 +104,14 @@ type OrganizerAPI struct {
 	notsMgr     *managers.NotificationManager
 }
 
-func NewOrganizerAPI(orgMgr *managers.OrganizerManager, sessMgr *managers.SessionManager, teamMgr *managers.TeamManager,
-	contMgr *managers.ContestantManager, contestRepo data.ContestCRUDRepo, notificationMgr *managers.NotificationManager) *OrganizerAPI {
+func NewOrganizerAPI(b *OrganizerAPIBuilder) *OrganizerAPI {
 	return (&OrganizerAPI{
-		orgMgr:      orgMgr,
-		sessMgr:     sessMgr,
-		teamMgr:     teamMgr,
-		contMgr:     contMgr,
-		contestRepo: contestRepo,
-		notsMgr:     notificationMgr,
+		orgMgr:      b.orgMgr,
+		sessMgr:     b.sessMgr,
+		teamMgr:     b.teamMgr,
+		contMgr:     b.contMgr,
+		contestRepo: b.contestRepo,
+		notsMgr:     b.notificationMgr,
 	}).initEndPoints()
 }
 

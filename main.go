@@ -21,7 +21,17 @@ func main() {
 
 	db.GetDBManagerInstance().InitTables()
 
-	router.New(
-		contestRepo, sessionRepo, contestantRepo, teamRepo, organizerRepo, joinReqRepo, notificationRepo,
-	).Start()
+	r := router.NewRouterBuilder().
+		ContestRepo(contestRepo).
+		ContestantRepo(contestantRepo).
+		SessionRepo(sessionRepo).
+		TeamRepo(teamRepo).
+		OrganizerRepo(organizerRepo).
+		JoinReqRepo(joinReqRepo).
+		NotificationRepo(notificationRepo).
+		GetRouter()
+
+	if r != nil {
+		r.Start()
+	}
 }

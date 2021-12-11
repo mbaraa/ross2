@@ -10,22 +10,77 @@ import (
 	"github.com/mbaraa/ross2/models"
 )
 
+type ContestantAPIBuilder struct {
+	contMgr    *managers.ContestantManager
+	sessMgr    *managers.SessionManager
+	teamMgr    *managers.TeamManager
+	joinReqMgr *managers.JoinRequestManager
+}
+
+func NewContestantAPIBuilder() *ContestantAPIBuilder {
+	return new(ContestantAPIBuilder)
+}
+
+func (b *ContestantAPIBuilder) ContestantMgr(c *managers.ContestantManager) *ContestantAPIBuilder {
+	b.contMgr = c
+	return b
+}
+
+func (b *ContestantAPIBuilder) SessionMgr(s *managers.SessionManager) *ContestantAPIBuilder {
+	b.sessMgr = s
+	return b
+}
+
+func (b *ContestantAPIBuilder) TeamMgr(t *managers.TeamManager) *ContestantAPIBuilder {
+	b.teamMgr = t
+	return b
+}
+
+func (b *ContestantAPIBuilder) JoinReqMgr(j *managers.JoinRequestManager) *ContestantAPIBuilder {
+	b.joinReqMgr = j
+	return b
+}
+
+func (b *ContestantAPIBuilder) verify() bool {
+	if b.contMgr == nil {
+		fmt.Println("Contestant API Builder: missing contestant manager!")
+	}
+	if b.sessMgr == nil {
+		fmt.Println("Contestant API Builder: missing session manager!")
+	}
+	if b.teamMgr == nil {
+		fmt.Println("Contestant API Builder: missing team manager!")
+	}
+	if b.joinReqMgr == nil {
+		fmt.Println("Contestant API Builder: missing join request manager!")
+	}
+
+	return b.contMgr != nil && b.sessMgr != nil &&
+		b.teamMgr != nil && b.joinReqMgr != nil
+}
+
+func (b *ContestantAPIBuilder) GetContestantAPI() *ContestantAPI {
+	if !b.verify() {
+		return nil
+	}
+	return NewContestantAPI(b)
+}
+
 type ContestantAPI struct {
 	endPoints map[string]http.HandlerFunc
 
-	contManager    *managers.ContestantManager
-	sessManager    *managers.SessionManager
-	teamManager    *managers.TeamManager
-	joinReqManager *managers.JoinRequestManager
+	contMgr    *managers.ContestantManager
+	sessMgr    *managers.SessionManager
+	teamMgr    *managers.TeamManager
+	joinReqMgr *managers.JoinRequestManager
 }
 
-func NewContestantAPI(contManager *managers.ContestantManager, sessManager *managers.SessionManager,
-	teamManager *managers.TeamManager, joinReqManager *managers.JoinRequestManager) *ContestantAPI {
+func NewContestantAPI(b *ContestantAPIBuilder) *ContestantAPI {
 	return (&ContestantAPI{
-		contManager:    contManager,
-		sessManager:    sessManager,
-		teamManager:    teamManager,
-		joinReqManager: joinReqManager,
+		contMgr:    b.contMgr,
+		sessMgr:    b.sessMgr,
+		teamMgr:    b.teamMgr,
+		joinReqMgr: b.joinReqMgr,
 	}).initEndPoints()
 }
 
@@ -61,7 +116,7 @@ type HandlerFuncWithSession func(http.ResponseWriter, *http.Request, models.Sess
 
 func (c *ContestantAPI) authenticateHandler(h HandlerFuncWithSession) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		session, ok := c.sessManager.CheckSessionFromRequest(req)
+		session, ok := c.sessMgr.CheckSessionFromRequest(req)
 		if !ok {
 			res.WriteHeader(http.StatusUnauthorized)
 			return
@@ -72,8 +127,8 @@ func (c *ContestantAPI) authenticateHandler(h HandlerFuncWithSession) http.Handl
 
 // GET /contestant/login/
 func (c *ContestantAPI) handleLogin(res http.ResponseWriter, req *http.Request) {
-	if session, ok := c.sessManager.CheckSessionFromRequest(req); ok { // I kinda fucked up a bit 😅
-		cont, err := c.contManager.GetContestant(session.ID)
+	if session, ok := c.sessMgr.CheckSessionFromRequest(req); ok { // I kinda fucked up a bit 😅
+		cont, err := c.contMgr.GetContestant(session.ID)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
@@ -96,7 +151,7 @@ func (c *ContestantAPI) handleSignup(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	err = c.contManager.FinishUser(contestant)
+	err = c.contMgr.FinishUser(contestant)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -105,7 +160,7 @@ func (c *ContestantAPI) handleSignup(res http.ResponseWriter, req *http.Request)
 
 // GET /contestant/logout/
 func (c *ContestantAPI) handleLogout(res http.ResponseWriter, req *http.Request, session models.Session) {
-	err := c.sessManager.DeleteSession(session.ID)
+	err := c.sessMgr.DeleteSession(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -114,13 +169,13 @@ func (c *ContestantAPI) handleLogout(res http.ResponseWriter, req *http.Request,
 
 // GET /contestant/delete/
 func (c *ContestantAPI) handleDelete(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = c.contManager.DeleteUser(cont)
+	err = c.contMgr.DeleteUser(cont)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -129,7 +184,7 @@ func (c *ContestantAPI) handleDelete(res http.ResponseWriter, req *http.Request,
 
 // GET /contestant/profile/
 func (c *ContestantAPI) handleGetProfile(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -149,7 +204,7 @@ func (c *ContestantAPI) handleCreateTeam(res http.ResponseWriter, req *http.Requ
 	}
 
 	// setting the team leader here is far easier than doing it from the frontend
-	leader, err := c.contManager.GetContestant(session.ID)
+	leader, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
@@ -158,7 +213,7 @@ func (c *ContestantAPI) handleCreateTeam(res http.ResponseWriter, req *http.Requ
 	team.LeaderId = leader.ID
 	team.Members = append(team.Members, leader)
 
-	err = c.teamManager.CreateTeam(team)
+	err = c.teamMgr.CreateTeam(team)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -175,13 +230,13 @@ func (c *ContestantAPI) handleDeleteTeam(res http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil || team.LeaderId != cont.ID {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	err = c.teamManager.DeleteTeam(team)
+	err = c.teamMgr.DeleteTeam(team)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -198,7 +253,7 @@ func (c *ContestantAPI) handleRequestJoinTeam(res http.ResponseWriter, req *http
 		return
 	}
 
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
@@ -207,7 +262,7 @@ func (c *ContestantAPI) handleRequestJoinTeam(res http.ResponseWriter, req *http
 	jr.RequesterID = cont.ID
 	jr.Requester = cont
 
-	err = c.joinReqManager.CreateRequest(jr, cont)
+	err = c.joinReqMgr.CreateRequest(jr, cont)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -224,7 +279,7 @@ func (c *ContestantAPI) handleAcceptJoinRequest(res http.ResponseWriter, req *ht
 		return
 	}
 
-	err = c.joinReqManager.AcceptJoinRequest(noti)
+	err = c.joinReqMgr.AcceptJoinRequest(noti)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		_, _ = res.Write([]byte(fmt.Sprintf(`{"err": "%s"}`, err.Error())))
@@ -242,7 +297,7 @@ func (c *ContestantAPI) handleRejectJoinRequest(res http.ResponseWriter, req *ht
 		return
 	}
 
-	err = c.joinReqManager.RejectJoinRequest(noti)
+	err = c.joinReqMgr.RejectJoinRequest(noti)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -251,13 +306,13 @@ func (c *ContestantAPI) handleRejectJoinRequest(res http.ResponseWriter, req *ht
 
 // GET /contestant/leave-team/
 func (c *ContestantAPI) handleLeaveTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	err = c.teamManager.DeleteContestantFromTeam(cont)
+	err = c.teamMgr.DeleteContestantFromTeam(cont)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -275,13 +330,13 @@ func (c *ContestantAPI) handleRegisterAsTeamless(res http.ResponseWriter, req *h
 		return
 	}
 
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	err = c.contManager.RegisterAsTeamless(cont, contest)
+	err = c.contMgr.RegisterAsTeamless(cont, contest)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -298,27 +353,27 @@ func (c *ContestantAPI) handleCheckJoinedTeam(res http.ResponseWriter, req *http
 		return
 	}
 
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	inTeam := cont.TeamID > 1 || cont.TeamID == team.ID ||
-		c.joinReqManager.CheckContestantTeamRequests(cont, team)
+		c.joinReqMgr.CheckContestantTeamRequests(cont, team)
 
 	_, _ = res.Write([]byte(fmt.Sprintf(`{"team_status" : %v}`, inTeam)))
 }
 
 // GET /contestant/get-team/
 func (c *ContestantAPI) handleGetTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contManager.GetContestant(session.ID)
+	cont, err := c.contMgr.GetContestant(session.ID)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	team, err := c.teamManager.GetTeam(cont.TeamID)
+	team, err := c.teamMgr.GetTeam(cont.TeamID)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
