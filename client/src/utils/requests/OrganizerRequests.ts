@@ -7,6 +7,19 @@ import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Organizer from "@/models/Organizer";
 
 class OrganizerRequests {
+    public static async generateTeamsPosts(data: any): Promise<string> {
+        let zipFile = ""
+        await RequestsManager.makeAuthPostRequest("generate-teams-posts", UserType.Organizer, data)
+            .then(resp => resp.text())
+            .then(resp => {
+                zipFile = resp;
+                return zipFile;
+            })
+            .catch(err => window.alert(err));
+
+        return zipFile;
+    }
+
     public static async getParticipants(contest: Contest): Promise<string> {
         let parts = "";
         await RequestsManager.makeAuthPostRequest("get-participants", UserType.Organizer, contest)

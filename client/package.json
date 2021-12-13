@@ -15,11 +15,12 @@
     "@fortawesome/vue-fontawesome": "^3.0.0-4",
     "@mdi/font": "5.9.55",
     "core-js": "^3.6.5",
+    "js-base64": "^3.7.2",
     "roboto-fontface": "*",
     "vue": "^3.0.0",
     "vue-gapi": "^2.0.0",
     "vue-router": "^4.0.0-0",
-    "vuetify": "^3.0.0-alpha.0",
+    "vuetify": "^3.0.0-alpha.12",
     "vuex": "^4.0.0-0",
     "webfontloader": "^1.0.0"
   },

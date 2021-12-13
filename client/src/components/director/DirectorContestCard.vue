@@ -25,6 +25,8 @@
                    class="bg-purple">
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'table'}"/>
             </v-btn>
+            &nbsp;
+            <DirectorGenerateTeamsPosts :contest="contest"/>
         </div>
     </div>
 </template>
@@ -37,6 +39,7 @@ import {faCogs, faTrash, faCalendarCheck, faUsers, faTable} from "@fortawesome/f
 import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
+import DirectorGenerateTeamsPosts from "@/components/director/DirectorGenerateTeamsPosts.vue";
 
 library.add(faTrash, faCogs, faCalendarCheck, faUsers, faTable);
 
@@ -46,6 +49,7 @@ export default defineComponent({
         contest: Contest
     },
     components: {
+        DirectorGenerateTeamsPosts,
         ContestCard,
         FontAwesomeIcon,
     },

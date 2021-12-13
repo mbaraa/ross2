@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"io"
 	"math"
 	"os"
 
@@ -21,13 +22,14 @@ import (
 */
 
 type Point2 struct {
-	X, Y float64
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type TextFieldProps struct {
-	Position Point2
-	XWidth   float64
-	FontSize float64
+	Position Point2  `json:"startPosition"`
+	XWidth   float64 `json:"width"`
+	FontSize float64 `json:"fontSize"`
 }
 
 type TeamPostsGenerator struct {
@@ -74,19 +76,18 @@ func (p *TeamPostsGenerator) GenerateToZipFile() (*os.File, error) {
 func (p *TeamPostsGenerator) GenerateToZipFileBytes() (zipBytes []byte, err error) {
 	zipFile, err := p.generateZipFile()
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	_, err = zipFile.Seek(0, 0)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	_, err = base64.
-		NewEncoder(base64.StdEncoding, zipFile).
-		Write(zipBytes)
-
+	b, err := io.ReadAll(zipFile)
 	_ = zipFile.Close()
+	_ = os.Remove(zipFile.Name())
+	zipBytes = []byte(base64.StdEncoding.EncodeToString(b))
 
 	return
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/utils/namesgetter"
 	"github.com/mbaraa/ross2/utils/partsexport"
+	"github.com/mbaraa/ross2/utils/postsgen"
 	"github.com/mbaraa/ross2/utils/sheevhelper"
 	"github.com/mbaraa/ross2/utils/teamsgen"
 )
@@ -154,6 +155,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /get-contest/":              o.authenticateHandler(o.handleGetContest),
 		"POST /send-sheev-notifications/": o.authenticateHandler(o.handleSendSheevNotifications),
 		"POST /get-participants/":         o.authenticateHandler(o.handleGetParticipants),
+		"POST /generate-teams-posts/":     o.authenticateHandler(o.handleGenerateTeamsPosts),
 	}
 	return o
 }
@@ -656,4 +658,36 @@ func (o *OrganizerAPI) handleGetParticipants(res http.ResponseWriter, req *http.
 	}
 
 	_, _ = res.Write([]byte(partsexport.GetParticipants(contest)))
+}
+
+// POST /organizer/generate-teams-posts/
+func (o *OrganizerAPI) handleGenerateTeamsPosts(res http.ResponseWriter, req *http.Request, session models.Session) {
+	// 🙉🙊🙈 if it works it ain't stupid
+	var respBody struct {
+		Contest      models.Contest            `json:"contest"`
+		TeamProps    postsgen.TextFieldProps   `json:"teamNameProps"`
+		MembersProps []postsgen.TextFieldProps `json:"membersNamesProps"`
+		BaseImage    string                    `json:"baseImage"`
+	}
+	err := json.NewDecoder(req.Body).Decode(&respBody)
+	_ = req.Body.Close()
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	respBody.Contest, err = o.contestRepo.Get(respBody.Contest)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	postsGen := postsgen.NewTeamsPostsGenerator(respBody.Contest.Teams, respBody.TeamProps, respBody.MembersProps, respBody.BaseImage)
+	zipFileBytes, err := postsGen.GenerateToZipFileBytes()
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = res.Write(zipFileBytes)
 }
