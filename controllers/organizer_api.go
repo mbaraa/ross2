@@ -664,10 +664,11 @@ func (o *OrganizerAPI) handleGetParticipants(res http.ResponseWriter, req *http.
 func (o *OrganizerAPI) handleGenerateTeamsPosts(res http.ResponseWriter, req *http.Request, session models.Session) {
 	// 🙉🙊🙈 if it works it ain't stupid
 	var respBody struct {
-		Contest      models.Contest            `json:"contest"`
-		TeamProps    postsgen.TextFieldProps   `json:"teamNameProps"`
-		MembersProps []postsgen.TextFieldProps `json:"membersNamesProps"`
-		BaseImage    string                    `json:"baseImage"`
+		Contest        models.Contest            `json:"contest"`
+		TeamNameProps  postsgen.TextFieldProps   `json:"teamNameProps"`
+		TeamOrderProps postsgen.TextFieldProps   `json:"teamOrderProps"`
+		MembersProps   []postsgen.TextFieldProps `json:"membersNamesProps"`
+		BaseImage      string                    `json:"baseImage"`
 	}
 	err := json.NewDecoder(req.Body).Decode(&respBody)
 	_ = req.Body.Close()
@@ -682,7 +683,26 @@ func (o *OrganizerAPI) handleGenerateTeamsPosts(res http.ResponseWriter, req *ht
 		return
 	}
 
-	postsGen := postsgen.NewTeamsPostsGenerator(respBody.Contest.Teams, respBody.TeamProps, respBody.MembersProps, respBody.BaseImage)
+	var postsGen *postsgen.TeamPostsGenerator
+	if respBody.BaseImage == "" {
+		postsGen, err = postsgen.ThreeMembersPostSamplePostBuilder.
+			Teams(respBody.Contest.Teams).
+			GetTeamsPostsGenerator()
+
+	} else {
+		postsGen, err = postsgen.NewTeamsPostsGeneratorBuilder().
+			Teams(respBody.Contest.Teams).
+			TeamNameProps(respBody.TeamNameProps).
+			TeamOrderProps(respBody.TeamOrderProps).
+			MembersNamesProps(respBody.MembersProps).
+			B64Image(respBody.BaseImage).
+			GetTeamsPostsGenerator()
+	}
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	zipFileBytes, err := postsGen.GenerateToZipFileBytes()
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)

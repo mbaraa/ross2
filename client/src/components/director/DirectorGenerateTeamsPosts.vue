@@ -4,7 +4,7 @@
         max-width="-40"
         transition="dialog-bottom-transition"
         v-model="dialog"
-        scrollable
+        scrollable=""
     >
         <template v-slot:activator="{ on, attrs }">
             <div
@@ -24,8 +24,35 @@
                 <span class="text-h4">Generate Teams Posts</span>
             </v-card-title>
 
-            <div class="list">
-                <v-file-input show-size label="Logo file" prepend-icon @change="selectFile"></v-file-input>
+            <v-btn v-if="useSampleImage" @click="useSampleImage = false" class="bg-amber ma-1 text-white">upload and use
+                image
+            </v-btn>
+
+            <div class="list" v-if="!useSampleImage">
+                <a class="v-btn bg-purple text-white image pa-2 ma-1" href="/team_post_template.png" target="_blank">template
+                    image sample</a>
+                <a class="v-btn bg-purple text-white image pa-2 ma-1" href="/team_post_sample.png" target="_blank">sample
+                    image for 3 members</a>
+                <v-btn @click="useSampleImage = true" class="bg-purple ma-1 text-white">use sample image for 3 members
+                </v-btn>
+
+                <v-file-input show-size label="Template Image" prepend-icon @change="selectFile"/>
+
+                <p>Team order props:</p>
+                <v-text-field
+                    required
+                    type="number"
+                    label="Start position X"
+                    v-model="teamOrderProps.startPosition.x"
+                />
+                <v-text-field
+                    required
+                    type="number"
+                    label="Start position Y"
+                    v-model="teamOrderProps.startPosition.y"
+                />
+                <v-text-field required type="number" label="Font size" v-model="teamOrderProps.fontSize"/>
+                <v-text-field required type="number" label="Width" v-model="teamOrderProps.width"/>
 
                 <p>Team name props:</p>
                 <v-text-field
@@ -61,8 +88,11 @@
                     <v-text-field required type="number" label="Width" v-model="memberProp.width"/>
                 </div>
             </div>
-            <v-btn class="bg-red" @click="dialog = false">Close</v-btn>&nbsp;
-            <v-btn class="bg-blue" @click="generatePosts()">Generate</v-btn>
+
+            <div>
+                <v-btn class="bg-red" @click="dialog = false">Close</v-btn>&nbsp;
+                <v-btn class="bg-blue" @click="generatePosts()">Generate</v-btn>
+            </div>
         </v-card>
     </v-dialog>
 </template>
@@ -74,8 +104,6 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faImages} from "@fortawesome/free-solid-svg-icons";
 import Contest from "@/models/Contest";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
-import JSZip from "jszip";
-import {atob} from "js-base64";
 
 library.add(faImages);
 
@@ -104,8 +132,10 @@ export default defineComponent({
             dialog: false,
             templateImageFile: undefined,
             teamNameProps: new FieldProps(),
+            teamOrderProps: new FieldProps(),
             membersProps: new Array<FieldProps>(),
             imageB64: "",
+            useSampleImage: false,
         }
     },
     props: {
@@ -124,7 +154,7 @@ export default defineComponent({
             this.dialog = true;
         },
         checkImageFile(): boolean {
-            if (this.templateImageFile === undefined || this.templateImageFile.type.indexOf("png") == -1) {
+            if (!this.useSampleImage && (this.templateImageFile === undefined || this.templateImageFile.type.indexOf("png") == -1)) {
                 window.alert("select file of image/png type!");
                 this.templateImageFile = undefined;
                 return false;
@@ -162,12 +192,13 @@ export default defineComponent({
                 return;
             }
 
-            const templateImageB64 = await this.readFile();
+            const templateImageB64 = this.useSampleImage ? "" : await this.readFile();
             const zipFile = await OrganizerRequests.generateTeamsPosts({
                 "contest": this.contest,
                 "teamNameProps": this.teamNameProps,
+                "teamOrderProps": this.teamOrderProps,
                 "membersNamesProps": this.membersProps,
-                "baseImage": templateImageB64.substring(templateImageB64.indexOf(",")+1),
+                "baseImage": this.useSampleImage ? "" : templateImageB64.substring(templateImageB64.indexOf(",") + 1),
             });
 
             const f = document.createElement("a");
@@ -191,6 +222,10 @@ export default defineComponent({
     overflow: hidden;
     overflow-y: scroll;
     height: 60vh;
+}
+
+.image {
+    padding: 5px;
 }
 </style>
 
