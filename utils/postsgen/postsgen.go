@@ -269,7 +269,7 @@ func (p *TeamPostsGenerator) showMembers(members []models.Contestant) {
 
 	for propsIndex, membersIndex, membersCount, propsCount := 0, 0, len(members), len(p.fieldsProps.MembersNamesProps); membersIndex < membersCount; propsIndex, membersIndex = (propsIndex+1)%propsCount, membersIndex+1 {
 
-		t.SetContent(members[membersIndex].Name)
+		t.SetContent(members[membersIndex].User.Name)
 		t.SetFontSize(p.fieldsProps.MembersNamesProps[propsIndex].FontSize)
 
 		xLength, newSize := t.GetXLengthUsingParent(p.fieldsProps.MembersNamesProps[propsIndex].XWidth, .8)

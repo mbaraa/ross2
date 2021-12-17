@@ -40,17 +40,12 @@ func (o *OrganizerDB) Get(organizer models.Organizer) (fetchedOrganizer models.O
 	return
 }
 
-func (o *OrganizerDB) GetByEmail(email string) (models.Organizer, error) {
-	var (
-		fetchedOrganizer models.Organizer
-		err              error
-	)
-
+func (o *OrganizerDB) GetByEmail(email string) (fetchedOrganizer models.Organizer, err error) {
 	err = o.db.
 		First(&fetchedOrganizer, "email = ?", email).
 		Error
 
-	return fetchedOrganizer, err
+	return
 }
 
 func (o *OrganizerDB) GetAllByOrganizer(org models.Organizer) ([]models.Organizer, error) {
@@ -76,11 +71,6 @@ func (o *OrganizerDB) GetAll() ([]models.Organizer, error) {
 		return nil, res.Error
 	}
 
-	for _, organizer := range organizers {
-		o.db.First(&organizer.ContactInfo,
-			"contact_info_id = ?", organizer.ContactInfoID)
-	}
-
 	return organizers, nil
 }
 
@@ -99,8 +89,8 @@ func (o *OrganizerDB) Count() (int64, error) {
 func (o *OrganizerDB) Update(organizer models.Organizer) error {
 	err := o.db.
 		Model(new(models.ContactInfo)).
-		Where("id = ?", organizer.ContactInfoID).
-		Updates(&organizer.ContactInfo).
+		Where("id = ?", organizer.User.ContactInfoID).
+		Updates(&organizer.User.ContactInfo).
 		Error
 
 	if err != nil {

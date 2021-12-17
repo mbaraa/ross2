@@ -46,7 +46,7 @@ func (c *ContestantDB) Get(contestant models.Contestant) (fetchedContestant mode
 	}
 
 	err = c.db.
-		First(&fetchedContestant.ContactInfo, "id = ?", fetchedContestant.ContactInfoID).
+		First(&fetchedContestant.User.ContactInfo, "id = ?", fetchedContestant.User.ContactInfoID).
 		Error
 
 	return

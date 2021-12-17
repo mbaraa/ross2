@@ -30,7 +30,7 @@ func NewJoinRequestManager(jrRepo data.JoinRequestCRDRepo, nRepo data.Notificati
 func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Contestant) error {
 	reqMsg := fmt.Sprintf(
 		"_REQThe contestant '%s' with the university id '%s' wants to join your team",
-		cont.Name, cont.UniversityID)
+		cont.User.Name, cont.UniversityID)
 
 	if jr.RequestMessage != "" {
 		reqMsg += "\nRequest message: " + jr.RequestMessage

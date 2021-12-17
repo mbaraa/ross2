@@ -19,7 +19,7 @@ func GetSheevNotifications(c models.Contest) (notifications []*models.Notificati
 				`Hi %s 👋<br/>
 The contest "%s" is over, hope you had fun at it 😉<br/>
 if you participated in the contest you can generate socity service form from <a href="%s">this site</a> then print the picture and deliver it to the dean's secretary<br/>
-Have a nice day!`, cont.Name, c.Name, "https://mbaraa.fun/sheev"),
+Have a nice day!`, cont.User.Name, c.Name, "https://mbaraa.fun/sheev"),
 		})
 	}
 

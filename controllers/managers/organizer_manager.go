@@ -26,7 +26,7 @@ func (o *OrganizerManager) CreateContest(contest models.Contest) error {
 }
 
 func (o *OrganizerManager) AddOrganizer(org *models.Organizer) error {
-	org.AvatarURL = multiavatar.GetAvatarURL()
+	org.User.AvatarURL = multiavatar.GetAvatarURL()
 	return o.orgRepo.Add(org)
 }
 
@@ -37,7 +37,7 @@ func (o *OrganizerManager) GetOrganizer(sessionToken string) (models.Organizer, 
 	}
 
 	return o.orgRepo.Get(models.Organizer{
-		ID: session.UserID,
+		User: models.User{ID: session.UserID},
 	})
 }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/ross2/models/enums"
 	"github.com/mbaraa/ross2/utils/namesgetter"
 	"github.com/mbaraa/ross2/utils/partsexport"
 	"github.com/mbaraa/ross2/utils/postsgen"
@@ -227,7 +228,7 @@ func (o *OrganizerAPI) handleGetProfile(res http.ResponseWriter, req *http.Reque
 // POST /organizer/update-team/
 func (o *OrganizerAPI) handleUpdateTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || (org.Roles&models.RoleDirector == 0 || org.Roles&models.RoleCoreOrganizer == 0) {
+	if err != nil || (org.Roles&enums.RoleDirector == 0 || org.Roles&enums.RoleCoreOrganizer == 0) {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -250,7 +251,7 @@ func (o *OrganizerAPI) handleUpdateTeam(res http.ResponseWriter, req *http.Reque
 // POST /organizer/create-contest/
 func (o *OrganizerAPI) handleCreateContest(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -275,7 +276,7 @@ func (o *OrganizerAPI) handleCreateContest(res http.ResponseWriter, req *http.Re
 // POST /organizer/delete-contest/
 func (o *OrganizerAPI) handleDeleteContest(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -298,7 +299,7 @@ func (o *OrganizerAPI) handleDeleteContest(res http.ResponseWriter, req *http.Re
 // POST /organizer/update-contest/
 func (o *OrganizerAPI) handleUpdateContest(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -321,7 +322,7 @@ func (o *OrganizerAPI) handleUpdateContest(res http.ResponseWriter, req *http.Re
 // POST /organizer/add-organizer/
 func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -334,7 +335,7 @@ func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Req
 		return
 	}
 
-	newOrg.ContactInfo = models.ContactInfo{
+	newOrg.User.ContactInfo = models.ContactInfo{
 		FacebookURL: "/",
 	}
 	newOrg.DirectorID = org.ID
@@ -349,7 +350,7 @@ func (o *OrganizerAPI) handleAddOrganizer(res http.ResponseWriter, req *http.Req
 // POST /organizer/delete-organizer/
 func (o *OrganizerAPI) handleDeleteOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -372,7 +373,7 @@ func (o *OrganizerAPI) handleDeleteOrganizer(res http.ResponseWriter, req *http.
 // POST /organizer/update-organizer/
 func (o *OrganizerAPI) handleUpdateOrganizer(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -395,7 +396,7 @@ func (o *OrganizerAPI) handleUpdateOrganizer(res http.ResponseWriter, req *http.
 // POST /organizer/delete-contestant/
 func (o *OrganizerAPI) handleDeleteContestant(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -418,7 +419,7 @@ func (o *OrganizerAPI) handleDeleteContestant(res http.ResponseWriter, req *http
 // POST /organizer/auto-generate-teams/?gen-type="numbered"|"random"
 func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -453,7 +454,7 @@ func (o *OrganizerAPI) handleAutoGenerateTeams(res http.ResponseWriter, req *htt
 // POST /organizer/register-generated-teams/
 func (o *OrganizerAPI) handleRegisterGeneratedTeams(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -476,7 +477,7 @@ func (o *OrganizerAPI) handleRegisterGeneratedTeams(res http.ResponseWriter, req
 // POST /organizer/update-teams/
 func (o *OrganizerAPI) handleUpdateTeams(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -506,7 +507,7 @@ func (o *OrganizerAPI) handleUpdateTeams(res http.ResponseWriter, req *http.Requ
 // POST /organizer/upload-contest-logo-file/
 func (o *OrganizerAPI) handleUploadContestLogoFile(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -603,7 +604,7 @@ func (o *OrganizerAPI) handleGetSubOrganizers(res http.ResponseWriter, req *http
 // do this using a cron job :)
 func (o *OrganizerAPI) handleSendSheevNotifications(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -638,7 +639,7 @@ func (o *OrganizerAPI) handleSendSheevNotifications(res http.ResponseWriter, req
 // POST /organizer/get-participants/
 func (o *OrganizerAPI) handleGetParticipants(res http.ResponseWriter, req *http.Request, session models.Session) {
 	org, err := o.orgMgr.GetOrganizer(session.ID)
-	if err != nil || org.Roles&models.RoleDirector == 0 {
+	if err != nil || org.Roles&enums.RoleDirector == 0 {
 		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}

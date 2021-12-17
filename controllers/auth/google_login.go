@@ -8,14 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mbaraa/ross2/config"
-	"github.com/mbaraa/ross2/utils/multiavatar"
-
 	"github.com/golang-jwt/jwt"
+	"github.com/mbaraa/ross2/config"
 	"github.com/mbaraa/ross2/controllers"
 	"github.com/mbaraa/ross2/controllers/managers"
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/ross2/utils/multiavatar"
 )
 
 // GoogleLoginAPI holds google login handlers
@@ -77,15 +76,17 @@ func (g *GoogleLoginAPI) handleContestantLogin(res http.ResponseWriter, req *htt
 }
 
 func (g *GoogleLoginAPI) finishContestantLogin(cont0 models.Contestant, res http.ResponseWriter) {
-	cont, err := g.contRepo.GetByEmail(cont0.Email)
+	cont, err := g.contRepo.GetByEmail(cont0.User.Email)
 	if err != nil {
 		cont = models.Contestant{
-			Name:            cont0.Name,
-			Email:           cont0.Email,
-			AvatarURL:       multiavatar.GetAvatarURL(),
-			ProfileFinished: false,
-			ContactInfo: models.ContactInfo{
-				FacebookURL: "/",
+			User: models.User{
+				Name:            cont0.User.Name,
+				Email:           cont0.User.Email,
+				AvatarURL:       multiavatar.GetAvatarURL(),
+				ProfileFinished: false,
+				ContactInfo: models.ContactInfo{
+					FacebookURL: "/",
+				},
 			},
 		}
 		err = g.contRepo.Add(&cont)
@@ -117,7 +118,7 @@ func (g *GoogleLoginAPI) handleOrganizerLogin(res http.ResponseWriter, req *http
 }
 
 func (g *GoogleLoginAPI) finishOrganizerLogin(org0 models.Organizer, res http.ResponseWriter) {
-	org, err := g.orgRepo.GetByEmail(org0.Email)
+	org, err := g.orgRepo.GetByEmail(org0.User.Email)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return

@@ -36,7 +36,7 @@ func (c *ContestantManager) CreateUserSession(email string) error {
 }
 
 func (c *ContestantManager) FinishUser(cont models.Contestant) error {
-	cont.AvatarURL = multiavatar.GetAvatarURL()
+	cont.User.AvatarURL = multiavatar.GetAvatarURL()
 	return c.contestantRepo.Update(cont)
 }
 
@@ -60,7 +60,7 @@ func (c *ContestantManager) GetContestant(sessionToken string) (models.Contestan
 	}
 
 	return c.contestantRepo.Get(models.Contestant{
-		ID: session.UserID,
+		User: models.User{ID: session.UserID},
 	})
 }
 

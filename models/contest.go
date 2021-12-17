@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/mbaraa/ross2/models/enums"
 	"gorm.io/gorm"
 )
 
@@ -25,10 +26,11 @@ type Contest struct {
 	ParticipationConditions ParticipationConditions `gorm:"foreignkey:PCsID" json:"participation_conditions"` // the conditions should be a part of the contest instance 🤷‍♂️
 	PCsID                   uint                    `gorm:"column:pc_id"`
 
-	Teams []Team `gorm:"many2many:register_teams;" json:"teams"`
+	AllowedContestantsCount uint `gorm:"allowed_contestant_count" json:"allowed_contestant_count"`
+	CurrentContestantsCount uint `gorm:"current_contestant_count" json:"current_contestant_count"`
 
-	Organizers []Organizer `gorm:"many2many:register_contest;" json:"organizers"`
-
+	Teams               []Team       `gorm:"many2many:register_teams;" json:"teams"`
+	Organizers          []Organizer  `gorm:"many2many:register_contest;" json:"organizers"`
 	TeamlessContestants []Contestant `gorm:"-" json:"teamless_contestants"`
 }
 
@@ -46,12 +48,11 @@ func (c *Contest) AfterFind(db *gorm.DB) error {
 	return nil
 }
 
-func getMajors(majors Major) []string {
+func getMajors(majors enums.Major) []string {
 	majorsTexts := make([]string, 0)
-	for i := 0; i <= 63; i++ {
-		major := Major(1 << i)
+	for major := enums.MajorSoftwareEngineering; major <= enums.MajorCyberSecurity; major <<= 1 {
 		if majors&major != 0 {
-			majorsTexts = append(majorsTexts, majorText[major])
+			majorsTexts = append(majorsTexts, major.String())
 		}
 	}
 
@@ -61,9 +62,9 @@ func getMajors(majors Major) []string {
 // ParticipationConditions represents the conditions needed to participate in a contest
 type ParticipationConditions struct {
 	gorm.Model
-	ID             uint     `gorm:"column:id;primaryKey;autoIncrement"`
-	Majors         Major    `gorm:"column:majors;type:uint" json:"majors"`
-	MajorsNames    []string `gorm:"-" json:"majors_names"`
-	MinTeamMembers uint     `gorm:"column:min_team_members" json:"min_team_members"`
-	MaxTeamMembers uint     `gorm:"column:max_team_members" json:"max_team_members"`
+	ID             uint        `gorm:"column:id;primaryKey;autoIncrement"`
+	Majors         enums.Major `gorm:"column:majors;type:uint" json:"majors"`
+	MajorsNames    []string    `gorm:"-" json:"majors_names"`
+	MinTeamMembers uint        `gorm:"column:min_team_members" json:"min_team_members"`
+	MaxTeamMembers uint        `gorm:"column:max_team_members" json:"max_team_members"`
 }

@@ -55,6 +55,7 @@ func (db *dbManager) InitTables() {
 			new(models.ParticipationConditions),
 			new(models.Team),
 			new(models.ContactInfo),
+			new(models.User),
 			new(models.Contestant),
 			new(models.Organizer),
 			new(models.Session),

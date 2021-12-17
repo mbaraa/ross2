@@ -3,26 +3,21 @@ package models
 import (
 	"time"
 
+	"github.com/mbaraa/ross2/models/enums"
 	"gorm.io/gorm"
 )
 
 // Contestant represents a contestant's fields
 type Contestant struct {
 	gorm.Model
-	ID              uint   `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Email           string `gorm:"column:email" json:"email"`
-	Name            string `gorm:"column:name" json:"name"`
-	AvatarURL       string `gorm:"column:avatar_url" json:"avatar_url"`
-	ProfileFinished bool   `gorm:"profile_finished" json:"profile_finished"`
+	User   User `gorm:"foreignkey:UserID" json:"user"`
+	UserID uint `gorm:"column:user_id" json:"user_id"`
 
-	ContactInfo   ContactInfo `gorm:"foreignkey:ContactInfoID" json:"contact_info"`
-	ContactInfoID uint        `gorm:"column:contact_info_id"`
-
-	UniversityID string `gorm:"column:university_id" json:"university_id"`
-	Team         Team   `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
-	TeamID       uint   `gorm:"column:team_id" json:"team_id"`
-	Major        Major  `gorm:"column:major;type:uint" json:"major"`
-	MajorName    string `gorm:"-" json:"major_name"`
+	UniversityID string      `gorm:"column:university_id" json:"university_id"`
+	Team         Team        `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
+	TeamID       uint        `gorm:"column:team_id" json:"team_id"`
+	Major        enums.Major `gorm:"column:major;type:uint" json:"major"`
+	MajorName    string      `gorm:"-" json:"major_name"`
 
 	TeamlessedAt      time.Time `gorm:"column:teamlessed_at" json:"teamlessed_at"`
 	TeamlessContestID uint      `gorm:"column:teamless_contest_id" json:"teamless_contest_id"`
@@ -32,8 +27,11 @@ type Contestant struct {
 }
 
 func (c *Contestant) AfterFind(db *gorm.DB) error {
-	c.MajorName = majorText[c.Major]
-	return nil
+	c.MajorName = c.Major.String()
+
+	return db.
+		First(&c.User.ContactInfo, "id = ?", c.User.ContactInfoID).
+		Error
 }
 
 func (c *Contestant) BeforeCreate(db *gorm.DB) error {

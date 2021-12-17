@@ -73,15 +73,17 @@ func (m *MicrosoftLoginAPI) handleContestantLogin(res http.ResponseWriter, req *
 }
 
 func (m *MicrosoftLoginAPI) finishContestantLogin(cont0 models.Contestant, res http.ResponseWriter) {
-	cont, err := m.contRepo.GetByEmail(cont0.Email)
+	cont, err := m.contRepo.GetByEmail(cont0.User.Email)
 	if err != nil {
 		cont = models.Contestant{
-			Name:            cont0.Name,
-			Email:           cont0.Email,
-			AvatarURL:       multiavatar.GetAvatarURL(),
-			ProfileFinished: false,
-			ContactInfo: models.ContactInfo{
-				FacebookURL: "/",
+			User: models.User{
+				Name:            cont0.User.Name,
+				Email:           cont0.User.Email,
+				AvatarURL:       multiavatar.GetAvatarURL(),
+				ProfileFinished: false,
+				ContactInfo: models.ContactInfo{
+					FacebookURL: "/",
+				},
 			},
 		}
 		err = m.contRepo.Add(&cont)
@@ -113,7 +115,7 @@ func (m *MicrosoftLoginAPI) handleOrganizerLogin(res http.ResponseWriter, req *h
 }
 
 func (m *MicrosoftLoginAPI) finishOrganizerLogin(org0 models.Organizer, res http.ResponseWriter) {
-	org, err := m.orgRepo.GetByEmail(org0.Email)
+	org, err := m.orgRepo.GetByEmail(org0.User.Email)
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
 		return

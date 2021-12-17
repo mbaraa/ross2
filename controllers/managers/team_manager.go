@@ -32,7 +32,7 @@ func (t *TeamManager) CreateTeams(teams []models.Team) error {
 }
 
 func (t *TeamManager) AddContestantToTeam(contID, teamID uint) (team models.Team, err error) {
-	cont, err := t.contRepo.Get(models.Contestant{ID: contID})
+	cont, err := t.contRepo.Get(models.Contestant{User: models.User{ID: contID}})
 	if err != nil {
 		return
 	}
@@ -73,11 +73,18 @@ func (t *TeamManager) UpdateTeams(teams []models.Team, removedContestants []mode
 	}
 
 	for _, team := range teams {
-		if _, err := t.GetTeam(team.ID); err != nil {
+		if _, err := t.GetTeam(team.ID); err != nil && (team.Members != nil && len(team.Members) > 0) {
 			team.LeaderId = team.Members[0].ID
 			team.Leader = &team.Members[0]
 
 			err = t.CreateTeam(team)
+			if err != nil {
+				return err
+			}
+		}
+
+		if team.Members == nil || len(team.Members) == 0 {
+			err := t.DeleteTeam(team)
 			if err != nil {
 				return err
 			}

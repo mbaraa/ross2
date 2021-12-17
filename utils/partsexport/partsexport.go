@@ -25,7 +25,7 @@ func getOrganizersCSV(contest models.Contest) string {
 	sb := new(strings.Builder)
 
 	for _, org := range contest.Organizers {
-		sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", org.Name, org.Email, "Organizer"))
+		sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", org.User.Name, org.User.Email, "Organizer"))
 	}
 
 	return sb.String()
@@ -39,7 +39,7 @@ func getContestantsCSV(contest models.Contest) string {
 	)
 
 	for _, cont := range conts {
-		sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", cont.Name, cont.UniversityID, "Contestant"))
+		sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", cont.User.Name, cont.UniversityID, "Contestant"))
 	}
 
 	return sb.String()
