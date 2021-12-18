@@ -8,7 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mbaraa/ross2/models"
-	"github.com/mbaraa/ross2/utils"
+	"github.com/mbaraa/ross2/models/enums"
+	"github.com/mbaraa/ross2/utils/namesgetter"
 )
 
 func TestBigFatMonstrousCases(t *testing.T) {
@@ -108,10 +109,10 @@ func generalTest(minMembers, maxMembers, numConts uint) []models.Team {
 		ParticipationConditions: models.ParticipationConditions{
 			MinTeamMembers: minMembers,
 			MaxTeamMembers: maxMembers,
-			Majors:         models.MajorAny,
+			Majors:         enums.MajorAny,
 		},
 		TeamlessContestants: createRandomContestants(numConts),
-	}, utils.NewHardCodeNames())
+	}, namesgetter.NewHardCodedNames())
 
 	return teams
 }
@@ -122,7 +123,7 @@ func logTeams(teams []models.Team, t *testing.T) {
 		t.Logf("team %s member's count: %d", team.Name, len(team.Members))
 		t.Log("members:")
 		for _, cont := range team.Members {
-			t.Logf("name: %s, uni_id: %s", cont.Name, cont.UniversityID)
+			t.Logf("name: %s, uni_id: %s", cont.User.Name, cont.UniversityID)
 		}
 		t.Log()
 	}
@@ -132,7 +133,7 @@ func checkTeamsMembers(teams []models.Team, minMembers uint) (bool, models.Team)
 	for _, team := range teams {
 		members := uint(0)
 		for _, cont := range team.Members {
-			if cont.Name != "" {
+			if cont.User.Name != "" {
 				members++
 			}
 		}
@@ -163,9 +164,11 @@ func createRandomContestants(numConts uint) []models.Contestant {
 		}
 
 		conts[contI] = models.Contestant{
-			Name:                       uuid.New().String(),
+			User: models.User{
+				Name: uuid.New().String(),
+			},
 			UniversityID:               fmt.Sprint(rand.Intn(9000000) + 1000000),
-			Major:                      models.MajorAny,
+			Major:                      enums.MajorAny,
 			TeamlessedAt:               time.Now(),
 			Gender:                     gender,
 			ParticipateWithOtherGender: partWithOther,
