@@ -17,10 +17,10 @@ func main() {
 		sessionRepo      = db.NewSessionDB(mysqlDB)
 		notificationRepo = db.NewNotificationDB(mysqlDB)
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
+		userRepo         = db.NewUserDB(mysqlDB)
 	)
 
 	db.GetDBManagerInstance().InitTables()
-
 	r := router.NewRouterBuilder().
 		ContestRepo(contestRepo).
 		ContestantRepo(contestantRepo).
@@ -29,6 +29,7 @@ func main() {
 		OrganizerRepo(organizerRepo).
 		JoinReqRepo(joinReqRepo).
 		NotificationRepo(notificationRepo).
+		UserRepo(userRepo).
 		GetRouter()
 
 	if r != nil {

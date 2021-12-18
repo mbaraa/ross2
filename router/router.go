@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/mbaraa/ross2/config"
 	"github.com/mbaraa/ross2/controllers"
@@ -20,6 +21,7 @@ type Builder struct {
 	organizerRepo    data.OrganizerCRUDRepo
 	joinReqRepo      data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
+	userRepo         data.UserCRUDRepo
 }
 
 func NewRouterBuilder() *Builder {
@@ -61,33 +63,45 @@ func (b *Builder) NotificationRepo(n data.NotificationCRUDRepo) *Builder {
 	return b
 }
 
+func (b *Builder) UserRepo(u data.UserCRUDRepo) *Builder {
+	b.userRepo = u
+	return b
+}
+
 func (b *Builder) verify() bool {
+	sb := new(strings.Builder)
+
 	if b.contestRepo == nil {
-		fmt.Println("Router Builder: missing contest repo!")
+		sb.WriteString("Router Builder: missing contest repo!")
 	}
 	if b.contestantRepo == nil {
-		fmt.Println("Router Builder: missing contestant repo!")
+		sb.WriteString("Router Builder: missing contestant repo!")
 	}
 	if b.sessionRepo == nil {
-		fmt.Println("Router Builder: missing session repo!")
+		sb.WriteString("Router Builder: missing session repo!")
 	}
 	if b.teamRepo == nil {
-		fmt.Println("Router Builder: missing team repo!")
+		sb.WriteString("Router Builder: missing team repo!")
 	}
 	if b.organizerRepo == nil {
-		fmt.Println("Router: missing organizer repo!")
+		sb.WriteString("Router: missing organizer repo!")
 	}
 	if b.joinReqRepo == nil {
-		fmt.Println("Router Builder: missing join request repo!")
+		sb.WriteString("Router Builder: missing join request repo!")
 	}
 	if b.notificationRepo == nil {
-		fmt.Println("Router Builder: missing notification repo!")
+		sb.WriteString("Router Builder: missing notification repo!")
+	}
+	if b.userRepo == nil {
+		sb.WriteString("Router Builder: missing user repo!")
 	}
 
-	return b.contestRepo != nil && b.contestantRepo != nil &&
-		b.sessionRepo != nil && b.teamRepo != nil &&
-		b.organizerRepo != nil && b.joinReqRepo != nil &&
-		b.notificationRepo != nil
+	if sb.Len() != 0 {
+		fmt.Println(sb.String())
+		return false
+	}
+
+	return true
 }
 
 func (b *Builder) GetRouter() *Router {
@@ -102,33 +116,37 @@ type Router struct {
 	contestantAPI     *controllers.ContestantAPI
 	orgAPI            *controllers.OrganizerAPI
 	notificationAPI   *controllers.NotificationAPI
-	googleLoginAPI    *auth.GoogleLoginAPI
-	microsoftLoginAPI *auth.MicrosoftLoginAPI
+	googleLoginAPI    *auth.OAuthLoginAPI
+	microsoftLoginAPI *auth.OAuthLoginAPI
 }
 
 func (r *Router) verifyAPIs() bool {
+	sb := new(strings.Builder)
 	if r.contestAPI == nil {
-		fmt.Println("Router: missing contest API!")
+		sb.WriteString("Router: missing contest API!")
 	}
 	if r.contestantAPI == nil {
-		fmt.Println("Router: missing contestant API!")
+		sb.WriteString("Router: missing contestant API!")
 	}
 	if r.orgAPI == nil {
-		fmt.Println("Router: missing organizer API!")
+		sb.WriteString("Router: missing organizer API!")
 	}
 	if r.notificationAPI == nil {
-		fmt.Println("Router Builder: missing notification API!")
+		sb.WriteString("Router Builder: missing notification API!")
 	}
 	if r.googleLoginAPI == nil {
-		fmt.Println("Router: missing google login API!")
+		sb.WriteString("Router: missing google login API!")
 	}
 	if r.microsoftLoginAPI == nil {
-		fmt.Println("Router: missing microsoft login API!")
+		sb.WriteString("Router: missing microsoft login API!")
 	}
 
-	return r.contestAPI != nil && r.contestantAPI != nil &&
-		r.orgAPI != nil && r.notificationAPI != nil &&
-		r.googleLoginAPI != nil && r.microsoftLoginAPI != nil
+	if sb.Len() != 0 {
+		fmt.Println(sb.String())
+		return false
+	}
+
+	return true
 }
 
 func NewRouter(b *Builder) *Router {
@@ -139,6 +157,7 @@ func NewRouter(b *Builder) *Router {
 		organizerManager    = managers.NewOrganizerManager(b.organizerRepo, sessionManager, b.contestRepo)
 		joinReqManager      = managers.NewJoinRequestManager(b.joinReqRepo, b.notificationRepo, b.contestRepo, teamManager)
 		notificationManager = managers.NewNotificationManager(b.notificationRepo)
+		userManager         = managers.NewUserManager(b.userRepo, sessionManager)
 	)
 
 	r := &Router{
@@ -165,8 +184,8 @@ func NewRouter(b *Builder) *Router {
 			ContestantMgr(contestantManager).
 			GetNotificationAPI(),
 
-		googleLoginAPI:    auth.NewGoogleLoginAPI(sessionManager, b.contestantRepo, b.organizerRepo),
-		microsoftLoginAPI: auth.NewMicrosoftLoginAPI(sessionManager, b.contestantRepo, b.organizerRepo),
+		googleLoginAPI:    auth.NewOAuthLoginAPI(userManager, auth.NewGoogleJWTTokenValidator(), "/gauth"),
+		microsoftLoginAPI: auth.NewOAuthLoginAPI(userManager, auth.NewMicrosoftJWTValidator(), "/msauth"),
 	}
 
 	if !r.verifyAPIs() {

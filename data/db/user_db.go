@@ -25,7 +25,7 @@ func (u *UserDB) Add(user *models.User) error {
 
 func (u *UserDB) Exists(user models.User) (bool, error) {
 	_, err := u.Get(user)
-	return err != nil, err
+	return err == nil, err
 }
 
 func (u *UserDB) Get(user models.User) (fetchedUser models.User, err error) {
