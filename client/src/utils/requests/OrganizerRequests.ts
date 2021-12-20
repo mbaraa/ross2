@@ -2,9 +2,9 @@ import Team from "@/models/Team";
 import Contest from "@/models/Contest";
 import Contestant from "@/models/Contestant";
 import config from "@/config";
-import GoogleLogin from "@/utils/requests/GoogleLogin";
 import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Organizer from "@/models/Organizer";
+import User from "@/models/User";
 
 class OrganizerRequests {
     public static async generateTeamsPosts(data: any): Promise<string> {
@@ -56,7 +56,7 @@ class OrganizerRequests {
         let teams = new Array<Team>();
         let leftTeamless = new Array<Contestant>();
 
-        await fetch(`${config.backendAddress}/organizer/auto-generate-teams/?gen-type=${genType}`, {
+        await fetch(`${config.backendAddress}/organizer/generate-teams/?gen-type=${genType}`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -76,8 +76,8 @@ class OrganizerRequests {
         return [teams, leftTeamless];
     }
 
-    public static async createOrganizer(org: Organizer): Promise<void> {
-        await RequestsManager.makeAuthPostRequest("add-organizer", UserType.Organizer, org);
+    public static async createOrganizer(org: Organizer): Promise<Response> {
+        return await RequestsManager.makeAuthPostRequest("add-organizer", UserType.Organizer, org);
     }
 
     public static async deleteOrganizer(org: Organizer): Promise<void> {
@@ -97,10 +97,6 @@ class OrganizerRequests {
             });
 
         return orgs;
-    }
-
-    public static async googleLogin(user: any): Promise<void> {
-        await GoogleLogin.loginOrganizerWithGoogle(user);
     }
 
     public static async deleteContest(contest: Contest): Promise<void> {
@@ -135,30 +131,21 @@ class OrganizerRequests {
         return contests;
     }
 
-    public static async login(): Promise<Organizer> {
-        let org: Organizer | null = new Organizer();
-
-        await RequestsManager.makeAuthGetRequest("login", UserType.Organizer)
+    public static async getProfile(user: User): Promise<Organizer> {
+        let o = new Organizer();
+        await RequestsManager.makeAuthPostRequest("profile", UserType.Organizer, user)
             .then(resp => resp.json())
-            .then(jResp => {
-                org = jResp as Organizer;
-                return org;
+            .then(resp => {
+                o = resp;
+                return o;
             })
-            .catch(() => {
-                console.error(`Unauthorized!`);
-                org = null;
-            });
+            .catch(err => console.error(err));
 
-        return org;
+        return o;
     }
 
-    public static async logout(): Promise<void> {
-        await RequestsManager.makeAuthGetRequest("logout", UserType.Organizer);
-        localStorage.removeItem("org_token")
-    }
-
-    public static async finishProfile(profile: Organizer): Promise<void> {
-        await RequestsManager.makeAuthPostRequest("finish-profile", UserType.Organizer, profile);
+    public static async finishProfile(org: Organizer): Promise<void> {
+        await RequestsManager.makeAuthPostRequest("finish-profile", UserType.Organizer, org);
     }
 }
 

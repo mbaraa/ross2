@@ -1,27 +1,24 @@
 import Team from "@/models/Team";
-import User, {ContactInfo} from "@/models/User";
+import User from "@/models/User";
 
-class Contestant implements User {
-    id: number | undefined;
-    email: string | undefined;
-    name: string | undefined;
-    avatar_url: string | undefined;
-    profile_finished: boolean | undefined;
-    contact_info: ContactInfo;
+class Contestant {
+    user: User;
 
-    university_id: string | undefined;
-    team: Team | undefined;
-    team_id: number | undefined;
-    major_name: string | undefined;
+    university_id?: string;
+    team?: Team;
+    team_id?: number;
+    major_name?: string;
 
-    teamlessed_at: Date | undefined;
-    teamless_contest_id: number | undefined;
+    teamlessed_at?: Date;
+    teamless_contest_id?: number;
 
-    gender: boolean | undefined;
-    participate_with_other: boolean | undefined;
+    gender: boolean;
+    participate_with_other: boolean;
 
     constructor() {
-        this.contact_info = new ContactInfo();
+        this.gender = false;
+        this.participate_with_other = false;
+        this.user = new User();
         this.teamlessed_at = new Date();
     }
 }

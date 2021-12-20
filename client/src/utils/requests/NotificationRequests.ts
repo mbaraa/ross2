@@ -20,14 +20,11 @@ class NotificationRequests {
                 "Authorization": <string>localStorage.getItem("token"),
             }
         })
-            .then(resp => resp.text())
+            .then(resp => resp.json())
             .then(resp => {
-                notificationsExists = resp == "true";
+                notificationsExists = resp["notifications_exists"];
                 return notificationsExists;
             })
-            .catch(() => {
-                window.alert("oops I did it again!")
-            });
 
         return notificationsExists;
     }
@@ -47,7 +44,7 @@ class NotificationRequests {
                 return notifications;
             })
             .catch(() => {
-                window.alert("oops I did it again!")
+                console.error("oops I did it again!");
             });
 
         return notifications;

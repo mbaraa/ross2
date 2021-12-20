@@ -1,31 +1,24 @@
-import config from "@/config";
+import OAuthLogin from "@/utils/requests/OAuthLogin";
+import User from "@/models/User";
 
 class GoogleLogin {
-    public static async loginContestantWithGoogle(user: any): Promise<void> {
-        await this.loginWithGoogle(user, "cont");
-    }
-
-    public static async loginOrganizerWithGoogle(user: any): Promise<void> {
-        await this.loginWithGoogle(user, "org");
-    }
-
-    private static async loginWithGoogle(user: any, userType: string): Promise<void> {
-        await fetch(`${config.backendAddress}/gauth/${userType}-login/`, {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Authorization": user.wc.id_token,
+    public static async login(user: any): Promise<void> {
+        await OAuthLogin.login(
+            { // only if Google didn't use such fucky names :)
+                name: user.su.qf,
+                avatar_url: user.su.SM,
+                email: user.su.ev,
             },
-            body: JSON.stringify({ // only if Google didn't use such fucky names :)
-                name: user.vu.jf,
-                avatar_url: user.vu.RM,
-                email: user.vu.jv,
-            })
-        })
-            .then(resp => resp.json())
-            .then(data => {
-                localStorage.setItem((userType == "org"? "org_token": "token"), <string>data["token"]);
-            });
+            user.vc.id_token,
+            "gauth");
+    }
+
+    public static async loginWithToken(): Promise<User> {
+        return await OAuthLogin.loginWithToken("gauth");
+    }
+
+    public static async logout(user: User): Promise<void> {
+        await OAuthLogin.logout(user ,"gauth");
     }
 }
 

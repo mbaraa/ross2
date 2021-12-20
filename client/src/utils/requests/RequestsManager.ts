@@ -14,7 +14,7 @@ class RequestsManager {
             method: method,
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem(getUserTypeString(userType) == "organizer" ? "org_token" : "token"),
+                "Authorization": <string>localStorage.getItem("token"),
             },
             body: method == "POST" ? JSON.stringify(body) : null,
         })

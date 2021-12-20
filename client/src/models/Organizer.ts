@@ -1,25 +1,31 @@
 import Contest from "@/models/Contest";
-import User, {ContactInfo} from "@/models/User";
+import User from "@/models/User";
 
-class Organizer implements User {
-    id: number | undefined;
-    email: string | undefined;
-    name: string | undefined;
-    avatar_url: string | undefined;
-    profile_finished: boolean | undefined;
+class Organizer {
+    user?: User;
 
-    contact_info: ContactInfo | undefined;
-
-    director: Organizer | undefined;
-    contests: Contest[] | undefined;
-    roles: number | undefined;
-    roles_names: string[] | undefined;
+    director?: Organizer;
+    contests?: Contest[];
+    roles?: number;
+    roles_names?: string[];
 
     constructor() {
         this.contests = new Array<Contest>();
-        this.contact_info = new ContactInfo();
+        this.user = new User();
         this.roles_names = new Array<string>();
     }
+}
+
+export enum OrganizerRole {
+    CoreOrganizer = 2,
+    ChiefJudge = 4,
+    Judge = 8,
+    Technical = 16,
+    Coordinator = 32,
+    Media = 64,
+    Balloons = 128,
+    Food = 256,
+    Receptionist = 512
 }
 
 export default Organizer;
