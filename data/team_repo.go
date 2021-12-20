@@ -5,8 +5,8 @@ import "github.com/mbaraa/ross2/models"
 // TeamCreatorRepo is an interface that allows creation of a team
 // into a certain data source :)
 type TeamCreatorRepo interface {
-	Add(team models.Team) error
-	AddMany(teams []models.Team) error
+	Add(team *models.Team) error
+	AddMany(teams []*models.Team) error
 }
 
 // TeamGetterRepo is an interface that allows getting values of a team

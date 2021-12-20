@@ -38,31 +38,19 @@ func (c *ContestantDB) Exists(contestant models.Contestant) (bool, error) {
 
 func (c *ContestantDB) Get(contestant models.Contestant) (fetchedContestant models.Contestant, err error) {
 	err = c.db.
-		First(&fetchedContestant, "id = ?", contestant.ID).
+		Model(new(models.Contestant)).
+		First(&fetchedContestant, "user_id = ?", contestant.User.ID).
 		Error
 
-	if err != nil {
-		return models.Contestant{}, err
-	}
+	//if err != nil {
+	//	return models.Contestant{}, err
+	//}
 
 	err = c.db.
-		First(&fetchedContestant.User.ContactInfo, "id = ?", fetchedContestant.User.ContactInfoID).
+		First(&fetchedContestant.User, "id = ?", contestant.User.ID).
 		Error
 
 	return
-}
-
-func (c *ContestantDB) GetByEmail(email string) (models.Contestant, error) {
-	var (
-		fetchedContestant models.Contestant
-		err               error
-	)
-
-	err = c.db.
-		First(&fetchedContestant, "email = ?", email).
-		Error
-
-	return fetchedContestant, err
 }
 
 func (c *ContestantDB) GetAll() ([]models.Contestant, error) {
@@ -89,11 +77,11 @@ func (c *ContestantDB) Count() (int64, error) {
 
 // UPDATER REPO
 
-func (c *ContestantDB) Update(cont models.Contestant) error {
+func (c *ContestantDB) Update(cont *models.Contestant) error {
 	return c.db.
 		Model(new(models.Contestant)).
 		Where("id = ?", cont.ID).
-		Updates(&cont).
+		Updates(cont).
 		Error
 }
 
@@ -119,7 +107,7 @@ func (c *ContestantDB) AddTeamLess(contestant models.Contestant, contest models.
 	contestant.TeamlessedAt = time.Now()
 	contestant.TeamlessContestID = contest.ID
 
-	return c.Update(contestant)
+	return c.Update(&contestant)
 }
 
 func (c *ContestantDB) GetAllTeamLess(contest models.Contest) ([]models.Contestant, error) {
@@ -138,5 +126,5 @@ func (c *ContestantDB) RegisterInTeam(contestant models.Contestant, team models.
 	contestant.TeamlessedAt = time.Time{}
 	contestant.TeamID = team.ID
 
-	return c.Update(contestant)
+	return c.Update(&contestant)
 }

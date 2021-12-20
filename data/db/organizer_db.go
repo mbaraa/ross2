@@ -34,7 +34,16 @@ func (o *OrganizerDB) Exists(organizer models.Organizer) (bool, error) {
 
 func (o *OrganizerDB) Get(organizer models.Organizer) (fetchedOrganizer models.Organizer, err error) {
 	err = o.db.
-		First(&fetchedOrganizer, "id = ?", organizer.ID).
+		Model(new(models.Organizer)).
+		First(&fetchedOrganizer, "user_id = ?", organizer.User.ID).
+		Error
+
+	//if err != nil {
+	//	return models.Contestant{}, err
+	//}
+
+	err = o.db.
+		First(&fetchedOrganizer.User, "id = ?", organizer.User.ID).
 		Error
 
 	return

@@ -13,7 +13,6 @@ type ContestantCreatorRepo interface {
 type ContestantGetterRepo interface {
 	Exists(contestant models.Contestant) (bool, error)
 	Get(contestant models.Contestant) (models.Contestant, error)
-	GetByEmail(email string) (models.Contestant, error)
 	GetAll() ([]models.Contestant, error)
 	Count() (int64, error)
 }
@@ -21,7 +20,7 @@ type ContestantGetterRepo interface {
 // ContestantUpdaterRepo is an interface that allows updating values of a contestant
 // in a certain data source :)
 type ContestantUpdaterRepo interface {
-	Update(cont models.Contestant) error
+	Update(cont *models.Contestant) error
 }
 
 // ContestantDeleterRepo is an interface that allows deleting values of a contestant

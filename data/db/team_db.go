@@ -21,15 +21,15 @@ func NewTeamDB(db *gorm.DB, contRepo data.ContestantUpdaterRepo) *TeamDB {
 
 // CREATOR REPO
 
-func (t *TeamDB) Add(team models.Team) error {
+func (t *TeamDB) Add(team *models.Team) error {
 	return t.db.
-		Create(&team).
+		Create(team).
 		Error
 }
 
 // AddMany creates multiple teams, this method is only used when a contest's director
 // generates teams for the teamless contestants.
-func (t *TeamDB) AddMany(teams []models.Team) error {
+func (t *TeamDB) AddMany(teams []*models.Team) error {
 	return t.db.
 		Create(&teams).
 		Error
