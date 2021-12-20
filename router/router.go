@@ -9,7 +9,7 @@ import (
 	"github.com/mbaraa/ross2/config"
 	"github.com/mbaraa/ross2/controllers"
 	"github.com/mbaraa/ross2/controllers/auth"
-	"github.com/mbaraa/ross2/controllers/managers"
+	"github.com/mbaraa/ross2/controllers/helpers"
 	"github.com/mbaraa/ross2/data"
 )
 
@@ -151,39 +151,37 @@ func (r *Router) verifyAPIs() bool {
 
 func NewRouter(b *Builder) *Router {
 	var (
-		sessionManager      = managers.NewSessionManager(b.sessionRepo)
-		contestantManager   = managers.NewContestantManager(b.contestantRepo, sessionManager, b.contestRepo, b.teamRepo)
-		teamManager         = managers.NewTeamManager(b.teamRepo, b.contestantRepo)
-		organizerManager    = managers.NewOrganizerManager(b.organizerRepo, sessionManager, b.contestRepo)
-		joinReqManager      = managers.NewJoinRequestManager(b.joinReqRepo, b.notificationRepo, b.contestRepo, teamManager)
-		notificationManager = managers.NewNotificationManager(b.notificationRepo)
-		userManager         = managers.NewUserManager(b.userRepo, sessionManager)
+		teamManager         = helpers.NewTeamHelper(b.teamRepo, b.contestantRepo)
+		notificationManager = helpers.NewNotificationHelper(b.notificationRepo)
+
+		organizerManager = helpers.NewOrganizerHelperBuilder().
+					OrganizerRepo(b.organizerRepo).
+					ContestRepo(b.contestRepo).
+					UserRepo(b.userRepo).
+					TeamMgr(teamManager).
+					NotificationMgr(notificationManager).
+					GetOrganizerManager()
+
+		joinReqManager    = helpers.NewJoinRequestHelper(b.joinReqRepo, b.notificationRepo, b.contestRepo, teamManager)
+		sessionManager    = helpers.NewSessionHelper(b.sessionRepo)
+		userManager       = helpers.NewUserHelper(b.userRepo, sessionManager)
+		contestantManager = helpers.NewContestantHelperBuilder().
+					UserRepo(b.userRepo).
+					ContestantRepo(b.contestantRepo).
+					ContestRepo(b.contestRepo).
+					NotificationRepo(b.notificationRepo).
+					TeamMgr(teamManager).
+					JoinRequestMgr(joinReqManager).
+					GetContestantManager()
+
+		authenticator = auth.NewHandlerAuthenticator(sessionManager)
 	)
 
 	r := &Router{
-		contestAPI: controllers.NewContestAPI(b.contestRepo),
-		contestantAPI: controllers.NewContestantAPIBuilder().
-			ContestantMgr(contestantManager).
-			SessionMgr(sessionManager).
-			TeamMgr(teamManager).
-			JoinReqMgr(joinReqManager).
-			GetContestantAPI(),
-
-		orgAPI: controllers.NewOrganizerAPIBuilder().
-			OrganizerMgr(organizerManager).
-			SessionMgr(sessionManager).
-			TeamMgr(teamManager).
-			ContestantMgr(contestantManager).
-			ContestRepo(b.contestRepo).
-			NotificationMgr(notificationManager).
-			GetOrganizerAPI(),
-
-		notificationAPI: controllers.NewNotificationAPIBuilder().
-			NotificationRepo(b.notificationRepo).
-			SessionMgr(sessionManager).
-			ContestantMgr(contestantManager).
-			GetNotificationAPI(),
-
+		contestAPI:        controllers.NewContestAPI(b.contestRepo),
+		contestantAPI:     controllers.NewContestantAPI(contestantManager, authenticator),
+		orgAPI:            controllers.NewOrganizerAPI(organizerManager, authenticator),
+		notificationAPI:   controllers.NewNotificationAPI(notificationManager, authenticator),
 		googleLoginAPI:    auth.NewOAuthLoginAPI(userManager, auth.NewGoogleJWTTokenValidator(), "/gauth"),
 		microsoftLoginAPI: auth.NewOAuthLoginAPI(userManager, auth.NewMicrosoftJWTValidator(), "/msauth"),
 	}

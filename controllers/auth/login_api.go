@@ -8,21 +8,21 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mbaraa/ross2/controllers"
-	"github.com/mbaraa/ross2/controllers/managers"
+	"github.com/mbaraa/ross2/config"
+	"github.com/mbaraa/ross2/controllers/helpers"
 	"github.com/mbaraa/ross2/models"
 )
 
 // OAuthLoginAPI holds google login handlers
 type OAuthLoginAPI struct {
-	userMgr        *managers.UserManager
+	userMgr        *helpers.UserHelper
 	tokenValidator JWTTokenValidator
 	apiEndPoint    string
 	endPoints      map[string]http.HandlerFunc
 }
 
 // NewOAuthLoginAPI returns a new OAuthLoginAPI instance
-func NewOAuthLoginAPI(userManager *managers.UserManager, tokenValidator JWTTokenValidator, apiEndPoint string) *OAuthLoginAPI {
+func NewOAuthLoginAPI(userManager *helpers.UserHelper, tokenValidator JWTTokenValidator, apiEndPoint string) *OAuthLoginAPI {
 	return (&OAuthLoginAPI{
 		userMgr:        userManager,
 		tokenValidator: tokenValidator,
@@ -32,7 +32,17 @@ func NewOAuthLoginAPI(userManager *managers.UserManager, tokenValidator JWTToken
 }
 
 func (l *OAuthLoginAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	controllers.GetHandlerFromParentPrefix(res, req, strings.TrimPrefix(req.URL.Path, l.apiEndPoint), l.endPoints)
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.Header().Set("Access-Control-Allow-Origin", config.GetInstance().AllowedClients)
+	res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+	if handler, exists := l.endPoints[req.Method+" "+strings.TrimPrefix(req.URL.Path, l.apiEndPoint)]; exists {
+		handler(res, req)
+		return
+	}
+	if req.Method != http.MethodOptions {
+		http.NotFound(res, req)
+	}
 }
 
 func (l *OAuthLoginAPI) initEndPoints() *OAuthLoginAPI {

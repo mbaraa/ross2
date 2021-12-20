@@ -1,4 +1,4 @@
-package managers
+package helpers
 
 import (
 	"errors"
@@ -10,19 +10,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserManager struct {
+type UserHelper struct {
 	userRepo data.UserCRUDRepo
-	sessMgr  *SessionManager
+	sessMgr  *SessionHelper
 }
 
-func NewUserManager(userRepo data.UserCRUDRepo, sessMgr *SessionManager) *UserManager {
-	return &UserManager{
+func NewUserHelper(userRepo data.UserCRUDRepo, sessMgr *SessionHelper) *UserHelper {
+	return &UserHelper{
 		userRepo: userRepo,
 		sessMgr:  sessMgr,
 	}
 }
 
-func (u *UserManager) Login(user *models.User) (sess models.Session, err error) {
+func (u *UserHelper) Login(user *models.User) (sess models.Session, err error) {
 	fetchedUser, err := u.userRepo.GetByEmail(user.Email)
 	if err != gorm.ErrRecordNotFound && err != nil {
 		return models.Session{}, err
@@ -42,7 +42,7 @@ func (u *UserManager) Login(user *models.User) (sess models.Session, err error) 
 	return
 }
 
-func (u *UserManager) Signup(user *models.User) error {
+func (u *UserHelper) Signup(user *models.User) error {
 	user.AvatarURL = multiavatar.GetAvatarURL()
 	user.ProfileFinished = false
 	user.ContactInfo = models.ContactInfo{FacebookURL: "/"}
@@ -51,7 +51,7 @@ func (u *UserManager) Signup(user *models.User) error {
 	return u.userRepo.Add(user)
 }
 
-func (u *UserManager) LoginUsingSession(sessionToken string) (user models.User, err error) {
+func (u *UserHelper) LoginUsingSession(sessionToken string) (user models.User, err error) {
 	sess, err := u.sessMgr.GetSession(sessionToken)
 	if err != nil {
 		return
@@ -61,7 +61,7 @@ func (u *UserManager) LoginUsingSession(sessionToken string) (user models.User, 
 	return
 }
 
-func (u *UserManager) Logout(user models.User, sessionToken string) error {
+func (u *UserHelper) Logout(user models.User, sessionToken string) error {
 	session, err := u.sessMgr.GetSession(sessionToken)
 	if err != nil {
 		return err
@@ -77,4 +77,8 @@ func (u *UserManager) Logout(user models.User, sessionToken string) error {
 	}
 
 	return u.sessMgr.DeleteSession(sessionToken)
+}
+
+func (u *UserHelper) UpdateUser(user *models.User) error {
+	return u.userRepo.Update(user)
 }

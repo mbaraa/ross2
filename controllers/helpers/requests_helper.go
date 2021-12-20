@@ -1,4 +1,4 @@
-package managers
+package helpers
 
 import (
 	"errors"
@@ -10,24 +10,27 @@ import (
 	"github.com/mbaraa/ross2/models"
 )
 
-type JoinRequestManager struct {
-	jrRepo           data.JoinRequestCRDRepo
+// JoinRequestHelper manages teams join requests
+type JoinRequestHelper struct {
+	repo             data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
 	contestRepo      data.ContestGetterRepo
-	teamManager      *TeamManager
+	teamManager      *TeamHelper
 }
 
-func NewJoinRequestManager(jrRepo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo, contestRepo data.ContestGetterRepo,
-	tm *TeamManager) *JoinRequestManager {
-	return &JoinRequestManager{
-		jrRepo:           jrRepo,
+// NewJoinRequestHelper returns a new JoinRequestHelper instance
+func NewJoinRequestHelper(repo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo,
+	contestRepo data.ContestGetterRepo, teamManager *TeamHelper) *JoinRequestHelper {
+	return &JoinRequestHelper{
+		repo:             repo,
 		notificationRepo: nRepo,
 		contestRepo:      contestRepo,
-		teamManager:      tm,
+		teamManager:      teamManager,
 	}
 }
 
-func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Contestant) error {
+// RequestJoinTeam sends a notification to the requested team leader
+func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.Contestant) error {
 	reqMsg := fmt.Sprintf(
 		"_REQThe contestant '%s' with the university id '%s' wants to join your team",
 		cont.User.Name, cont.UniversityID)
@@ -58,7 +61,7 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 	jr.Notification = notification
 	jr.RequestMessage = reqMsg[4:]
 
-	err = j.jrRepo.Add(jr)
+	err = j.repo.Add(jr)
 	if err != nil { // join request didn't go well :(
 		_ = j.notificationRepo.Delete(notification)
 		return err
@@ -67,7 +70,9 @@ func (j *JoinRequestManager) CreateRequest(jr models.JoinRequest, cont models.Co
 	return nil
 }
 
-func (j *JoinRequestManager) AcceptJoinRequest(noti models.Notification) error {
+// AcceptJoinRequest adds the requester to the requested team and deletes the other requests & notifications
+// and sends a success notification to the requester
+func (j *JoinRequestHelper) AcceptJoinRequest(noti models.Notification) error {
 	requesterID, teamID, contestID := j.juiceNotification(noti.Content)
 
 	contest, err := j.contestRepo.Get(models.Contest{ID: contestID})
@@ -113,7 +118,8 @@ func (j *JoinRequestManager) AcceptJoinRequest(noti models.Notification) error {
 	return j.DeleteRequests(requesterID, noti.ID) // this will also delete the team's leader notification
 }
 
-func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
+// RejectJoinRequest rejects the requester to join the team and deletes the leader's notification
+func (j *JoinRequestHelper) RejectJoinRequest(noti models.Notification) error {
 	requesterID, teamID, _ := j.juiceNotification(noti.Content)
 
 	team, err := j.teamManager.GetTeam(teamID)
@@ -129,14 +135,14 @@ func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
 		return err
 	}
 
-	jrs, err := j.jrRepo.GetAll(requesterID)
+	jrs, err := j.repo.GetAll(requesterID)
 	if err != nil {
 		return err
 	}
 
 	for _, jr := range jrs {
 		if jr.NotificationID == noti.ID {
-			err = j.jrRepo.Delete(jr)
+			err = j.repo.Delete(jr)
 			if err != nil {
 				return err
 			}
@@ -147,7 +153,7 @@ func (j *JoinRequestManager) RejectJoinRequest(noti models.Notification) error {
 	return j.notificationRepo.Delete(noti)
 }
 
-func (j *JoinRequestManager) juiceNotification(notiContent string) (uint, uint, uint) {
+func (j *JoinRequestHelper) juiceNotification(notiContent string) (uint, uint, uint) {
 	idsStr := notiContent[strings.LastIndex(notiContent, "_IDS")+len("_IDS"):]
 	reqID, _ := strconv.Atoi(idsStr[:strings.IndexByte(idsStr, ':')])
 
@@ -159,15 +165,28 @@ func (j *JoinRequestManager) juiceNotification(notiContent string) (uint, uint, 
 	return uint(reqID), uint(teamID), uint(contestID)
 }
 
-func (j *JoinRequestManager) DeleteRequests(contID, notiID uint) error {
-	return j.jrRepo.Delete(models.JoinRequest{
-		RequesterID:    contID,
-		NotificationID: notiID,
-	})
+// DeleteRequests deletes all join requests done by a contestant
+// used when a contestant is approved to a team, or if a contestant creates a team
+func (j *JoinRequestHelper) DeleteRequests(contID, notiID uint) error {
+	jrs, err := j.repo.GetAll(contID)
+	if err != nil {
+		return err
+	}
+
+	for _, jr := range jrs {
+		_ = j.repo.Delete(jr)
+	}
+	return nil
+	// just in case the upper stuff fails :)
+	//return j.repo.Delete(models.JoinRequest{
+	//	RequesterID:    contID,
+	//	NotificationID: notiID,
+	//})
 }
 
-func (j *JoinRequestManager) CheckContestantTeamRequests(cont models.Contestant, team models.Team) bool {
-	jrs, err := j.jrRepo.GetAll(cont.ID)
+// CheckContestantTeamRequests reports whether the given contestant has requested to join the given team
+func (j *JoinRequestHelper) CheckContestantTeamRequests(cont models.Contestant, team models.Team) bool {
+	jrs, err := j.repo.GetAll(cont.ID)
 	if err != nil {
 		return false
 	}

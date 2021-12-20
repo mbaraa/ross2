@@ -1,383 +1,237 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/mbaraa/ross2/controllers/managers"
+	"github.com/mbaraa/ross2/controllers/auth"
+	"github.com/mbaraa/ross2/controllers/context"
+	"github.com/mbaraa/ross2/controllers/helpers"
 	"github.com/mbaraa/ross2/models"
 )
 
-type ContestantAPIBuilder struct {
-	contMgr    *managers.ContestantManager
-	sessMgr    *managers.SessionManager
-	teamMgr    *managers.TeamManager
-	joinReqMgr *managers.JoinRequestManager
-}
-
-func NewContestantAPIBuilder() *ContestantAPIBuilder {
-	return new(ContestantAPIBuilder)
-}
-
-func (b *ContestantAPIBuilder) ContestantMgr(c *managers.ContestantManager) *ContestantAPIBuilder {
-	b.contMgr = c
-	return b
-}
-
-func (b *ContestantAPIBuilder) SessionMgr(s *managers.SessionManager) *ContestantAPIBuilder {
-	b.sessMgr = s
-	return b
-}
-
-func (b *ContestantAPIBuilder) TeamMgr(t *managers.TeamManager) *ContestantAPIBuilder {
-	b.teamMgr = t
-	return b
-}
-
-func (b *ContestantAPIBuilder) JoinReqMgr(j *managers.JoinRequestManager) *ContestantAPIBuilder {
-	b.joinReqMgr = j
-	return b
-}
-
-func (b *ContestantAPIBuilder) verify() bool {
-	if b.contMgr == nil {
-		fmt.Println("Contestant API Builder: missing contestant manager!")
-	}
-	if b.sessMgr == nil {
-		fmt.Println("Contestant API Builder: missing session manager!")
-	}
-	if b.teamMgr == nil {
-		fmt.Println("Contestant API Builder: missing team manager!")
-	}
-	if b.joinReqMgr == nil {
-		fmt.Println("Contestant API Builder: missing join request manager!")
-	}
-
-	return b.contMgr != nil && b.sessMgr != nil &&
-		b.teamMgr != nil && b.joinReqMgr != nil
-}
-
-func (b *ContestantAPIBuilder) GetContestantAPI() *ContestantAPI {
-	if !b.verify() {
-		return nil
-	}
-	return NewContestantAPI(b)
-}
-
+// ContestantAPI manages the operations done by a contestant
 type ContestantAPI struct {
-	endPoints map[string]http.HandlerFunc
-
-	contMgr    *managers.ContestantManager
-	sessMgr    *managers.SessionManager
-	teamMgr    *managers.TeamManager
-	joinReqMgr *managers.JoinRequestManager
+	contMgr       *helpers.ContestantHelper
+	authenticator *auth.HandlerAuthenticator
+	endPoints     map[string]http.HandlerFunc
 }
 
-func NewContestantAPI(b *ContestantAPIBuilder) *ContestantAPI {
+// NewContestantAPI returns a new ContestantAPI instance
+func NewContestantAPI(contMgr *helpers.ContestantHelper, authenticator *auth.HandlerAuthenticator) *ContestantAPI {
 	return (&ContestantAPI{
-		contMgr:    b.contMgr,
-		sessMgr:    b.sessMgr,
-		teamMgr:    b.teamMgr,
-		joinReqMgr: b.joinReqMgr,
+		contMgr:       contMgr,
+		authenticator: authenticator,
 	}).initEndPoints()
 }
 
+// ServeHTTP is the API's magical port :), since it makes it implement http.Handler
 func (c *ContestantAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	GetHandlerFromParentPrefix(res, req, strings.TrimPrefix(req.URL.Path, "/contestant"), c.endPoints)
 }
 
 func (c *ContestantAPI) initEndPoints() *ContestantAPI {
-	c.endPoints = map[string]http.HandlerFunc{
-		"GET /login/":   c.handleLogin,
-		"POST /signup/": c.handleSignup,
-		"GET /logout/":  c.authenticateHandler(c.handleLogout),
-		"GET /delete/":  c.authenticateHandler(c.handleDelete),
-		"GET /profile/": c.authenticateHandler(c.handleGetProfile),
+	c.endPoints = c.authenticator.AuthenticateHandlers(map[string]auth.HandlerFunc{
+		"POST /register/": c.handleRegister,
+		"POST /profile/":  c.handleGetProfile,
 
-		"POST /create-team/":         c.authenticateHandler(c.handleCreateTeam),
-		"POST /delete-team/":         c.authenticateHandler(c.handleDeleteTeam),
-		"POST /req-join-team/":       c.authenticateHandler(c.handleRequestJoinTeam),
-		"POST /accept-join-request/": c.authenticateHandler(c.handleAcceptJoinRequest),
-		"POST /reject-join-request/": c.authenticateHandler(c.handleRejectJoinRequest),
-		"GET /leave-team/":           c.authenticateHandler(c.handleLeaveTeam),
+		"POST /create-team/":         c.handleCreateTeam,
+		"POST /delete-team/":         c.handleDeleteTeam,
+		"POST /req-join-team/":       c.handleRequestJoinTeam,
+		"POST /accept-join-request/": c.handleAcceptJoinRequest,
+		"POST /reject-join-request/": c.handleRejectJoinRequest,
+		"GET /leave-team/":           c.handleLeaveTeam,
 
-		"POST /register-as-teamless/": c.authenticateHandler(c.handleRegisterAsTeamless),
-		"POST /check-joined-team/":    c.authenticateHandler(c.handleCheckJoinedTeam),
+		"POST /register-as-teamless/": c.handleRegisterAsTeamless,
+		"POST /check-joined-team/":    c.handleCheckJoinedTeam,
 		//"POST /invite-teamless/":      nil,
 
-		"GET /get-team/": c.authenticateHandler(c.handleGetTeam),
-	}
+		"GET /get-team/": c.handleGetTeam,
+	})
 	return c
 }
 
-type HandlerFuncWithSession func(http.ResponseWriter, *http.Request, models.Session)
-
-func (c *ContestantAPI) authenticateHandler(h HandlerFuncWithSession) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		session, ok := c.sessMgr.CheckSessionFromRequest(req)
-		if !ok {
-			res.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		h(res, req, session)
-	}
-}
-
-// GET /contestant/login/
-func (c *ContestantAPI) handleLogin(res http.ResponseWriter, req *http.Request) {
-	if session, ok := c.sessMgr.CheckSessionFromRequest(req); ok { // I kinda fucked up a bit 😅
-		cont, err := c.contMgr.GetContestant(session.ID)
-		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		_ = json.NewEncoder(res).Encode(cont)
-	} else {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-}
-
-// POST /contestant/signup
-func (c *ContestantAPI) handleSignup(res http.ResponseWriter, req *http.Request) {
-	contestant := models.Contestant{}
-	err := json.NewDecoder(req.Body).Decode(&contestant)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+// POST /contestant/register/
+// receives models.Contestant in the request body
+func (c *ContestantAPI) handleRegister(ctx context.HandlerContext) {
+	var cont models.Contestant
+	if ctx.ReadJSON(&cont) != nil {
 		return
 	}
 
-	err = c.contMgr.FinishUser(contestant)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}
-
-// GET /contestant/logout/
-func (c *ContestantAPI) handleLogout(res http.ResponseWriter, req *http.Request, session models.Session) {
-	err := c.sessMgr.DeleteSession(session.ID)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}
-
-// GET /contestant/delete/
-func (c *ContestantAPI) handleDelete(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contMgr.GetContestant(session.ID)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = c.contMgr.DeleteUser(cont)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+	if c.contMgr.Register(cont) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 // GET /contestant/profile/
-func (c *ContestantAPI) handleGetProfile(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contMgr.GetContestant(session.ID)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+func (c *ContestantAPI) handleGetProfile(ctx context.HandlerContext) {
+	var user models.User
+	if ctx.ReadJSON(&user) != nil {
 		return
 	}
 
-	_ = json.NewEncoder(res).Encode(cont)
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_ = ctx.WriteJSON(cont, 0)
 }
 
 // POST /contestant/create-team/
-func (c *ContestantAPI) handleCreateTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
+func (c *ContestantAPI) handleCreateTeam(ctx context.HandlerContext) {
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var team models.Team
-	err := json.NewDecoder(req.Body).Decode(&team)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if ctx.ReadJSON(&team) != nil {
 		return
 	}
 
-	// setting the team leader here is far easier than doing it from the frontend
-	leader, err := c.contMgr.GetContestant(session.ID)
-	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	team.LeaderId = leader.ID
-	team.Members = append(team.Members, leader)
-
-	err = c.teamMgr.CreateTeam(team)
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if c.contMgr.CreateTeam(cont, team) != nil {
 		return
 	}
 }
 
 // POST /contestant/delete-team/
-func (c *ContestantAPI) handleDeleteTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
+func (c *ContestantAPI) handleDeleteTeam(ctx context.HandlerContext) {
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var team models.Team
-	err := json.NewDecoder(req.Body).Decode(&team)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if ctx.ReadJSON(&team) != nil {
 		return
 	}
 
-	cont, err := c.contMgr.GetContestant(session.ID)
-	if err != nil || team.LeaderId != cont.ID {
-		res.WriteHeader(http.StatusUnauthorized)
+	if team.LeaderId != cont.UserID {
+		http.Error(ctx.Res, "only team's leader can delete the team", http.StatusUnauthorized)
 		return
 	}
 
-	err = c.teamMgr.DeleteTeam(team)
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if c.contMgr.DeleteTeam(team) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 // POST /contestant/req-join-team/
-func (c *ContestantAPI) handleRequestJoinTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
-	var jr models.JoinRequest
-	err := json.NewDecoder(req.Body).Decode(&jr)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+func (c *ContestantAPI) handleRequestJoinTeam(ctx context.HandlerContext) {
+	var joinRequest models.JoinRequest
+	if ctx.ReadJSON(&joinRequest) != nil {
 		return
 	}
 
-	cont, err := c.contMgr.GetContestant(session.ID)
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	jr.RequesterID = cont.ID
-	jr.Requester = cont
-
-	err = c.joinReqMgr.CreateRequest(jr, cont)
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if c.contMgr.RequestJoinTeam(joinRequest, cont) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 // POST /contestant/accept-join-request/
-func (c *ContestantAPI) handleAcceptJoinRequest(res http.ResponseWriter, req *http.Request, session models.Session) {
-	var noti models.Notification // yes I'm gonna squeeze them from here :)
-	err := json.NewDecoder(req.Body).Decode(&noti)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+func (c *ContestantAPI) handleAcceptJoinRequest(ctx context.HandlerContext) {
+	var notification models.Notification
+	if ctx.ReadJSON(&notification) != nil {
 		return
 	}
 
-	err = c.joinReqMgr.AcceptJoinRequest(noti)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		_, _ = res.Write([]byte(fmt.Sprintf(`{"err": "%s"}`, err.Error())))
+	if c.contMgr.AcceptJoinRequest(notification) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 // POST /contestant/reject-join-request/
-func (c *ContestantAPI) handleRejectJoinRequest(res http.ResponseWriter, req *http.Request, session models.Session) {
-	var noti models.Notification
-	err := json.NewDecoder(req.Body).Decode(&noti)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+func (c *ContestantAPI) handleRejectJoinRequest(ctx context.HandlerContext) {
+	var notification models.Notification
+	if ctx.ReadJSON(&notification) != nil {
 		return
 	}
 
-	err = c.joinReqMgr.RejectJoinRequest(noti)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+	if c.contMgr.RejectJoinRequest(notification) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 // GET /contestant/leave-team/
-func (c *ContestantAPI) handleLeaveTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contMgr.GetContestant(session.ID)
+func (c *ContestantAPI) handleLeaveTeam(ctx context.HandlerContext) {
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = c.teamMgr.DeleteContestantFromTeam(cont)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+	if c.contMgr.LeaveTeam(cont) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 }
 
 // POST /contestant/register-as-teamless/
-func (c *ContestantAPI) handleRegisterAsTeamless(res http.ResponseWriter, req *http.Request, session models.Session) {
+func (c *ContestantAPI) handleRegisterAsTeamless(ctx context.HandlerContext) {
 	var contest models.Contest
-	err := json.NewDecoder(req.Body).Decode(&contest)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if ctx.ReadJSON(&contest) != nil {
 		return
 	}
 
-	cont, err := c.contMgr.GetContestant(session.ID)
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = c.contMgr.RegisterAsTeamless(cont, contest)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+	if c.contMgr.RegisterAsTeamless(cont, contest) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 // POST /contestant/check-joined-team/
-func (c *ContestantAPI) handleCheckJoinedTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
+func (c *ContestantAPI) handleCheckJoinedTeam(ctx context.HandlerContext) {
 	var team models.Team
-	err := json.NewDecoder(req.Body).Decode(&team)
-	_ = req.Body.Close()
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+	if ctx.ReadJSON(&team) != nil {
 		return
 	}
 
-	cont, err := c.contMgr.GetContestant(session.ID)
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	inTeam := cont.TeamID > 1 || cont.TeamID == team.ID ||
-		c.joinReqMgr.CheckContestantTeamRequests(cont, team)
-
-	_, _ = res.Write([]byte(fmt.Sprintf(`{"team_status" : %v}`, inTeam)))
+	_ = ctx.WriteJSON(map[string]interface{}{
+		"team_status": c.contMgr.CheckJoinedTeam(cont, team),
+	}, 0)
 }
 
 // GET /contestant/get-team/
-func (c *ContestantAPI) handleGetTeam(res http.ResponseWriter, req *http.Request, session models.Session) {
-	cont, err := c.contMgr.GetContestant(session.ID)
+func (c *ContestantAPI) handleGetTeam(ctx context.HandlerContext) {
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
-		res.WriteHeader(http.StatusUnauthorized)
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	team, err := c.teamMgr.GetTeam(cont.TeamID)
+	team, err := c.contMgr.GetTeam(cont)
 	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_ = json.NewEncoder(res).Encode(team)
+	_ = ctx.WriteJSON(team, 0)
 }
