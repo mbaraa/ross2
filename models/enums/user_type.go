@@ -5,7 +5,7 @@ type UserType uint64
 
 // UserType constants
 const (
-	UserTypeFresh = UserType(1 << iota)
+	UserTypeFresh UserType = 1 << iota
 	UserTypeContestant
 	UserTypeOrganizer
 	UserTypeDirector

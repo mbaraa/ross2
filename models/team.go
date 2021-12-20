@@ -20,6 +20,10 @@ type Team struct {
 }
 
 func (t *Team) AfterFind(db *gorm.DB) error {
+	if t.ID <= 1 {
+		return nil
+	}
+
 	err := db.
 		Model(new(Contestant)).
 		Find(&t.Leader, "id = ?", t.LeaderId).
