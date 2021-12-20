@@ -38,20 +38,23 @@ func (o *OrganizerDB) Get(organizer models.Organizer) (fetchedOrganizer models.O
 		First(&fetchedOrganizer, "user_id = ?", organizer.User.ID).
 		Error
 
-	//if err != nil {
-	//	return models.Contestant{}, err
-	//}
-
-	err = o.db.
-		First(&fetchedOrganizer.User, "id = ?", organizer.User.ID).
-		Error
-
 	return
 }
 
 func (o *OrganizerDB) GetByEmail(email string) (fetchedOrganizer models.Organizer, err error) {
+	var user models.User
 	err = o.db.
-		First(&fetchedOrganizer, "email = ?", email).
+		Model(new(models.User)).
+		First(&user, "email = ?", email).
+		Error
+
+	if err != nil {
+		return models.Organizer{}, err
+	}
+
+	err = o.db.
+		Model(new(models.Organizer)).
+		First(&fetchedOrganizer, "user_id = ?", user.ID).
 		Error
 
 	return

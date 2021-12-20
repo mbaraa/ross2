@@ -72,7 +72,7 @@ func (c *ContestantAPI) handleGetProfile(ctx context.HandlerContext) {
 		return
 	}
 
-	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	cont, err := c.contMgr.GetProfile(user)
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return

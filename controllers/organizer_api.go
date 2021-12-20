@@ -35,7 +35,8 @@ func (o *OrganizerAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 	o.endPoints = o.authenticator.AuthenticateHandlers(map[string]auth.HandlerFunc{
 		// shared organizer/director operations
-		"GET /profile/": o.handleGetProfile,
+		"POST /profile/":        o.handleGetProfile,
+		"POST /finish-profile/": o.handleFinishProfile,
 
 		// "GET /get-solved-problems/": nil,
 		// "POST /update-solved-problems/": nil,
@@ -67,15 +68,33 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 	return o
 }
 
-// GET /organizer/profile/
+// POST /organizer/profile/
 func (o *OrganizerAPI) handleGetProfile(ctx context.HandlerContext) {
-	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	var user models.User
+	if ctx.ReadJSON(&user) != nil {
+		return
+	}
+
+	org, err := o.orgMgr.GetProfile(user)
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	_ = ctx.WriteJSON(org, 0)
+}
+
+// POST /finish-profile/
+func (o *OrganizerAPI) handleFinishProfile(ctx context.HandlerContext) {
+	var org models.Organizer
+	if ctx.ReadJSON(&org) != nil {
+		return
+	}
+
+	if o.orgMgr.FinishProfile(org) != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 // POST /organizer/update-team/
@@ -167,8 +186,15 @@ func (o *OrganizerAPI) handleAddOrganizer(ctx context.HandlerContext) {
 		return
 	}
 
-	if o.orgMgr.AddOrganizer(newOrg, director) != nil {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
+	baseUser, err := o.orgMgr.GetUserProfileUsingEmail(newOrg.User.Email)
+	if err != nil {
+		http.Error(ctx.Res, "user doesn't exist!", http.StatusNotFound)
+		return
+	}
+
+	err = o.orgMgr.AddOrganizer(newOrg, director, baseUser)
+	if err != nil {
+		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

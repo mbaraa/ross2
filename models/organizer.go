@@ -22,7 +22,17 @@ type Organizer struct {
 func (o *Organizer) AfterFind(db *gorm.DB) error {
 	o.RolesNames = o.Roles.GetRoles()
 
+	err := db.
+		Model(new(User)).
+		First(&o.User, "id = ?", o.UserID).
+		Error
+
+	if err != nil {
+		return err
+	}
+
 	return db.
+		Model(new(ContactInfo)).
 		First(&o.User.ContactInfo, "id = ?", o.User.ContactInfoID).
 		Error
 }

@@ -127,6 +127,7 @@ func (c *ContestantHelper) Register(cont models.Contestant) error {
 		cont.User.AvatarURL = multiavatar.GetAvatarURL()
 		cont.TeamID = 1
 		cont.UserID = cont.User.ID
+		cont.User.ProfileStatus |= enums.ProfileStatusContestantFinished
 
 		return c.repo.Add(&cont)
 	}

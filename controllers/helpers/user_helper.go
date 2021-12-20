@@ -5,8 +5,6 @@ import (
 
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
-	"github.com/mbaraa/ross2/models/enums"
-	"github.com/mbaraa/ross2/utils/multiavatar"
 	"gorm.io/gorm"
 )
 
@@ -43,11 +41,6 @@ func (u *UserHelper) Login(user *models.User) (sess models.Session, err error) {
 }
 
 func (u *UserHelper) Signup(user *models.User) error {
-	user.AvatarURL = multiavatar.GetAvatarURL()
-	user.ProfileFinished = false
-	user.ContactInfo = models.ContactInfo{FacebookURL: "/"}
-	user.UserType = enums.UserTypeFresh
-
 	return u.userRepo.Add(user)
 }
 

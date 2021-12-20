@@ -65,7 +65,7 @@ func (u *UserDB) Count() (count int64, err error) {
 func (u *UserDB) Update(user *models.User) (err error) {
 	err = u.db.
 		Model(new(models.ContactInfo)).
-		Where("id = ?", user.ID).
+		Where("id = ?", user.ContactInfoID).
 		Updates(&user.ContactInfo).
 		Error
 	if err != nil {

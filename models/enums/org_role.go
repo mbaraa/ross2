@@ -32,11 +32,11 @@ var organizerRoleText = map[OrganizerRole]string{
 
 // GetRoles returns a string slice that represents the organizer's roles
 func (roles OrganizerRole) GetRoles() []string {
-	if roles == 1 {
+	if roles == RoleDirector {
 		return []string{organizerRoleText[RoleDirector]}
 	}
 
-	rolesTexts := []string{"Organizer"}
+	var rolesTexts []string
 	for role := RoleDirector; role <= RoleReceptionist; role <<= 1 {
 		if roles&role != 0 {
 			rolesTexts = append(rolesTexts, organizerRoleText[role])

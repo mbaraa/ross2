@@ -17,7 +17,7 @@ import (
 type OrganizerHelperBuilder struct {
 	repo            data.OrganizerCRUDRepo
 	contestRepo     data.ContestCRUDRepo
-	userRepo        data.UserGetterRepo
+	userRepo        data.UserCRUDRepo
 	teamMgr         *TeamHelper
 	notificationMgr *NotificationHelper
 }
@@ -36,7 +36,7 @@ func (b *OrganizerHelperBuilder) ContestRepo(c data.ContestCRUDRepo) *OrganizerH
 	return b
 }
 
-func (b *OrganizerHelperBuilder) UserRepo(u data.UserGetterRepo) *OrganizerHelperBuilder {
+func (b *OrganizerHelperBuilder) UserRepo(u data.UserCRUDRepo) *OrganizerHelperBuilder {
 	b.userRepo = u
 	return b
 }
@@ -86,7 +86,7 @@ func (b *OrganizerHelperBuilder) GetOrganizerManager() *OrganizerHelper {
 type OrganizerHelper struct {
 	repo            data.OrganizerCRUDRepo
 	contestRepo     data.ContestCRUDRepo
-	userRepo        data.UserGetterRepo
+	userRepo        data.UserCRUDRepo
 	teamMgr         *TeamHelper
 	notificationMgr *NotificationHelper
 }
@@ -105,6 +105,22 @@ func NewOrganizerHelper(b *OrganizerHelperBuilder) *OrganizerHelper {
 // GetProfile returns organizer's profile for the given user
 func (o *OrganizerHelper) GetProfile(user models.User) (models.Organizer, error) {
 	return o.repo.Get(models.Organizer{User: user})
+}
+
+// GetUserProfileUsingEmail returns user's profile for the given user email
+func (o *OrganizerHelper) GetUserProfileUsingEmail(userEmail string) (models.User, error) {
+	return o.userRepo.GetByEmail(userEmail)
+}
+
+// FinishProfile sets the organizer's profile after the first sign in after the promotion
+func (o *OrganizerHelper) FinishProfile(org models.Organizer) error {
+	org.User.ProfileStatus |= enums.ProfileStatusOrganizerFinished
+	err := o.userRepo.Update(&org.User)
+	if err != nil {
+		return err
+	}
+
+	return o.repo.Update(org)
 }
 
 // UpdateTeam updates the given team after checking that the given organizer is a director on one of the contest that the team is in
@@ -129,9 +145,24 @@ func (o *OrganizerHelper) UpdateContest(contest models.Contest) error {
 }
 
 // AddOrganizer adds the given organizer
-func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer) error {
+func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUser models.User) error {
+	if (baseUser.UserType&enums.UserTypeOrganizer) != 0 ||
+		(baseUser.UserType&enums.UserTypeDirector) != 0 {
+		return errors.New("user is already an organizer")
+	}
+
+	baseUser.UserType |= enums.UserTypeOrganizer
+
+	err := o.userRepo.Update(&baseUser)
+	if err != nil {
+		return err
+	}
+
 	newOrg.DirectorID = director.ID
 	newOrg.Director = &director
+
+	newOrg.User = baseUser
+	newOrg.UserID = baseUser.ID
 
 	return o.repo.Add(&newOrg)
 }

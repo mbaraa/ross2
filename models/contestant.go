@@ -29,8 +29,17 @@ type Contestant struct {
 func (c *Contestant) AfterFind(db *gorm.DB) error {
 	c.MajorName = c.Major.String()
 
+	err := db.
+		Model(new(User)).
+		First(&c.User, "id = ?", c.UserID).
+		Error
+
+	if err != nil {
+		return err
+	}
+
 	return db.
-		First(&c.User.ContactInfo, "id = ?", c.User.ContactInfoID).
+		First(&c.User.ContactInfo, "user_id = ?", c.User.ContactInfoID).
 		Error
 }
 
