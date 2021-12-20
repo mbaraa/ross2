@@ -1,15 +1,15 @@
 <template>
     <div class="main bg-red-darken-3">
         <br/>
-        <img class="contestLogo" :alt="organizer.name + ' profile pic'" :src="organizer.avatar_url"/>
-        <h1>{{ organizer.name }}</h1>
+        <img class="contestLogo" :alt="organizer.user.name + ' profile pic'" :src="organizer.user.avatar_url"/>
+        <h1>{{ organizer.user.name }}</h1>
         <v-divider/>
         <p>{{ organizer.roles_names.join(", ") }}</p>
         <v-divider/>
 
         <p>
             <a class="text-blue-darken-4" :href="contact.facebook_url"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'facebook'}"/></a>&nbsp;
-<!--            <a class="text-blue" :href="contact.telegram_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'telegram'}"/></a>&nbsp;-->
+            <a class="text-blue" :href="contact.telegram_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'telegram'}"/></a>&nbsp;
 <!--            <a class="text-green" :href="contact.whatsapp_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'whatsapp'}"/></a>&nbsp;-->
         </p>
     </div>

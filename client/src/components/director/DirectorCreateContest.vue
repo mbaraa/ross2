@@ -13,7 +13,7 @@
             </div>
         </template>
 
-        <v-card @click="log"
+        <v-card
             elevation="16" class="contestForm">
             <v-card-title>
                 <span class="text-h4">Create Contest</span>
@@ -138,7 +138,7 @@ export default defineComponent({
                 mode: "cors",
                 headers: {
                     // "Content-Type": `multipart/form-data", content type and boundary is calculated by the browser
-                    "Authorization": <string>localStorage.getItem("org_token"),
+                    "Authorization": <string>localStorage.getItem("token"),
                 },
                 body: formData,
             })

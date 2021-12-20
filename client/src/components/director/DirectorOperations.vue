@@ -1,5 +1,5 @@
 <template>
-    <div class="main2" v-if="(director.roles & 1) !== 0">
+    <div class="main2" v-if="checkDirector()">
         <div v-if="showOps">
             <div class="pagesLinks" v-for="link in links" :key="link">
                 <router-link :to="{name: link.page}">
@@ -30,14 +30,14 @@ export default defineComponent({
             links: [
                 {page: 'contests', name: 'Contests'},
                 {page: 'organizers', name: 'Organizers'},
-                {page: 'other', name: 'Other'},
+                // {page: 'other', name: 'Other'},
             ]
         }
     },
     methods: {
         show() {
             this.showOps = true;
-            this.$router.push('/organizer/contests/')
+            this.$router.push('/profile/contests/')
         },
         checkDirector(): boolean {
             return (this.director.roles & 1) != 0;

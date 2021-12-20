@@ -1,4 +1,5 @@
-import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
+import User from '@/models/User'
+import {createRouter, createWebHashHistory, RouteLocationNormalized, RouteLocationRaw, RouteRecordRaw} from 'vue-router'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -15,11 +16,37 @@ const routes: Array<RouteRecordRaw> = [
         path: '/profile/',
         name: 'Profile',
         component: () => import('@/views/Profile.vue'),
+        children: [
+            {
+                path: 'contests/',
+                name: 'contests',
+                component: () => import("@/components/director/DirectorContests.vue")
+            },
+            {
+                path: 'organizers/',
+                name: 'organizers',
+                component: () => import("@/components/director/DirectorOrganizers.vue")
+            },
+            {
+                path: 'other/',
+                name: 'other',
+                component: () => import("@/components/director/DirectorOther.vue")
+            },
+            {
+                path: 'org-teams/',
+                name: 'org-teams',
+                component: () => import("@/components/director/DirectorTeams.vue")
+            },
+        ]
     },
     {
-        path: '/finish-profile/',
+        path: '/register-contestant/',
         name: 'ContestantSignup',
-        component: () => import('@/components/contestant/ContestantSignup.vue')
+        component: () => import('@/components/contestant/ContestantSignup.vue'),
+        props: (route: RouteLocationNormalized) => ({
+            profile: new User(), // like the props declaration in the vue component
+            ...route.params
+        })
     },
     {
         path: '/notifications/',
@@ -50,33 +77,6 @@ const routes: Array<RouteRecordRaw> = [
                 name: "support",
                 path: "support/", // ?id=contestId
                 component: () => import("../components/contest/ContestSupport.vue")
-            },
-        ]
-    },
-    {
-        path: '/organizer/',
-        name: 'Organizer',
-        component: () => import('@/views/Organizer.vue'),
-        children: [
-            {
-                path: 'contests/',
-                name: 'contests',
-                component: () => import("@/components/director/DirectorContests.vue")
-            },
-            {
-                path: 'organizers/',
-                name: 'organizers',
-                component: () => import("@/components/director/DirectorOrganizers.vue")
-            },
-            {
-                path: 'other/',
-                name: 'other',
-                component: () => import("@/components/director/DirectorOther.vue")
-            },
-            {
-                path: 'org-teams/',
-                name: 'org-teams',
-                component: () => import("@/components/director/DirectorTeams.vue")
             },
         ]
     },

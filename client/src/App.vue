@@ -1,20 +1,18 @@
 <template>
-    <v-app>
-        <v-app-bar app class="bg-indigo">
-            <v-btn @click="toggleDrawer"
-                   icon
-                   color="error"
-                   class="drawerButton">
-                <FontAwesomeIcon class="text-indigo" :icon="{prefix: 'fas', iconName: 'bars'}"/>
-                <FontAwesomeIcon class="text-red" v-if="newNotification" :icon="{prefix:'fas', iconName:'bell'}"/>
+    <v-app class="app" >
+        <v-app-bar app style="background-color: #4A148C;">
+            <v-btn @click="toggleDrawer" icon color="error" class="drawerButton">
+                <FontAwesomeIcon style="color: #4A148C;" :icon="{ prefix: 'fas', iconName: 'bars' }"/>
+                <FontAwesomeIcon
+                    class="text-red"
+                    v-if="newNotification"
+                    :icon="{ prefix: 'fas', iconName: 'bell' }"
+                />
             </v-btn>
             <label @click="goHome" class="title">&nbsp;Ross 2</label>
         </v-app-bar>
 
-        <v-navigation-drawer
-            v-model="showDrawer"
-            temporary
-            app>
+        <v-navigation-drawer v-model="showDrawer" temporary app>
             <br/>
 
             <v-list @click="toggleDrawer" v-for="link in links" :key="link">
@@ -55,7 +53,6 @@ export default defineComponent({
                 {page: '/', name: "Contests", icon: {prefix: 'fas', iconName: 'trophy'}},
                 {page: '/notifications', name: "Notifications", icon: {prefix: 'fas', iconName: 'bell'}},
                 {page: '/profile', name: "Profile", icon: {prefix: 'fas', iconName: 'user-circle'}},
-                {page: 'organizer', name: "Organizer", icon: {prefix: 'fas', iconName: 'gavel'}},
                 {page: '/about', name: "About", icon: {prefix: 'fas', iconName: 'info-circle'}},
             ],
             newNotification: false,
@@ -102,11 +99,15 @@ a {
 }
 
 a.router-link-exact-active {
-    color: #3f51b5;
+    color: #4A148C;
 }
 
 .main {
-    font-family: 'Ropa Sans', sans-serif;
-    color: #3f51b5;
+    font-family: "Ropa Sans", sans-serif;
+    color: #311B92;
+}
+
+.app {
+    background-color: #eeeeee;
 }
 </style>

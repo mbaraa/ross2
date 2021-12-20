@@ -30,7 +30,7 @@ export default defineComponent({
         getMembersNames(): string {
             let names = "";
             this.team.members.forEach((member: Contestant) => {
-                names += `${member.name}, `
+                names += `${member.user.name}, `
             })
             return names.substring(0, names.length - 2);
         }

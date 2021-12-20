@@ -18,8 +18,7 @@
                 <span class="text-h4">Add Organizer</span>
             </v-card-title>
 
-            <v-text-field label="Name" v-model="newOrganizer.name" autofocus/>
-            <v-text-field label="Gmail" v-model="newOrganizer.email"/>
+            <v-text-field label="Email Address" v-model="newOrganizer.user.email"/>
 
             <div v-if="contests.length > 0">
                 <h4>Set contest for organizer</h4>
@@ -51,7 +50,7 @@ import {defineComponent} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
-import Organizer from "@/models/Organizer";
+import Organizer, {OrganizerRole} from "@/models/Organizer";
 import Contest from "@/models/Contest";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
@@ -72,10 +71,10 @@ export default defineComponent({
                 {name: "Core Organizer", checked: false},
                 {name: "Chief Judge", checked: false},
                 {name: "Judge", checked: false},
-                {name: "Media", checked: false},
-                {name: "Balloons", checked: false},
                 {name: "Technical", checked: false},
                 {name: "Coordinator", checked: false},
+                {name: "Media", checked: false},
+                {name: "Balloons", checked: false},
                 {name: "Food", checked: false},
                 {name: "Receptionist", checked: false},
             ],
@@ -89,8 +88,11 @@ export default defineComponent({
         async createOrganizer() {
             this.setContest();
             this.setRoles();
-            await OrganizerRequests.createOrganizer(this.newOrganizer);
-
+            const resp = await OrganizerRequests.createOrganizer(this.newOrganizer);
+            if (!resp.ok) {
+                window.alert(await resp.text());
+                return;
+            }
             window.alert("organizer was created successfully!");
             window.location.reload();
         },
@@ -105,10 +107,9 @@ export default defineComponent({
         },
         setRoles() {
             this.newOrganizer.roles = 0;
-            for (let i = 0; i <= 8; i++) {
-                if (this.roles[i].checked) {
-                    this.newOrganizer.roles |= (1 << (i + 1)); // i+1, because the roles can't start from director but the roles array starts from 0 :)
-                    console.log("roles: ", (1 << (i + 1)));
+            for (let role = OrganizerRole.CoreOrganizer; role <= OrganizerRole.Receptionist; role <<= 1) {
+                if (this.roles[Math.log2(role)-1].checked) { // -1 since the roles array has only 9 elements
+                    this.newOrganizer.roles |= role;
                 }
             }
         }

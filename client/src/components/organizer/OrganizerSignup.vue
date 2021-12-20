@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <div v-if="!profile.profile_finished">
+        <div v-if="!organizerProfile.user.profile_finished">
             <h1>Finish your profile data:</h1>
 
             <h3 style="text-align: left" class="text-blue">Fill at least one field<br/>Contact Info:</h3>
@@ -8,10 +8,10 @@
             <!--            <v-text-field label="Telegram number" id="tg"/>-->
             <!--            <v-text-field label="Whatsapp number" id="wa"/>-->
             <v-text-field label="Facebook profile URL" v-model="contactInfo.facebook_url"/>
-<!--            <v-text-field label="Telegram number" v-model="contactInfo.telegram_number"/>-->
-<!--            <v-text-field label="Whatsapp number" v-model="contactInfo.whatsapp_number"/>-->
+            <v-text-field label="Telegram URL" v-model="contactInfo.telegram_number"/>
+            <!--            <v-text-field label="Whatsapp number" v-model="contactInfo.whatsapp_number"/>-->
 
-            <v-btn @click="finishProfile">Finish profile
+            <v-btn @click="finishProfile()">Finish profile
             </v-btn>
         </div>
 
@@ -21,32 +21,31 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import {ContactInfo} from "@/models/User";
+import {ContactInfo, ProfileStatus} from "@/models/User";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 
 export default defineComponent({
     name: "OrganizerSignup",
     data() {
         return {
-            profile: {},
+            organizerProfile: this.$store.getters.getCurrentOrganizer,
             contactInfo: new ContactInfo(),
         }
     },
-    async mounted() {
-        this.profile = await OrganizerRequests.login();
-        if (this.profile.user?.profile_finished) {
-            await this.$router.push("/organizer");
+    mounted() {
+        if (this.organizerProfile.user != null &&
+            (this.organizerProfile.user.profile_status & ProfileStatus.OrganizerFinished) != 0) {
+            this.$router.push("/profile");
         }
     },
     methods: {
         async finishProfile() {
-            this.profile.profile_finished = true;
-            this.profile.contact_info = this.contactInfo;
-            this.profile.avatar_url = "/logo_500.png";
+            this.organizerProfile.profile_finished = true;
+            this.organizerProfile.contact_info = this.contactInfo;
 
-            await OrganizerRequests.finishProfile(this.profile)
+            await OrganizerRequests.finishProfile(this.organizerProfile)
 
-            await this.$router.push("/organizer");
+            await this.$router.push("/profile");
         }
     }
 });
