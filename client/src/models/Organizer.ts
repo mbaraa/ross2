@@ -2,7 +2,7 @@ import Contest from "@/models/Contest";
 import User from "@/models/User";
 
 class Organizer {
-    user?: User;
+    user: User;
 
     director?: Organizer;
     contests?: Contest[];

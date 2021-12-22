@@ -7,10 +7,11 @@
                 <ContestantCreateTeam :contest="contest"/>
             </div>
             <div class="buttons">
-                <ContestantJoinTeam :contest="contest"/>
+                <ContestantJoinTeam :contest="contest" v-if="!hasTeam"/>
             </div>
             <br/>
-            <v-btn @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))" color="success"
+            <v-btn v-if="!hasTeam" @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))"
+                   color="success"
                    class="buttons"
                    title="you will be put in a team at the end of registration">
                 <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>&nbsp;
@@ -28,9 +29,9 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import Contest from "@/models/Contest";
 import ContestantCreateTeam from "@/components/contestant/ContestantCreateTeam.vue";
-import {checkTokenForAction} from "@/utils";
 import ContestantRequests from "@/utils/requests/ContestantRequests";
 import ContestantJoinTeam from "@/components/contestant/ContestantJoinTeam.vue";
+import ActionChecker from "@/utils/ActionChecker";
 
 library.add(faUserPlus, faUsers, faUsersSlash);
 
@@ -52,7 +53,7 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.contestant = await ContestantRequests.login();
+        this.contestant = await ContestantRequests.getProfile();
         this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 1);
     },
     methods: {
@@ -73,8 +74,8 @@ export default defineComponent({
         joinTeam() {
             this.$router.push(`/contest/teams/?id=${this.contest.id}`)
         },
-        checkTokenForAction(fn: () => void) {
-            checkTokenForAction(fn);
+        async checkTokenForAction(fn: () => void) {
+            await ActionChecker.checkContestant(fn);
         },
         checkRegistrationEndsForAction(fn: () => void): () => void {
             return !this.checkRegisterEnds() ? fn : () => {

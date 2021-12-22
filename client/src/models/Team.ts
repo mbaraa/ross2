@@ -2,14 +2,15 @@ import Contest from "@/models/Contest";
 import Contestant from "@/models/Contestant";
 
 class Team {
-    id: number | undefined;
-    name: string | undefined;
+    id?: number;
+    name?: string;
     leader: Contestant;
-    leader_id: number | undefined;
+    leader_id?: number;
     contests: Contest[];
     members: Contestant[];
+    join_id?: number;
 
-    inTeam: boolean | undefined; // once you go spaghetti, you can't turn back :)
+    inTeam?: boolean; // once you go spaghetti, you can't turn back :)
 
     constructor() {
         this.leader = new Contestant();

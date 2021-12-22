@@ -1,7 +1,7 @@
 <template>
     <div v-if="contests.length > 0">
         <h1>Generate teams for teamless contestants:</h1>
-        <v-divider />
+        <v-divider/>
         <table class="opts">
             <tr>
                 <td>
@@ -29,12 +29,12 @@
                 <td colspan="2" style="color: #212121">
                     upload a file with the wanted teams names
                     <b>separated by a comma(,)</b>
-                    <br />eg: name1,name2,name3...
+                    <br/>eg: name1,name2,name3...
                 </td>
             </tr>
             <tr v-if="!hideNamesFileUpload">
                 <td colspan="2">
-                    <v-file-input show-size label="Names file" prepend-icon @change="selectFile" />
+                    <v-file-input show-size label="Names file" prepend-icon @change="selectFile"/>
                 </td>
             </tr>
             <tr>
@@ -47,15 +47,15 @@
         <!-- obaa -->
         <div v-if="generatedTeams.length > 0">
             <div class="teams" v-for="team in generatedTeams" :key="team">
-                <DirectorTeamCard :team="team" />
+                <DirectorTeamCard :team="team"/>
             </div>
-            <br />
+            <br/>
             <v-btn class="bg-red-darken-4 text-white" @click="saveTeams()">Save teams</v-btn>
         </div>
 
         <!-- hmm -->
         <div v-if="leftTeamless != null && leftTeamless.length > 0">
-            <br />
+            <br/>
             <h2>Contestants left with no teams:</h2>
             <table class="tls">
                 <tr class="bg-green">
@@ -66,8 +66,8 @@
                     <th>Can participate with the other gender</th>
                 </tr>
                 <tr v-for="cont in leftTeamless" :key="cont" :class="getContClass(cont)">
-                    <td title="use it to add this contestant to a specific team">{{ cont.id }}</td>
-                    <td>{{ cont.name }}</td>
+                    <td title="use it to add this contestant to a specific team">{{ cont.user.id }}</td>
+                    <td>{{ cont.user.name }}</td>
                     <td>{{ cont.university_id }}</td>
                     <td>{{ cont.gender ? "Male" : "Female" }}</td>
                     <td>{{ cont.participate_with_other ? "Yes" : "No" }}</td>
@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import Contest from "@/models/Contest";
 import Contestant from "@/models/Contestant";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
@@ -95,7 +95,7 @@ import DirectorTeamCard from "@/components/director/DirectorTeamCard.vue";
 
 export default defineComponent({
     name: "DirectorGenerateTeamless",
-    components: { DirectorTeamCard },
+    components: {DirectorTeamCard},
     data() {
         return {
             contests: [],

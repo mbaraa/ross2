@@ -14,7 +14,7 @@ func GetSheevNotifications(c models.Contest) (notifications []*models.Notificati
 	}
 	for _, cont := range conts {
 		notifications = append(notifications, &models.Notification{
-			UserID: cont.ID,
+			UserID: cont.User.ID,
 			Content: fmt.Sprintf(
 				`Hi %s 👋<br/>
 The contest "%s" is over, hope you had fun at it 😉<br/>

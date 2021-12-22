@@ -1,7 +1,7 @@
 export function getLocaleTime(time: Date): string {
     const over = (new Date()).getTime() > (new Date(time)).getTime();
 
-    return over? "OVER!": new Date(time).toLocaleTimeString("en-US", {
+    return over ? "OVER!" : new Date(time).toLocaleTimeString("en-US", {
         hour12: true,
         hour: "2-digit",
         minute: "2-digit",
@@ -18,17 +18,4 @@ export function formatDuration(minutes: number): string {
     const minutes1 = minutes % 60;
 
     return `${hours} hours & ${minutes1} minutes`;
-}
-
-function checkToken(): boolean {
-    const token = <string>localStorage.getItem("token");
-    return token != null && token.length == 36;
-}
-
-export function checkTokenForAction(fn: () => void): void {
-    if (checkToken()) {
-        fn();
-    } else {
-        window.alert("you're not logged in :)")
-    }
 }

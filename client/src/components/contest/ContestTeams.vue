@@ -51,9 +51,11 @@ export default defineComponent({
             if (this.checkRegisterEnds()) {
                 return;
             }
+            console.log("team", team)
             const resp = await ContestantRequests.requestJoinTeam(<JoinRequest>{
                 requested_team: team,
                 requested_team_id: team.id,
+                requested_team_join_id: team.join_id,
                 request_message: "",
                 requested_contest_id: this.contest.id,
                 requested_contest: this.contest,

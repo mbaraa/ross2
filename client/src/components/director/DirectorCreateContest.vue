@@ -22,11 +22,11 @@
             <div class="list">
                 <v-text-field label="Contest Title" v-model="contest.name" autofocus=""/>
 
-                <label for="starts">Starts at:</label>
-                <input id="starts" class="starts" type="datetime-local" v-model="startsAt" required/>
-
                 <label for="ends">Registration ends at:</label>
                 <input id="ends" class="starts" type="datetime-local" v-model="regEndsAt" required/>
+
+                <label for="starts">Starts at:</label>
+                <input id="starts" class="starts" type="datetime-local" v-model="startsAt" required/>
 
                 <v-text-field label="Duration (in minutes)" v-model="contest.duration" required/>
                 <v-text-field label="Location" v-model="contest.location" required/>

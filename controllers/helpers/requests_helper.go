@@ -40,12 +40,14 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 	}
 
 	var err error
-	jr.RequestedTeam, err = j.teamManager.GetTeam(jr.RequestedTeamID)
-	if err != nil {
-		return err
+	if jr.RequestedTeamID == 0 {
+		jr.RequestedTeam, err = j.teamManager.GetTeamByJoinID(jr.RequestedTeamJoinID)
+		if err != nil {
+			return err
+		}
 	}
 
-	reqMsg += fmt.Sprintf("_IDS%d:%d:%d", cont.ID, jr.RequestedTeamID, jr.RequestedContestID) // a weird way to store ids in the notification text(they won't appear)
+	reqMsg += fmt.Sprintf("_IDS%d:%d:%d", cont.User.ID, jr.RequestedTeam.ID, jr.RequestedContestID) // a weird way to store ids in the notification text(they won't appear)
 
 	notification := models.Notification{ // send a join request notification to the team leader!
 		UserID:  jr.RequestedTeam.LeaderId,
@@ -60,6 +62,7 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 	jr.NotificationID = notification.ID
 	jr.Notification = notification
 	jr.RequestMessage = reqMsg[4:]
+	jr.RequesterID = cont.User.ID
 
 	err = j.repo.Add(jr)
 	if err != nil { // join request didn't go well :(
@@ -186,7 +189,7 @@ func (j *JoinRequestHelper) DeleteRequests(contID, notiID uint) error {
 
 // CheckContestantTeamRequests reports whether the given contestant has requested to join the given team
 func (j *JoinRequestHelper) CheckContestantTeamRequests(cont models.Contestant, team models.Team) bool {
-	jrs, err := j.repo.GetAll(cont.ID)
+	jrs, err := j.repo.GetAll(cont.User.ID)
 	if err != nil {
 		return false
 	}

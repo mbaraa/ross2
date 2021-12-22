@@ -14,6 +14,7 @@ export default class User {
         this.contact_info = new ContactInfo();
         this.user_type_base = UserType.Fresh;
         this.profile_status = ProfileStatus.Fresh
+        this.id = 0;
     }
 }
 

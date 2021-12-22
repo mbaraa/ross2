@@ -16,6 +16,7 @@ type TeamGetterRepo interface {
 	Get(team models.Team) (models.Team, error)
 	GetAll() ([]models.Team, error)
 	GetAllByContest(contest models.Contest) ([]models.Team, error)
+	GetByJoinID(joiningID string) (models.Team, error)
 	Count() (int64, error)
 }
 

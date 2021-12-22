@@ -67,7 +67,8 @@ export default defineComponent({
 
             this.setRadioValues();
             this.contestantProfile.user.profile_status |= ProfileStatus.ContestantFinished;
-            await ContestantRequests.register(this.contestantProfile);
+            await ContestantRequests.register(this.contestantProfile)
+                .catch(err => window.alert(err));
 
             await this.$router.push("/profile");
         },

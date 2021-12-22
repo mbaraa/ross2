@@ -5,37 +5,40 @@
                 </span>
         <br/>
 
-        <div v-if="checkTeam()">
+        <div v-if="team !== null">
             <v-divider/>
 
-            <h3>
-                <FontAwesomeIcon :icon="{ prefix: 'fas', iconName: 'file-alt' }"/>&nbsp;Team details:
-            </h3>
-
-            <ul v-if="team !== null">
-                <li>Team name: {{ team.name }}</li>
-                <li
-                    title="share this id with team members you want to join this team"
-                >Team ID: {{ team.id }}
-                </li>
-                <li>
-                    Team members:
-                    <ul v-for="member in team.members" :key="member">
-                        <li>{{ member.name }}</li>
-                    </ul>
-                </li>
-            </ul>
-
-            <div class="buttons">
-                <v-btn @click="leaveTeam" class="text-blue-darken-4">Leave team</v-btn>
-                <v-btn
-                    v-if="checkLeader()"
-                    @click="deleteTeam"
-                    class="text-red-darken-4"
-                >Delete team
-                </v-btn>
+            <div v-if="checkTeam()">
+                <h3>
+                    <FontAwesomeIcon :icon="{ prefix: 'fas', iconName: 'file-alt' }"/>&nbsp;Team details:
+                </h3>
+                <ul>
+                    <li>Team name: {{ team.name }}</li>
+                    <li
+                        title="share this id with team members you want to join this team"
+                    >Team ID: {{ team.join_id }}
+                    </li>
+                    <li>
+                        Team members:
+                        <ul v-for="member in team.members" :key="member">
+                            <li>{{ member.user.name }}</li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="buttons">
+                    <v-btn @click="leaveTeam" class="text-blue-darken-4">Leave team</v-btn>
+                    &nbsp;
+                    <v-btn
+                        v-if="checkLeader()"
+                        @click="deleteTeam"
+                        class="text-red-darken-4"
+                    >Delete team
+                    </v-btn>
+                </div>
             </div>
+
         </div>
+        <v-divider/>
     </div>
 </template>
 
@@ -62,6 +65,9 @@ export default defineComponent({
             team: null,
         }
     },
+    async mounted() {
+        this.team = await ContestantRequests.getTeam();
+    },
     methods: {
         async leaveTeam() {
             if (window.confirm("Are you sure you want to leave your team?")) {
@@ -80,7 +86,7 @@ export default defineComponent({
             }
         },
         checkLeader(): boolean {
-            return this.profile.id == this.team.leader_id;
+            return this.team != null && this.contestantProfile.user.id == this.team.leader_id;
         },
         checkTeam(): boolean {
             return this.team != null && this.team.id > 1;

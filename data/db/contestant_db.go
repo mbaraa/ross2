@@ -80,8 +80,8 @@ func (c *ContestantDB) Count() (int64, error) {
 func (c *ContestantDB) Update(cont *models.Contestant) error {
 	return c.db.
 		Model(new(models.Contestant)).
-		Where("id = ?", cont.ID).
-		Updates(cont).
+		Where("user_id = ?", cont.User.ID).
+		Updates(&cont).
 		Error
 }
 
@@ -89,7 +89,7 @@ func (c *ContestantDB) Update(cont *models.Contestant) error {
 
 func (c *ContestantDB) Delete(contestant models.Contestant) error {
 	return c.db.
-		Where("id = ?", contestant.ID).
+		Where("user_id = ?", contestant.User.ID).
 		Delete(&contestant).
 		Error
 }

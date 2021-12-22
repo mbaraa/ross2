@@ -2,9 +2,11 @@ package db
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
+	"github.com/mbaraa/useless"
 	"gorm.io/gorm"
 )
 
@@ -22,17 +24,37 @@ func NewTeamDB(db *gorm.DB, contRepo data.ContestantUpdaterRepo) *TeamDB {
 // CREATOR REPO
 
 func (t *TeamDB) Add(team *models.Team) error {
-	return t.db.
-		Create(team).
-		Error
+	return t.createTeam(team)
 }
 
 // AddMany creates multiple teams, this method is only used when a contest's director
 // generates teams for the teamless contestants.
 func (t *TeamDB) AddMany(teams []*models.Team) error {
-	return t.db.
-		Create(&teams).
-		Error
+	for _, team := range teams {
+		_ = t.Add(team)
+	}
+	return nil
+}
+
+// createTeam finds a suitable joining id for the team in a very stupid way
+func (t *TeamDB) createTeam(team *models.Team) error {
+	randomizer := useless.NewRandASCII()
+	for {
+		team.JoinID = randomizer.GetRandomAlphanumString(5)
+
+		err := t.db.
+			Create(team).
+			Error
+
+		if err != nil {
+			if !strings.Contains(err.Error(), "Duplicate") {
+				return err
+			}
+			team.JoinID = randomizer.GetRandomAlphanumString(5)
+		} else {
+			return nil
+		}
+	}
 }
 
 // GETTER REPO
@@ -76,6 +98,15 @@ func (t *TeamDB) GetAllByContest(contest models.Contest) ([]models.Team, error) 
 		Find(&teams)
 
 	return teams, err
+}
+
+func (t *TeamDB) GetByJoinID(joinID string) (team models.Team, err error) {
+	err = t.db.
+		Model(new(models.Team)).
+		Where("join_id = ?", joinID).
+		First(&team).
+		Error
+	return
 }
 
 func (t *TeamDB) Count() (int64, error) {

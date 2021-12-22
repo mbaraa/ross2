@@ -2,9 +2,8 @@ import Team from "@/models/Team";
 import Notification from "@/models/Notification";
 import Contest from "@/models/Contest";
 import JoinRequest from "@/models/JoinRequest";
-import RequestsManager, { UserType } from "@/utils/requests/RequestsManager";
+import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Contestant from "@/models/Contestant";
-import User from "@/models/User";
 
 class ContestantRequests {
     public static async getTeam(): Promise<Team> {
@@ -60,19 +59,19 @@ class ContestantRequests {
         return await RequestsManager.makeAuthPostRequest("req-join-team", UserType.Contestant, jr)
     }
 
-    public static async register(profile: Contestant): Promise<void> {
-        await RequestsManager.makeAuthPostRequest("register", UserType.Contestant, profile);
+    public static async register(profile: Contestant): Promise<Response> {
+        return await RequestsManager.makeAuthPostRequest("register", UserType.Contestant, profile);
     }
 
-    public static async getProfile(user: User): Promise<Contestant> {
+    public static async getProfile(): Promise<Contestant> {
         let c = new Contestant();
-        await RequestsManager.makeAuthPostRequest("profile", UserType.Contestant, user)
-        .then(resp => resp.json())
-        .then(resp => {
-            c = resp;
-            return c;
-        })
-        .catch(err => console.error(err));
+        await RequestsManager.makeAuthGetRequest("profile", UserType.Contestant)
+            .then(resp => resp.json())
+            .then(resp => {
+                c = resp;
+                return c;
+            })
+            .catch(err => console.error(err));
 
         return c;
     }

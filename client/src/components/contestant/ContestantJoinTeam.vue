@@ -19,7 +19,7 @@
                 <span class="text-h4">Join team</span>
             </v-card-title>
             <p>Ask the member who created the team to give you the team id</p>
-            <v-text-field label="Team id" v-model="team.id" autofocus/>
+            <v-text-field label="Team id" v-model="team.join_id" autofocus/>
 
             <v-btn class="bg-red" @click="dialog = false">
                 Close
@@ -34,7 +34,6 @@
 <script lang="ts">
 
 import {defineComponent} from "vue";
-import {checkTokenForAction} from "@/utils";
 import Team from "@/models/Team";
 import ContestantRequests from "@/utils/requests/ContestantRequests";
 import JoinRequest from "@/models/JoinRequest";
@@ -42,6 +41,7 @@ import Contest from "@/models/Contest";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
+import ActionChecker from "@/utils/ActionChecker";
 
 library.add(faUserPlus);
 
@@ -60,19 +60,19 @@ export default defineComponent({
         };
     },
     methods: {
-        checkTokenForAction(fn: () => void) {
-            checkTokenForAction(fn);
+        async checkTokenForAction(fn: () => void) {
+            await ActionChecker.checkContestant(fn);
         },
         openDialog() {
             this.dialog = true;
         },
         async joinTeam() {
-            this.team.id = +this.team.id;
             const resp = await ContestantRequests.requestJoinTeam(<JoinRequest>{
                 requested_team: this.team,
-                requested_team_id: this.team.id,
+                requested_team_id: +this.team.id,
+                requested_team_join_id: this.team.join_id,
                 request_message: "",
-                requested_contest_id: this.contest.id,
+                requested_contest_id: +this.contest.id,
                 requested_contest: this.contest,
             })
 

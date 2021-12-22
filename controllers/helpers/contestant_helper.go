@@ -146,7 +146,7 @@ func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.
 		return err
 	}
 
-	return c.jrMgr.DeleteRequests(contestant.ID, 0)
+	return c.jrMgr.DeleteRequests(contestant.User.ID, 0)
 }
 
 // DeleteTeam kicks every member out of it and deletes it

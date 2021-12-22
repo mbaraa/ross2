@@ -65,7 +65,7 @@ func (o *OrganizerDB) GetAllByOrganizer(org models.Organizer) ([]models.Organize
 
 	err := o.db.
 		Model(new(models.Organizer)).
-		Find(&orgs, "director_id = ?", org.ID).
+		Find(&orgs, "director_id = ?", org.User.ID).
 		Error
 
 	return orgs, err
@@ -111,7 +111,7 @@ func (o *OrganizerDB) Update(organizer models.Organizer) error {
 
 	return o.db.
 		Model(new(models.Organizer)).
-		Where("id = ?", organizer.ID).
+		Where("user_id = ?", organizer.User.ID).
 		Updates(&organizer).
 		Error
 }
@@ -120,7 +120,7 @@ func (o *OrganizerDB) Update(organizer models.Organizer) error {
 
 func (o *OrganizerDB) Delete(organizer models.Organizer) error {
 	return o.db.
-		Where("id = ?", organizer.ID).
+		Where("user_id = ?", organizer.User.ID).
 		Delete(&organizer).
 		Error
 }

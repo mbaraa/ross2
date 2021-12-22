@@ -158,7 +158,7 @@ func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUs
 		return err
 	}
 
-	newOrg.DirectorID = director.ID
+	newOrg.DirectorID = director.User.ID
 	newOrg.Director = &director
 
 	newOrg.User = baseUser

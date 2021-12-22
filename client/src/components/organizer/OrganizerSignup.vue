@@ -40,8 +40,7 @@ export default defineComponent({
     },
     methods: {
         async finishProfile() {
-            this.organizerProfile.profile_finished = true;
-            this.organizerProfile.contact_info = this.contactInfo;
+            this.organizerProfile.user.contact_info = this.contactInfo;
 
             await OrganizerRequests.finishProfile(this.organizerProfile)
 

@@ -35,7 +35,7 @@ func (o *OrganizerAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 	o.endPoints = o.authenticator.AuthenticateHandlers(map[string]auth.HandlerFunc{
 		// shared organizer/director operations
-		"POST /profile/":        o.handleGetProfile,
+		"GET /profile/":         o.handleGetProfile,
 		"POST /finish-profile/": o.handleFinishProfile,
 
 		// "GET /get-solved-problems/": nil,
@@ -68,14 +68,9 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 	return o
 }
 
-// POST /organizer/profile/
+// GET /organizer/profile/
 func (o *OrganizerAPI) handleGetProfile(ctx context.HandlerContext) {
-	var user models.User
-	if ctx.ReadJSON(&user) != nil {
-		return
-	}
-
-	org, err := o.orgMgr.GetProfile(user)
+	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return

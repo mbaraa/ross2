@@ -38,8 +38,8 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import Contest from "@/models/Contest";
 import Team from "@/models/Team";
-import {checkTokenForAction} from "@/utils";
 import ContestantRequests from "@/utils/requests/ContestantRequests";
+import ActionChecker from "@/utils/ActionChecker";
 
 library.add(faUserPlus);
 
@@ -78,8 +78,8 @@ export default defineComponent({
             window.alert(`your team "${this.team.name}" was created successfully ☺️`);
             window.location.reload();
         },
-        checkTokenForAction(fn: () => void) {
-            checkTokenForAction(fn);
+        async checkTokenForAction(fn: () => void) {
+            await ActionChecker.checkContestant(fn);
         },
         openDialog() {
             this.dialog = true;

@@ -4,7 +4,6 @@ import Contestant from "@/models/Contestant";
 import config from "@/config";
 import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Organizer from "@/models/Organizer";
-import User from "@/models/User";
 
 class OrganizerRequests {
     public static async generateTeamsPosts(data: any): Promise<string> {
@@ -60,7 +59,7 @@ class OrganizerRequests {
             method: "POST",
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem("org_token"),
+                "Authorization": <string>localStorage.getItem("token"),
             },
             body: JSON.stringify({"contest": contest, "names": names}),
         })
@@ -126,14 +125,14 @@ class OrganizerRequests {
             .then(resp => {
                 contests = <Array<Contest>>resp;
             })
-            .catch(err => window.alert("oi mama" + err.message));
+            .catch(err => window.alert("oi mama " + err.message));
 
         return contests;
     }
 
-    public static async getProfile(user: User): Promise<Organizer> {
+    public static async getProfile(): Promise<Organizer> {
         let o = new Organizer();
-        await RequestsManager.makeAuthPostRequest("profile", UserType.Organizer, user)
+        await RequestsManager.makeAuthGetRequest("profile", UserType.Organizer)
             .then(resp => resp.json())
             .then(resp => {
                 o = resp;

@@ -27,7 +27,7 @@ func (n *NotificationHelper) GetNotifications(session models.Session) ([]models.
 // CheckNotifications reports whether a user has notifications or not
 func (n *NotificationHelper) CheckNotifications(session models.Session) bool {
 	nots, err := n.GetNotifications(session)
-	return err != nil && len(nots) > 0
+	return err == nil && len(nots) > 0
 }
 
 // ClearNotifications deletes all notifications for user base on the given session

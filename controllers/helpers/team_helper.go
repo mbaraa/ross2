@@ -26,7 +26,7 @@ func NewTeamHelper(teamRepo data.TeamCRUDRepo, contRepo data.ContestantCRUDRepo)
 func (t *TeamHelper) CreateTeam(contestant models.Contestant, team models.Team) error {
 	// set team's required attributes to be lead by the given contestant
 	team.Leader = &contestant
-	team.LeaderId = contestant.ID
+	team.LeaderId = contestant.User.ID
 	team.Members = []models.Contestant{contestant}
 
 	err := t.repo.Add(&team)
@@ -60,6 +60,7 @@ func (t *TeamHelper) AddContestantToTeam(contID, teamID uint) (team models.Team,
 	team.Members = append(team.Members, cont)
 
 	cont.TeamID = team.ID
+	cont.Team = team
 	err = t.contRepo.Update(&cont)
 	if err != nil {
 		return
@@ -91,7 +92,7 @@ func (t *TeamHelper) UpdateTeams(teams []models.Team, removedContestants []model
 
 	for _, team := range teams {
 		if _, err := t.GetTeam(team.ID); err != nil && (team.Members != nil && len(team.Members) > 0) {
-			team.LeaderId = team.Members[0].ID
+			team.LeaderId = team.Members[0].User.ID
 			team.Leader = &team.Members[0]
 
 			err = t.CreateTeam(team.Members[0], team)
@@ -141,6 +142,11 @@ func (t *TeamHelper) GetTeam(id uint) (models.Team, error) {
 	return t.repo.Get(models.Team{ID: id})
 }
 
+// GetTeamByJoinID returns a team using the given join id
+func (t *TeamHelper) GetTeamByJoinID(joinID string) (models.Team, error) {
+	return t.repo.GetByJoinID(joinID)
+}
+
 // LeaveTeam removes the given contestant from their team in a super safe way
 func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 	team, err := t.GetTeam(cont.TeamID)
@@ -148,11 +154,11 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 		return err
 	}
 
-	if team.LeaderId == cont.ID {
+	if team.LeaderId == cont.User.ID {
 		if len(team.Members) > 1 {
 			for _, member := range team.Members { // change leadership!
-				if member.ID != team.LeaderId {
-					team.LeaderId = member.ID
+				if member.User.ID != team.LeaderId {
+					team.LeaderId = member.User.ID
 					break
 				}
 			}
@@ -167,7 +173,7 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 	}
 
 	for memberIndex := range team.Members { // remove the contestant from the team
-		if team.Members[memberIndex].ID == cont.ID {
+		if team.Members[memberIndex].User.ID == cont.User.ID {
 			team.Members = append(team.Members[:memberIndex], team.Members[memberIndex+1:]...)
 			break
 		}

@@ -11,11 +11,9 @@
 
         <!-- contestant stuff -->
         <ContestantProfile :contestantProfile="contestantProfile"/>
-        <v-divider/>
 
         <!-- organizer stuff-->
         <OrganizerProfile :organizerProfile="organizerProfile"/>
-        <v-divider/>
 
         <div class="buttons">
             <v-btn
@@ -68,19 +66,17 @@ export default defineComponent({
             contestantProfile: null,
             organizerProfile: null,
             adminProfile: null,
-            team: null,
         }
     },
     async mounted() {
         this.profile = await this.tokenLogin();
 
         if (this.checkUserType(UserType.Contestant)) {
-            this.contestantProfile = await ContestantRequests.getProfile(await this.profile);
-            this.team = await ContestantRequests.getTeam();
+            this.contestantProfile = await ContestantRequests.getProfile();
         }
 
         if (this.checkUserType(UserType.Organizer)) {
-            this.organizerProfile = await OrganizerRequests.getProfile(await this.profile);
+            this.organizerProfile = await OrganizerRequests.getProfile();
         }
 
         if ((this.profile.user_type_base & UserType.Organizer) != 0 &&

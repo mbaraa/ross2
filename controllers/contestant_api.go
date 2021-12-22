@@ -33,7 +33,7 @@ func (c *ContestantAPI) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 	c.endPoints = c.authenticator.AuthenticateHandlers(map[string]auth.HandlerFunc{
 		"POST /register/": c.handleRegister,
-		"POST /profile/":  c.handleGetProfile,
+		"GET /profile/":   c.handleGetProfile,
 
 		"POST /create-team/":         c.handleCreateTeam,
 		"POST /delete-team/":         c.handleDeleteTeam,
@@ -67,12 +67,7 @@ func (c *ContestantAPI) handleRegister(ctx context.HandlerContext) {
 
 // GET /contestant/profile/
 func (c *ContestantAPI) handleGetProfile(ctx context.HandlerContext) {
-	var user models.User
-	if ctx.ReadJSON(&user) != nil {
-		return
-	}
-
-	cont, err := c.contMgr.GetProfile(user)
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return

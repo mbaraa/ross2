@@ -14,6 +14,7 @@ type Team struct {
 	Name     string      `gorm:"column:name" json:"name"`
 	LeaderId uint        `gorm:"column:leader_id" json:"leader_id"` // not a foreign key to avoid cycling mess :)
 	Leader   *Contestant `gorm:"-" json:"leader"`                   // using a pointer to avoid cycling :)
+	JoinID   string      `gorm:"column:join_id;unique" json:"join_id"`
 
 	Contests []Contest    `gorm:"many2many:register_teams;"` // a team may register in more than one contest
 	Members  []Contestant `gorm:"-" json:"members"`          // each contestant has their team id :)
@@ -54,7 +55,7 @@ func (t *Team) AfterCreate(db *gorm.DB) error {
 
 		err := db.
 			Model(&t.Members[i]).
-			Where("id = ?", t.Members[i].ID).
+			Where("id = ?", t.Members[i].User.ID).
 			Updates(&t.Members[i]).
 			Error
 
@@ -68,16 +69,15 @@ func (t *Team) AfterCreate(db *gorm.DB) error {
 
 type JoinRequest struct {
 	gorm.Model
-	ID                 uint         `gorm:"column:id;primaryKey;autoIncrement"`
-	RequesterID        uint         `gorm:"column:requester_id" json:"requester_id"`
-	Requester          Contestant   `gorm:"foreignkey:RequesterID" json:"requester"`
-	RequestedTeamID    uint         `gorm:"column:req_team_id" json:"requested_team_id"`
-	RequestedTeam      Team         `gorm:"foreignkey:RequestedTeamID" json:"requested_team"`
-	RequestedContestID uint         `gorm:"column:req_contest_id" json:"requested_contest_id"`
-	RequestedContest   Team         `gorm:"foreignkey:RequestedContestID" json:"requested_contest"`
-	RequestMessage     string       `gorm:"column:message" json:"request_message"`
-	NotificationID     uint         `gorm:"column:notification_id"`
-	Notification       Notification `gorm:"foreignkey:NotificationID"`
+	ID                  uint         `gorm:"column:id;primaryKey;autoIncrement"`
+	RequesterID         uint         `gorm:"column:requester_id" json:"requester_id"`
+	RequestedTeamJoinID string       `gorm:"column:requested_team_join_id" json:"requested_team_join_id"`
+	RequestedTeamID     uint         `gorm:"column:requested_team_id" json:"requested_team_id"`
+	RequestedTeam       Team         `gorm:"foreignkey:RequestedTeamID" json:"requested_team"`
+	RequestedContestID  uint         `gorm:"column:req_contest_id" json:"requested_contest_id"`
+	RequestMessage      string       `gorm:"column:message" json:"request_message"`
+	NotificationID      uint         `gorm:"column:notification_id"`
+	Notification        Notification `gorm:"foreignkey:NotificationID"`
 }
 
 func (j *JoinRequest) BeforeDelete(db *gorm.DB) error {

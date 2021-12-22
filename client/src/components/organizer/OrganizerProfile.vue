@@ -9,6 +9,7 @@
         <div v-if="(organizerProfile.roles & 1) !== 0">
             <DirectorOperations :director="organizerProfile"/>
         </div>
+        <v-divider/>
     </div>
 </template>
 
@@ -26,13 +27,9 @@ export default defineComponent({
         organizerProfile: Organizer,
     },
     data() {
-        return {
-
-        }
+        return {}
     },
-    methods :{
-
-    }
+    methods: {}
 });
 </script>
 

@@ -15,13 +15,13 @@ var (
 
 func markMembers(teamless []models.Contestant) {
 	for _, cont := range teamless {
-		leftMembers[cont.ID] = true
+		leftMembers[cont.User.ID] = true
 	}
 }
 
 func getLeftMembers(teamless []models.Contestant) (left []models.Contestant) {
 	for _, cont := range teamless {
-		if !leftMembers[cont.ID] {
+		if !leftMembers[cont.User.ID] {
 			left = append(left, cont)
 		}
 	}
@@ -93,7 +93,7 @@ func deleteLastAddedTeamless(teamless []models.Contestant, min uint) []models.Co
 	sort.Sort(sortedConts)
 
 	for i := conts - leftConts; i < conts; i++ {
-		leftMembers[sortedConts[i].ID] = false
+		leftMembers[sortedConts[i].User.ID] = false
 	}
 
 	return sortedConts[:conts-leftConts]
@@ -120,7 +120,7 @@ func finalizeTeams(teams []models.Team, contest models.Contest) []models.Team {
 		teams[teamIndex].Contests = append(teams[teamIndex].Contests, contest)
 
 		if teams[teamIndex].Members != nil {
-			teams[teamIndex].LeaderId = teams[teamIndex].Members[0].ID
+			teams[teamIndex].LeaderId = teams[teamIndex].Members[0].User.ID
 		}
 	}
 

@@ -9,8 +9,8 @@
 
         <h2>{{ team.members.length }} member(s)</h2>
         <div v-for="member in newTeam.members" :key="member">
-            {{ member.name }}
-            <v-btn :title="'remove '.concat(member.name, ' from this team')" size="6" icon color="error"
+            {{ member.user.name }}
+            <v-btn :title="'remove '.concat(member.user.name, ' from this team')" size="6" icon color="error"
                    @click="removeMember(member)">&cross;
             </v-btn>
         </div>
@@ -49,7 +49,7 @@ export default defineComponent({
         getMembersNames(): string {
             let names = "";
             this.team.members.forEach((member: Contestant) => {
-                names += `${member.name}, `
+                names += `${member.user.name}, `
             })
             return names.substring(0, names.length - 2);
         },
@@ -63,20 +63,20 @@ export default defineComponent({
         removeMember(contestant: Contestant) {
             this.$store.dispatch("addContestantToRemoved", contestant);
             this.newTeam.members.splice(this.newTeam.members.findIndex(
-                (c: Contestant) => c.id == contestant.id
+                (c: Contestant) => c.user.id == contestant.user.id
             ), 1);
             this.updateTeam();
         },
         addContestantToTeam() {
             this.addedContID = +this.addedContID;
 
-            const cont = this.removedMembers.find((c: Contestant) => c.id == this.addedContID);
+            const cont = this.removedMembers.find((c: Contestant) => c.user.id == this.addedContID);
             if (cont === undefined) {
                 window.alert("contestant doesn't exist or was already added to a team!");
                 return;
             }
 
-            if (this.newTeam.members.find((c: Contestant) => c.id == cont.id) === undefined) { // prevent duplicates from stored conts
+            if (this.newTeam.members.find((c: Contestant) => c.user.id == cont.id) === undefined) { // prevent duplicates from stored conts
                 this.newTeam.members.push(cont);
                 this.updateTeam();
             }
@@ -86,10 +86,10 @@ export default defineComponent({
             this.$store.dispatch("addTeam", this.newTeam);
         },
         getGenderClass(): string {
-            return this.getGender() == "Males"? "males": this.getGender() == "Females"? "females": "any";
+            return this.getGender() == "Males" ? "males" : this.getGender() == "Females" ? "females" : "any";
         },
         getGenderBoxClass(): string {
-            return this.getGender() == "Males"? "malesBox": this.getGender() == "Females"? "femalesBox": "anyBox";
+            return this.getGender() == "Males" ? "malesBox" : this.getGender() == "Females" ? "femalesBox" : "anyBox";
         },
     }
 });

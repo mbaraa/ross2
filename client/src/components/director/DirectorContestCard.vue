@@ -35,7 +35,7 @@
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest.ts";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faCogs, faTrash, faCalendarCheck, faUsers, faTable} from "@fortawesome/free-solid-svg-icons"
+import {faCalendarCheck, faCogs, faTable, faTrash, faUsers} from "@fortawesome/free-solid-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import ContestCard from "@/components/contest/ContestCard.vue";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
@@ -64,13 +64,13 @@ export default defineComponent({
             }
         },
         generateTeams(contest: Contest) {
-            this.$router.push(`/organizer/other/?contest=${contest.name}`);
+            this.$router.push(`/profile/other/?contest=${contest.name}`);
         },
         async finishContest(contest: Contest) {
             await OrganizerRequests.sendContestOverNotifications(contest);
         },
         manageTeams(contest: Contest) {
-            this.$router.push(`/organizer/org-teams/?contest=${contest.id}`)
+            this.$router.push(`/profile/org-teams/?contest=${contest.id}`)
         },
         async getParticipants(contest: Contest) {
             const parts = await OrganizerRequests.getParticipants(contest);

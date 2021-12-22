@@ -8,9 +8,13 @@
         <v-divider/>
 
         <p>
-            <a class="text-blue-darken-4" :href="contact.facebook_url"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'facebook'}"/></a>&nbsp;
-            <a class="text-blue" :href="contact.telegram_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'telegram'}"/></a>&nbsp;
-<!--            <a class="text-green" :href="contact.whatsapp_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'whatsapp'}"/></a>&nbsp;-->
+            <a class="text-blue-darken-4" :href="contact.facebook_url">
+                <FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'facebook'}"/>
+            </a>&nbsp;
+            <a class="text-blue" :href="contact.telegram_number">
+                <FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'telegram'}"/>
+            </a>&nbsp;
+            <!--            <a class="text-green" :href="contact.whatsapp_number"><FontAwesomeIcon :icon="{prefix: 'fab', iconName: 'whatsapp'}"/></a>&nbsp;-->
         </p>
     </div>
 </template>
@@ -21,6 +25,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faFacebook, faTelegram, faWhatsapp} from "@fortawesome/free-brands-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import Organizer from "@/models/Organizer";
+import {ContactInfo} from "@/models/User";
 
 library.add(faFacebook, faTelegram, faWhatsapp);
 
@@ -34,12 +39,9 @@ export default defineComponent({
     },
     data() {
         return {
-            contact: {}
+            contact: this.organizer?.user?.contact_info ?? new ContactInfo(),
         }
     },
-    mounted() {
-        this.contact = this.organizer.contact_info;
-    }
 });
 </script>
 
@@ -52,7 +54,6 @@ export default defineComponent({
     height: auto;
     border-radius: 5px;
     padding: 5px;
-    cursor: pointer;
 }
 
 .contestLogo {
