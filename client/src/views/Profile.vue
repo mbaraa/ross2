@@ -130,7 +130,7 @@ export default defineComponent({
 <style scoped>
 .main {
     text-align: center;
-    width: 80%;
+    width: 95%;
     /*display: inline-grid;*/
     margin: 20px auto;
     /* border: #212121 solid 1px; */

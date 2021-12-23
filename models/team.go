@@ -55,7 +55,7 @@ func (t *Team) AfterCreate(db *gorm.DB) error {
 
 		err := db.
 			Model(&t.Members[i]).
-			Where("id = ?", t.Members[i].User.ID).
+			Where("user_id = ?", t.Members[i].User.ID).
 			Updates(&t.Members[i]).
 			Error
 

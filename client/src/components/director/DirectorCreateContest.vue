@@ -110,6 +110,7 @@ export default defineComponent({
 
             if (!this.checkRegAndStartDate()) {
                 window.alert("woah... start date should be after end of registration date!");
+                this.contest = new Contest();
                 return;
             }
 

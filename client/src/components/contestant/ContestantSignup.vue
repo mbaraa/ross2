@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <div v-if="profile !== null && !profile?.profile_finished">
+        <div v-if="checkStatus()">
             <h1>Finish your contestant profile data:</h1>
 
             <!--            <h3 style="text-align: left" class="text-red">Mandatory Field</h3>-->
@@ -75,6 +75,9 @@ export default defineComponent({
         setRadioValues() {
             this.contestantProfile.gender = (this.contestantProfile.gender == "true");
             this.contestantProfile.participate_with_other = (this.contestantProfile.participate_with_other == "true");
+        },
+        checkStatus(): boolean {
+            return this.contestantProfile.user.profile_status !== ProfileStatus.ContestantFinished;
         }
     }
 });

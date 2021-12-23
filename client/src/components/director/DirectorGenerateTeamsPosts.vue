@@ -1,5 +1,24 @@
 <template>
     <v-dialog
+        v-model="loading"
+        hide-overlay
+        persistent
+    >
+        <v-card
+            color="primary"
+        >
+            <v-card-text>
+                Generating and fetching teams' posts...
+                <v-progress-linear
+                    indeterminate
+                    color="white"
+                    class="mb-0 bg-purple-darken-4"
+                ></v-progress-linear>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog
         max-height="400"
         max-width="-40"
         transition="dialog-bottom-transition"
@@ -54,7 +73,7 @@
                 <v-text-field required type="number" label="Font size" v-model="teamOrderProps.fontSize"/>
                 <v-text-field required type="number" label="Width" v-model="teamOrderProps.width"/>
 
-                <p>Team name props:</p>
+                <p>Team name props:</p>and fetching teams.
                 <v-text-field
                     required
                     type="number"
@@ -136,6 +155,7 @@ export default defineComponent({
             membersProps: new Array<FieldProps>(),
             imageB64: "",
             useSampleImage: false,
+            loading: false,
         }
     },
     props: {
@@ -192,6 +212,8 @@ export default defineComponent({
                 return;
             }
 
+            this.loading = true;
+
             const templateImageB64 = this.useSampleImage ? "" : await this.readFile();
             const zipFile = await OrganizerRequests.generateTeamsPosts({
                 "contest": this.contest,
@@ -200,6 +222,7 @@ export default defineComponent({
                 "membersNamesProps": this.membersProps,
                 "baseImage": this.useSampleImage ? "" : templateImageB64.substring(templateImageB64.indexOf(",") + 1),
             });
+            this.loading = false;
 
             const f = document.createElement("a");
             f.href = `data:application/zip;base64,${zipFile}`

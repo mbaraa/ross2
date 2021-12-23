@@ -1,4 +1,23 @@
 <template>
+    <v-dialog
+        v-model="loading"
+        hide-overlay
+        persistent
+    >
+        <v-card
+            color="primary"
+        >
+            <v-card-text>
+                Fetching teams...
+                <v-progress-linear
+                    indeterminate
+                    color="white"
+                    class="mb-0 bg-purple-darken-4"
+                ></v-progress-linear>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
     <br/>
     <div v-if="teams != null && teams.length > 0">
         <div>
@@ -60,8 +79,8 @@
                         <th>Can participate with the other gender</th>
                     </tr>
                     <tr v-for="cont in removedMembers" :key="cont" :class="getContClass(cont)">
-                        <td title="use it to add this contestant to a specific team">{{ cont.id }}</td>
-                        <td>{{ cont.name }}</td>
+                        <td title="use it to add this contestant to a specific team">{{ cont.user.id }}</td>
+                        <td>{{ cont.user.name }}</td>
                         <td>{{ cont.university_id }}</td>
                         <td>{{ cont.gender ? "Male" : "Female" }}</td>
                         <td>{{ cont.participate_with_other ? "Yes" : "No" }}</td>
@@ -96,16 +115,19 @@ export default defineComponent({
             teams: [],
             removedMembers: this.$store.getters.getRemovedContestants,
             newTeam: new Team(),
-            dialog: false
+            dialog: false,
+            loading: false,
         }
     },
     async mounted() {
+        this.loading = true;
         this.contest = await OrganizerRequests.getContest(+this.$route.query["contest"])
         this.teams = await this.contest.teams;
+        this.loading = false;
     },
     methods: {
         openContests() {
-            this.$router.push(`/organizer/contests/?id=${this.$route.query["id"]}`)
+            this.$router.push(`/profile/contests/?id=${this.$route.query["id"]}`)
         },
         async saveTeams() {
             if (this.$store.getters.getModifiedTeams.length == 0) {
@@ -117,6 +139,7 @@ export default defineComponent({
                     this.$store.getters.getModifiedTeams, this.$store.getters.getRemovedContestants);
                 localStorage.removeItem("modifiedTeams");
             }
+            window.location.reload();
         },
         createTeam() {
             this.newTeam.id = Number.parseInt(`${Math.sqrt((new Date()).getTime() + 1)}`);

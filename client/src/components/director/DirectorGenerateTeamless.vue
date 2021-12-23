@@ -1,4 +1,23 @@
 <template>
+    <v-dialog
+        v-model="loading"
+        hide-overlay
+        persistent
+    >
+        <v-card
+            color="primary"
+        >
+            <v-card-text>
+                Generating and fetching teams...
+                <v-progress-linear
+                    indeterminate
+                    color="white"
+                    class="mb-0 bg-purple-darken-4"
+                ></v-progress-linear>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
     <div v-if="contests.length > 0">
         <h1>Generate teams for teamless contestants:</h1>
         <v-divider/>
@@ -107,6 +126,7 @@ export default defineComponent({
             noTeamless: false,
             hideNamesFileUpload: true,
             namesFile: undefined,
+            loading: false
         }
     },
     async mounted() {
@@ -137,6 +157,9 @@ export default defineComponent({
                 window.alert("select file to upload!");
                 return;
             }
+
+            this.loading = true;
+
             [this.generatedTeams, this.leftTeamless] =
                 await OrganizerRequests.generateTeams(this.selectContest(), this.genType, this.namesFile !== undefined ? (await this.readNamesFile()) : []);
 
@@ -147,6 +170,7 @@ export default defineComponent({
 
             this.generated = true;
             this.noTeamless = false;
+            this.loading = false;
             if (this.leftTeamless.length > 0) { // so left contestants can be assigned to any team later :)
                 for (const c of this.leftTeamless) {
                     await this.$store.dispatch("addContestantToRemoved", c);

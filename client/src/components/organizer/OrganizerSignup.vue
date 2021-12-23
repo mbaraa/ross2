@@ -1,7 +1,7 @@
 <template>
     <div class="main">
-        <div v-if="!organizerProfile.user.profile_finished">
-            <h1>Finish your profile data:</h1>
+        <div v-if="checkStatus()">
+            <h1>Finish your organizer profile data:</h1>
 
             <h3 style="text-align: left" class="text-blue">Fill at least one field<br/>Contact Info:</h3>
             <!--            <v-text-field label="Facebook profile URL" id="fb"/>-->
@@ -45,6 +45,9 @@ export default defineComponent({
             await OrganizerRequests.finishProfile(this.organizerProfile)
 
             await this.$router.push("/profile");
+        },
+        checkStatus(): boolean {
+            return this.organizerProfile.user.profile_status !== ProfileStatus.OrganizerFinished;
         }
     }
 });

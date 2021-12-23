@@ -169,6 +169,17 @@ func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUs
 
 // DeleteOrganizer deletes the given organizer
 func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer) error {
+	if (org.User.UserType & enums.UserTypeOrganizer) != 0 {
+		org.User.UserType -= enums.UserTypeOrganizer
+		if (org.User.ProfileStatus & enums.ProfileStatusOrganizerFinished) != 0 {
+			org.User.ProfileStatus -= enums.ProfileStatusOrganizerFinished
+		}
+
+		err := o.userRepo.Update(&org.User)
+		if err != nil {
+			return err
+		}
+	}
 	return o.repo.Delete(org)
 }
 

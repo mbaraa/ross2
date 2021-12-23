@@ -21,7 +21,7 @@ class OrganizerRequests {
 
     public static async getParticipants(contest: Contest): Promise<string> {
         let parts = "";
-        await RequestsManager.makeAuthPostRequest("get-participants", UserType.Organizer, contest)
+        await RequestsManager.makeAuthPostRequest("get-participants-csv", UserType.Organizer, contest)
             .then(resp => resp.text())
             .then(resp => {
                 parts = <string>resp;
