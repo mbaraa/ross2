@@ -47,6 +47,11 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 		}
 	}
 
+	err = j.checkRequestedTeam(jr, cont)
+	if err != nil {
+		return err
+	}
+
 	reqMsg += fmt.Sprintf("_IDS%d:%d:%d", cont.User.ID, jr.RequestedTeam.ID, jr.RequestedContestID) // a weird way to store ids in the notification text(they won't appear)
 
 	notification := models.Notification{ // send a join request notification to the team leader!
@@ -68,6 +73,33 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 	if err != nil { // join request didn't go well :(
 		_ = j.notificationRepo.Delete(notification)
 		return err
+	}
+
+	return nil
+}
+
+func (j *JoinRequestHelper) checkRequestedTeam(jr models.JoinRequest, cont models.Contestant) error {
+	contest, err := j.contestRepo.Get(models.Contest{ID: jr.RequestedContestID})
+	if err != nil {
+		return err
+	}
+
+	if len(jr.RequestedTeam.Members) >= int(contest.ParticipationConditions.MaxTeamMembers) {
+		return errors.New("sorry, this team is full")
+	}
+
+	errMsg := "you can't join this team since you are a "
+	//if !cont.ParticipateWithOtherGender {
+	if cont.Gender && !jr.RequestedTeam.Members[0].Gender {
+		errMsg += "male and you chose that you don't want to participate with females"
+	} else if !cont.Gender && jr.RequestedTeam.Members[0].Gender {
+		errMsg += "female and you chose that you don't want to participate with males"
+	}
+	errMsg += "\nyou can talk to an organizer to change this preference\nor 'register as teamless' and you'll be placed in a proper team ☺️"
+	//}
+
+	if cont.Gender != jr.RequestedTeam.Members[0].Gender {
+		return errors.New(errMsg)
 	}
 
 	return nil

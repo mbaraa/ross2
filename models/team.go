@@ -27,7 +27,7 @@ func (t *Team) AfterFind(db *gorm.DB) error {
 
 	err := db.
 		Model(new(Contestant)).
-		Find(&t.Leader, "id = ?", t.LeaderId).
+		Find(&t.Leader, "user_id = ?", t.LeaderId).
 		Error
 	if err != nil {
 		return err

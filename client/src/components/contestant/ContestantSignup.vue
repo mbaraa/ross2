@@ -8,6 +8,7 @@
 
             <label style="font-size: 1.2em">Select your gender: </label>
 
+            <br/>
             <input type="radio" id="male" value="true" v-model="contestantProfile.gender">
             <label for="male">Male</label>
             &nbsp;
@@ -17,11 +18,12 @@
 
             <label style="font-size: 1.2em">Do you mind participating with the other gender? </label>
 
+            <br/>
             <input type="radio" id="yes" value="true" v-model="contestantProfile.participate_with_other">
-            <label for="yes">Yes</label>
+            <label for="yes">Yes, I mind</label>
             &nbsp;
             <input type="radio" id="no" value="false" v-model="contestantProfile.participate_with_other">
-            <label for="no">No</label>
+            <label for="no">No, I don't mind</label>
             <br/><br/>
             <!--            <h3 style="text-align: left" class="text-blue">Optional Fields<br/>Contact Info:</h3>-->
             <!--            <v-text-field label="Facebook profile URL" :v-bind="contactInfo.facebook_url"/>-->

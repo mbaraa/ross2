@@ -62,10 +62,10 @@ export default defineComponent({
             })
 
             if (resp.ok) {
-                window.alert("request sent successfully!");
+                window.alert("request sent successfully, now wait for the team's leader to accept your request!");
                 team.inTeam = true;
             } else {
-                window.alert(`${resp.status} ${resp.statusText}!`);
+                window.alert(await resp.text());
             }
         },
         processInTeam() {

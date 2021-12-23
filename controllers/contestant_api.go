@@ -131,8 +131,9 @@ func (c *ContestantAPI) handleRequestJoinTeam(ctx context.HandlerContext) {
 		return
 	}
 
-	if c.contMgr.RequestJoinTeam(joinRequest, cont) != nil {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
+	err = c.contMgr.RequestJoinTeam(joinRequest, cont)
+	if err != nil {
+		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
