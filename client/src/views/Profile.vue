@@ -15,6 +15,9 @@
         <!-- organizer stuff-->
         <OrganizerProfile :organizerProfile="organizerProfile"/>
 
+        <!-- admin stuff -->
+        <AdminProfile :adminProfile="adminProfile"/>
+
         <div class="buttons">
             <v-btn
                 v-if="contestantProfile === null"
@@ -28,10 +31,10 @@
     </div>
     <div v-else style="padding-top: 20px; text-align: center;">
         <h1 style="font-size: 3em">Oops! you're not logged in</h1>
-        <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">
-            <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'google' }"/>&nbsp;Login with Google
-        </v-btn>
-        <br/><br/>
+        <!--        <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">-->
+        <!--            <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'google' }"/>&nbsp;Login with Google-->
+        <!--        </v-btn>-->
+        <!--        <br/><br/>-->
         <v-btn @click="loginMS()" class="bg-grey" style="font-size: 2em; padding: 20px">
             <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'microsoft' }"/>&nbsp;Login with ASU Account
         </v-btn>
@@ -50,12 +53,15 @@ import User, {ProfileStatus, UserType} from "@/models/User";
 import OrganizerRequests from "@/utils/requests/OrganizerRequests";
 import ContestantProfile from "@/components/contestant/ContestantProfile.vue";
 import OrganizerProfile from "@/components/organizer/OrganizerProfile.vue";
+import AdminProfile from "@/components/admin/AdminProfile.vue";
+import AdminRequests from "@/utils/requests/AdminRequests";
 
 library.add(faGoogle, faMicrosoft);
 
 export default defineComponent({
     name: "Profile",
     components: {
+        AdminProfile,
         OrganizerProfile,
         ContestantProfile,
         FontAwesomeIcon,
@@ -77,6 +83,10 @@ export default defineComponent({
 
         if (this.checkUserType(UserType.Organizer)) {
             this.organizerProfile = await OrganizerRequests.getProfile();
+        }
+
+        if (this.checkUserType(UserType.Admin)) {
+            this.adminProfile = await AdminRequests.getProfile();
         }
 
         if ((this.profile.user_type_base & UserType.Organizer) != 0 &&

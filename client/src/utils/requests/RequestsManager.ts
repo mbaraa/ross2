@@ -27,6 +27,8 @@ function getUserTypeString(userType: UserType): string {
             return "contestant";
         case UserType.Organizer:
             return "organizer";
+        case UserType.Admin:
+            return "admin";
     }
     return "";
 }
@@ -34,6 +36,7 @@ function getUserTypeString(userType: UserType): string {
 export enum UserType {
     Contestant = 0,
     Organizer = 1,
+    Admin = 2,
 }
 
 export default RequestsManager;
