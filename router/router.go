@@ -22,6 +22,7 @@ type Builder struct {
 	joinReqRepo      data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
 	userRepo         data.UserCRUDRepo
+	adminRepo        data.AdminCRUDRepo
 }
 
 func NewRouterBuilder() *Builder {
@@ -68,6 +69,11 @@ func (b *Builder) UserRepo(u data.UserCRUDRepo) *Builder {
 	return b
 }
 
+func (b *Builder) AdminRepo(a data.AdminCRUDRepo) *Builder {
+	b.adminRepo = a
+	return b
+}
+
 func (b *Builder) verify() bool {
 	sb := new(strings.Builder)
 
@@ -95,6 +101,9 @@ func (b *Builder) verify() bool {
 	if b.userRepo == nil {
 		sb.WriteString("Router Builder: missing user repo!")
 	}
+	if b.adminRepo == nil {
+		sb.WriteString("Router Builder: missing admin repo!")
+	}
 
 	if sb.Len() != 0 {
 		fmt.Println(sb.String())
@@ -115,6 +124,7 @@ type Router struct {
 	contestAPI        *controllers.ContestAPI
 	contestantAPI     *controllers.ContestantAPI
 	orgAPI            *controllers.OrganizerAPI
+	adminAPI          *controllers.AdminAPI
 	notificationAPI   *controllers.NotificationAPI
 	googleLoginAPI    *auth.OAuthLoginAPI
 	microsoftLoginAPI *auth.OAuthLoginAPI
@@ -130,6 +140,9 @@ func (r *Router) verifyAPIs() bool {
 	}
 	if r.orgAPI == nil {
 		sb.WriteString("Router: missing organizer API!")
+	}
+	if r.adminAPI == nil {
+		sb.WriteString("Router: missing admin API!")
 	}
 	if r.notificationAPI == nil {
 		sb.WriteString("Router Builder: missing notification API!")
@@ -174,6 +187,7 @@ func NewRouter(b *Builder) *Router {
 					JoinRequestMgr(joinReqManager).
 					GetContestantManager()
 
+		adminHelper   = helpers.NewAdminHelper(b.adminRepo, b.organizerRepo, b.userRepo)
 		authenticator = auth.NewHandlerAuthenticator(sessionManager)
 	)
 
@@ -181,6 +195,7 @@ func NewRouter(b *Builder) *Router {
 		contestAPI:        controllers.NewContestAPI(b.contestRepo),
 		contestantAPI:     controllers.NewContestantAPI(contestantManager, authenticator),
 		orgAPI:            controllers.NewOrganizerAPI(organizerManager, authenticator),
+		adminAPI:          controllers.NewAdminAPI(adminHelper, authenticator),
 		notificationAPI:   controllers.NewNotificationAPI(notificationManager, authenticator),
 		googleLoginAPI:    auth.NewOAuthLoginAPI(userManager, auth.NewGoogleJWTTokenValidator(), "/gauth"),
 		microsoftLoginAPI: auth.NewOAuthLoginAPI(userManager, auth.NewMicrosoftJWTValidator(), "/msauth"),
@@ -197,6 +212,7 @@ func (r *Router) getHandler() *http.ServeMux {
 	handler.Handle("/contest/", r.contestAPI)
 	handler.Handle("/contestant/", r.contestantAPI)
 	handler.Handle("/organizer/", r.orgAPI)
+	handler.Handle("/admin/", r.adminAPI)
 	handler.Handle("/notification/", r.notificationAPI)
 	handler.Handle("/gauth/", r.googleLoginAPI)
 	handler.Handle("/msauth/", r.microsoftLoginAPI)

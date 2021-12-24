@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/mbaraa/ross2/data/db"
 	"github.com/mbaraa/ross2/router"
+	"github.com/mbaraa/ross2/utils/admin"
 )
 
 func main() {
@@ -18,9 +19,12 @@ func main() {
 		notificationRepo = db.NewNotificationDB(mysqlDB)
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
 		userRepo         = db.NewUserDB(mysqlDB)
+		adminRepo        = db.NewAdminDB(mysqlDB)
 	)
-
 	db.GetDBManagerInstance().InitTables()
+
+	admin.CreateAdmin(adminRepo)
+
 	r := router.NewRouterBuilder().
 		ContestRepo(contestRepo).
 		ContestantRepo(contestantRepo).
@@ -30,6 +34,7 @@ func main() {
 		JoinReqRepo(joinReqRepo).
 		NotificationRepo(notificationRepo).
 		UserRepo(userRepo).
+		AdminRepo(adminRepo).
 		GetRouter()
 
 	if r != nil {
