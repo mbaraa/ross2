@@ -1,22 +1,19 @@
 <template>
-    <div class="main2" v-if="checkDirector()">
-        <div v-if="showOps">
+    <div class="main2">
             <div class="pagesLinks" v-for="link in links" :key="link">
-                <router-link :to="{name: link.page}">
+                <router-link :to="{name: link.page}" v-if="checkRole(link.roles)">
                     {{ link.name }}
                 </router-link>
             </div>
             <div>
                 <router-view/>
             </div>
-        </div>
-        <v-btn @click="show" v-if="!showOps">Show Operations</v-btn>
     </div>
 </template>
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import Organizer from "@/models/Organizer";
+import Organizer, {OrganizerRole} from "@/models/Organizer";
 
 export default defineComponent({
     name: "DirectorOperations",
@@ -26,10 +23,10 @@ export default defineComponent({
     data() {
         return {
             profile: {},
-            showOps: false,
             links: [
-                {page: 'contests', name: 'Contests'},
-                {page: 'organizers', name: 'Organizers'},
+                {page: 'contests', name: 'Contests', roles: OrganizerRole.Director},
+                {page: 'organizers', name: 'Organizers', roles: OrganizerRole.Director},
+                {page: 'attendance', name: 'Attendance', roles: OrganizerRole.Director | OrganizerRole.Receptionist}
                 // {page: 'other', name: 'Other'},
             ]
         }
@@ -39,8 +36,8 @@ export default defineComponent({
             this.showOps = true;
             this.$router.push('/profile/contests/')
         },
-        checkDirector(): boolean {
-            return (this.director.roles & 1) != 0;
+        checkRole(role: number): boolean {
+            return (this.director.roles & role) != 0;
         }
     }
 });

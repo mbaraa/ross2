@@ -4,8 +4,30 @@ import Contestant from "@/models/Contestant";
 import config from "@/config";
 import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
 import Organizer from "@/models/Organizer";
+import User from "@/models/User";
 
 class OrganizerRequests {
+    public static async markParticipantAsPresent(user: User, contest: Contest): Promise<Response> {
+        return await RequestsManager.makeAuthPostRequest("mark-participant-as-present", UserType.Organizer, {
+            user: user,
+            contest: contest,
+        });
+    }
+
+    public static async getParticipantsList(contest: Contest): Promise<User[]> {
+        let users = new Array<User>();
+
+        await RequestsManager.makeAuthPostRequest("get-participants", UserType.Organizer, contest)
+            .then(resp => resp.json())
+            .then(resp => {
+                users = resp;
+                return users;
+            })
+            .catch(err => window.alert(err));
+
+        return users;
+    }
+
     public static async generateTeamsPosts(data: any): Promise<string> {
         let zipFile = ""
         await RequestsManager.makeAuthPostRequest("generate-teams-posts", UserType.Organizer, data)

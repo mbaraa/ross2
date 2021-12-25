@@ -37,6 +37,11 @@ const routes: Array<RouteRecordRaw> = [
                 name: 'org-teams',
                 component: () => import("@/components/director/DirectorTeams.vue")
             },
+            {
+                path: 'attendance/',
+                name: "attendance",
+                component: () => import("@/components/user/AttendanceList.vue")
+            }
         ]
     },
     {

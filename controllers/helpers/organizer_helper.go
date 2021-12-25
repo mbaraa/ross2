@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
@@ -264,4 +265,49 @@ func (o *OrganizerHelper) GetNonOrgUsers() ([]models.User, error) {
 	}
 
 	return nonOrgUsers, nil
+}
+
+func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Organizer) (parts []models.User, err error) {
+	if (org.Roles&enums.RoleDirector) == 0 && (org.Roles&enums.RoleReceptionist) == 0 {
+		return nil, errors.New("you can't do that :)")
+	}
+
+	contest, err = o.contestRepo.Get(contest)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, _org := range contest.Organizers {
+		if _org.User.AttendedContestID != contest.ID {
+			_org.Contests = nil
+			parts = append(parts, _org.User)
+		}
+	}
+
+	for _, team := range contest.Teams {
+		for _, member := range team.Members {
+			if member.User.AttendedContestID != contest.ID {
+				parts = append(parts, member.User)
+			}
+		}
+	}
+
+	return
+}
+
+func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contest) (err error) {
+	user, err = o.userRepo.GetByEmail(user.Email)
+	if err != nil {
+		return
+	}
+
+	contest, err = o.contestRepo.Get(contest)
+	if err != nil {
+		return
+	}
+
+	user.AttendedContestID = contest.ID
+	user.AttendedAt = time.Now()
+
+	return o.userRepo.Update(&user)
 }

@@ -17,6 +17,7 @@ class Organizer {
 }
 
 export enum OrganizerRole {
+    Director = 1,
     CoreOrganizer = 2,
     ChiefJudge = 4,
     Judge = 8,

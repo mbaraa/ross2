@@ -64,6 +64,9 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /get-participants-csv/":     o.handleGetParticipantsCSV,
 		"POST /generate-teams-posts/":     o.handleGenerateTeamsPosts,
 		"GET /get-all-users/":             o.handleGetAllUsers,
+
+		"POST /get-participants/":            o.handleGetParticipants,
+		"POST /mark-participant-as-present/": o.markParticipantAsPresent,
 	})
 	return o
 }
@@ -486,4 +489,43 @@ func (o *OrganizerAPI) handleGetAllUsers(ctx context.HandlerContext) {
 		return
 	}
 	_ = ctx.WriteJSON(users, 0)
+}
+
+// POST /get-participants/
+func (o *OrganizerAPI) handleGetParticipants(ctx context.HandlerContext) {
+	var contest models.Contest
+	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	participants, err := o.orgMgr.GetParticipants(contest, org)
+	if err != nil {
+		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_ = ctx.WriteJSON(participants, 0)
+}
+
+// POST /mark-participant-as-present/
+func (o *OrganizerAPI) markParticipantAsPresent(ctx context.HandlerContext) {
+	var respBody struct {
+		User    models.User    `json:"user"`
+		Contest models.Contest `json:"contest"`
+	}
+	if ctx.ReadJSON(&respBody) != nil {
+		return
+	}
+
+	err := o.orgMgr.MarkAttendance(respBody.User, respBody.Contest)
+	if err != nil {
+		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

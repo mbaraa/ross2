@@ -6,9 +6,7 @@
             }}</b></span>
         <br/>
 
-        <div v-if="(organizerProfile.roles & 1) !== 0">
-            <DirectorOperations :director="organizerProfile"/>
-        </div>
+        <DirectorOperations :director="organizerProfile"/>
         <v-divider/>
     </div>
 </template>

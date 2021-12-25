@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/mbaraa/ross2/models/enums"
 	"github.com/mbaraa/ross2/utils/multiavatar"
 	"gorm.io/gorm"
@@ -20,6 +22,10 @@ type User struct {
 
 	ContactInfo   ContactInfo `gorm:"foreignkey:ContactInfoID" json:"contact_info"`
 	ContactInfoID uint        `gorm:"column:contact_info_id"`
+
+	// used only for organizers and contestants :)
+	AttendedAt        time.Time `gorm:"column:attended_at" json:"attended_at"`
+	AttendedContestID uint      `gorm:"column:attended_contest_id" json:"attended_contest_id"`
 }
 
 func (u *User) AfterFind(db *gorm.DB) error {

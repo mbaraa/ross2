@@ -13,7 +13,7 @@ func GetParticipants(contest models.Contest) string {
 
 func getAllCSV(contest models.Contest) string {
 	sb := new(strings.Builder)
-	sb.WriteString("Name, University ID, Role\r\n")
+	sb.WriteString("Name, Email, Role\r\n")
 	sb.WriteString(getOrganizersCSV(contest))
 	sb.WriteString(getContestantsCSV(contest))
 
@@ -25,7 +25,9 @@ func getOrganizersCSV(contest models.Contest) string {
 	sb := new(strings.Builder)
 
 	for _, org := range contest.Organizers {
-		sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", org.User.Name, org.User.Email, "Organizer"))
+		if org.User.AttendedContestID == contest.ID {
+			sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", org.User.Name, org.User.Email, "Organizer"))
+		}
 	}
 
 	return sb.String()
@@ -39,7 +41,9 @@ func getContestantsCSV(contest models.Contest) string {
 	)
 
 	for _, cont := range conts {
-		sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", cont.User.Name, cont.UniversityID, "Contestant"))
+		if cont.User.AttendedContestID == contest.ID {
+			sb.WriteString(fmt.Sprintf("%s, %s, %s\r\n", cont.User.Name, cont.User.Email, "Contestant"))
+		}
 	}
 
 	return sb.String()
@@ -48,7 +52,9 @@ func getContestantsCSV(contest models.Contest) string {
 func getContestants(contest models.Contest) (conts []models.Contestant) {
 	for _, team := range contest.Teams {
 		for _, cont := range team.Members {
-			conts = append(conts, cont)
+			if cont.User.AttendedContestID == contest.ID {
+				conts = append(conts, cont)
+			}
 		}
 	}
 
