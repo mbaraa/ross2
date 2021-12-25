@@ -1,7 +1,7 @@
 <template>
     <div class="main bg-blue-darken-4" @click="openContestDetails">
         <br/>
-        <img class="contestLogo" :alt="contest.name + ' logo'" :src="contest.logo_path"/>
+        <img class="contestLogo" :alt="contest.name + ' logo'" :src="config.backendAddress+contest.logo_path"/>
         <h1>{{ contest.name }}</h1>
         <v-divider/>
         <p>{{ contest.description }}</p>
@@ -24,6 +24,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faClock, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons"
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {getLocaleTime} from "@/utils";
+import config from "@/config";
 
 library.add(faClock, faMapMarkerAlt);
 
@@ -34,6 +35,11 @@ export default defineComponent({
     },
     components: {
         FontAwesomeIcon
+    },
+    data() {
+        return {
+            config: config,
+        }
     },
     methods: {
         openContestDetails() {

@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <img class="contestLogo" alt="contest logo" :src="contest.logo_path"/>
+        <img class="contestLogo" alt="contest logo" :src="config.backendAddress+contest.logo_path"/>
         <br/>
         <span class="contestName"><b>{{ contest.name }}</b></span>
         <br/><br/>
@@ -29,12 +29,14 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import Contest from "@/models/Contest";
+import config from "@/config";
 
 export default defineComponent({
     name: "ContestPage",
     data() {
         return {
-            contest: {}
+            contest: {},
+            config: config
         }
     },
     async mounted() {
