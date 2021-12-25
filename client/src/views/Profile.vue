@@ -31,10 +31,10 @@
     </div>
     <div v-else style="padding-top: 20px; text-align: center;">
         <h1 style="font-size: 3em">Oops! you're not logged in</h1>
-        <!--        <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">-->
-        <!--            <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'google' }"/>&nbsp;Login with Google-->
-        <!--        </v-btn>-->
-        <!--        <br/><br/>-->
+                <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">
+                    <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'google' }"/>&nbsp;Login with Google
+                </v-btn>
+                <br/><br/>
         <v-btn @click="loginMS()" class="bg-grey" style="font-size: 2em; padding: 20px">
             <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'microsoft' }"/>&nbsp;Login with ASU Account
         </v-btn>

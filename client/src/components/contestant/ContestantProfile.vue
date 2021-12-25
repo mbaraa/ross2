@@ -9,22 +9,25 @@
             <v-divider/>
 
             <div v-if="checkTeam()">
-                <h3>
-                    <FontAwesomeIcon :icon="{ prefix: 'fas', iconName: 'file-alt' }"/>&nbsp;Team details:
-                </h3>
-                <ul>
-                    <li>Team name: {{ team.name }}</li>
-                    <li
-                        title="share this id with team members you want to join this team"
-                    >Team ID: {{ team.join_id }}
-                    </li>
-                    <li>
-                        Team members:
-                        <ul v-for="member in team.members" :key="member">
-                            <li>{{ member.user.name }}</li>
-                        </ul>
-                    </li>
-                </ul>
+                <v-table style="width: 600px; margin: 0 auto; border-radius: 10px">
+                    <caption>
+                        <FontAwesomeIcon :icon="{ prefix: 'fas', iconName: 'file-alt' }"/>&nbsp;Team details:
+                    </caption>
+                    <tbody>
+                    <tr>
+                        <td>Team name</td>
+                        <td>{{ team.name }}</td>
+                    </tr>
+                    <tr title="share this id with team members you want to join this team">
+                        <td>Team ID</td>
+                        <td>{{ team.join_id }}</td>
+                    </tr>
+                    <tr v-if="team.members.length > 0">
+                        <td>Team members</td>
+                        <td>{{ getMembersNames() }}</td>
+                    </tr>
+                    </tbody>
+                </v-table>
                 <div class="buttons">
                     <v-btn @click="leaveTeam" class="text-blue-darken-4">Leave team</v-btn>
                     &nbsp;
@@ -91,7 +94,13 @@ export default defineComponent({
         checkTeam(): boolean {
             return this.team != null && this.team.id > 1;
         },
-
+        getMembersNames(): string {
+            let names = new Array<string>();
+            this.team.members.forEach((c: Contestant) => {
+                names.push(<string>c.user.name);
+            });
+            return names.join(", ");
+        }
     }
 });
 </script>
