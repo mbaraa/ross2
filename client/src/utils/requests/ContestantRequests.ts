@@ -51,8 +51,8 @@ class ContestantRequests {
         await RequestsManager.makeAuthPostRequest("create-team", UserType.Contestant, team);
     }
 
-    public static async joinAsTeamless(contest: Contest): Promise<void> {
-        await RequestsManager.makeAuthPostRequest("register-as-teamless", UserType.Contestant, contest);
+    public static async joinAsTeamless(body: any): Promise<void> {
+        await RequestsManager.makeAuthPostRequest("register-as-teamless", UserType.Contestant, body);
     }
 
     public static async requestJoinTeam(jr: JoinRequest): Promise<Response> {

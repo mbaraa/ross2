@@ -6,17 +6,20 @@
             <div class="buttons" v-if="!hasTeam">
                 <ContestantCreateTeam :contest="contest"/>
             </div>
-            <div class="buttons">
-                <ContestantJoinTeam :contest="contest" v-if="!hasTeam"/>
-            </div>
             <br/>
-            <v-btn v-if="!hasTeam" @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))"
-                   color="success"
-                   class="buttons"
-                   title="you will be put in a team at the end of registration">
-                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>&nbsp;
-                Join as teamless
-            </v-btn>
+            <div class="buttons" v-if="!hasTeam">
+                <ContestantJoinTeam :contest="contest"/>
+            </div>
+            <div class="buttons" v-if="!hasTeam">
+                <ContestantJoinTeamless :contest="contest"/>
+            </div>
+<!--            <v-btn v-if="!hasTeam" @click="checkTokenForAction(checkRegistrationEndsForAction(joinAsTeamless))"-->
+<!--                   color="success"-->
+<!--                   class="buttons"-->
+<!--                   title="you will be put in a team at the end of registration">-->
+<!--                <FontAwesomeIcon class="text-white" :icon="{prefix:'fas', iconName:'users-slash'}"/>&nbsp;-->
+<!--                Join as teamless-->
+<!--            </v-btn>-->
         </div>
     </div>
 </template>
@@ -32,6 +35,7 @@ import ContestantCreateTeam from "@/components/contestant/ContestantCreateTeam.v
 import ContestantRequests from "@/utils/requests/ContestantRequests";
 import ContestantJoinTeam from "@/components/contestant/ContestantJoinTeam.vue";
 import ActionChecker from "@/utils/ActionChecker";
+import ContestantJoinTeamless from "@/components/contestant/ContestantJoinTeamless.vue";
 
 library.add(faUserPlus, faUsers, faUsersSlash);
 
@@ -41,10 +45,10 @@ export default defineComponent({
         contest: Contest
     },
     components: {
+        ContestantJoinTeamless,
         ContestantJoinTeam,
         ContestantCreateTeam,
         ContestCard,
-        FontAwesomeIcon
     },
     data() {
         return {
@@ -54,7 +58,7 @@ export default defineComponent({
     },
     async mounted() {
         this.contestant = await ContestantRequests.getProfile();
-        this.hasTeam = ((this.contestant) != null && (this.contestant).team_id > 1);
+        this.hasTeam = ((this.contestant) != null && (this.contestant.team_id > 1 || this.contestant.teamless_contest_id > 0));
     },
     methods: {
         checkRegisterEnds(): boolean {
@@ -64,12 +68,6 @@ export default defineComponent({
             }
 
             return regOver;
-        },
-        async joinAsTeamless() {
-            if (window.confirm(`are you sure you want to join the contest "${this.contest.name}" as teamless?`)) {
-                await ContestantRequests.joinAsTeamless(this.contest);
-                window.alert(`you have registered as teamless in "${this.contest.name}"`)
-            }
         },
         joinTeam() {
             this.$router.push(`/contest/teams/?id=${this.contest.id}`)

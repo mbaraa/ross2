@@ -177,7 +177,7 @@ func NewRouter(b *Builder) *Router {
 
 		joinReqManager    = helpers.NewJoinRequestHelper(b.joinReqRepo, b.notificationRepo, b.contestRepo, teamManager)
 		sessionManager    = helpers.NewSessionHelper(b.sessionRepo)
-		userManager       = helpers.NewUserHelper(b.userRepo, sessionManager)
+		userManager       = helpers.NewUserHelper(b.userRepo, b.contestantRepo, sessionManager)
 		contestantManager = helpers.NewContestantHelperBuilder().
 					UserRepo(b.userRepo).
 					ContestantRepo(b.contestantRepo).

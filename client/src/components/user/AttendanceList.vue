@@ -7,15 +7,45 @@
                 {{ contest.name }}
             </option>
         </select>
+
     </h2>
     <div v-if="selected !== null">
-        <v-text-field v-model="searchQuery" class="search" label="University ID"/>
+        <div>
+            <v-text-field v-model="searchQuery" class="search" label="University ID"/>
+            <v-btn @click="listView = !listView">
+                {{ getViewType() }}
+            </v-btn>
+        </div>
         <div v-if="users.length > 0">
-            <div class="grid" v-for="user in filterUsers()" :key="user">
-                <div class="bg-purple-accent-4 card">
-                    <UserCard :user="user"/>
-                    <v-btn @click="checkAttended(user)">Attended</v-btn>
+            <br/>
+            <div v-if="!listView">
+                <div class="grid" v-for="user in filterUsers()" :key="user">
+                    <div class="bg-purple-accent-4 card">
+                        <UserCard :user="user"/>
+                        <v-btn @click="checkAttended(user)">Attended</v-btn>
+                    </div>
                 </div>
+            </div>
+            <div v-else>
+                <v-table class="bg-purple-accent-4 text-white font-weight-bold tt">
+                    <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>University ID</td>
+                        <td></td>
+                    </tr>
+                    </thead>
+                    <tbody v-for="user in filterUsers()" :key="user">
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email.split("@")[0] }}</td>
+
+                        <td>
+                            <v-btn @click="checkAttended(user)">Attended</v-btn>
+                        </td>
+                    </tr>
+                    </tbody>
+                </v-table>
             </div>
         </div>
         <h1 class="text-red">no users were found!</h1>
@@ -37,7 +67,8 @@ export default defineComponent({
             searchQuery: "",
             users: [],
             contests: [],
-            selected: null
+            selected: null,
+            listView: true,
         }
     },
     async mounted() {
@@ -57,6 +88,9 @@ export default defineComponent({
         },
         selectContest(contest: Contest) {
             this.selected = contest;
+        },
+        getViewType(): string {
+            return "Switch to" + (this.listView ? " Grid " : " List ") + "View";
         }
     }
 });
@@ -76,5 +110,9 @@ export default defineComponent({
 .search {
     margin: 0 auto;
     width: 500px;
+}
+
+.tt {
+    border: #212121 solid 1px;
 }
 </style>

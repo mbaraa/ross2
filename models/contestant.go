@@ -13,11 +13,10 @@ type Contestant struct {
 	User   User `gorm:"foreignkey:UserID" json:"user"`
 	UserID uint `gorm:"column:user_id" json:"user_id"`
 
-	UniversityID string      `gorm:"column:university_id;unique" json:"university_id"`
-	Team         Team        `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
-	TeamID       uint        `gorm:"column:team_id" json:"team_id"`
-	Major        enums.Major `gorm:"column:major;type:uint" json:"major"`
-	MajorName    string      `gorm:"-" json:"major_name"`
+	Team      Team        `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
+	TeamID    uint        `gorm:"column:team_id" json:"team_id"`
+	Major     enums.Major `gorm:"column:major;type:uint" json:"major"`
+	MajorName string      `gorm:"-" json:"major_name"`
 
 	TeamlessedAt      time.Time `gorm:"column:teamlessed_at" json:"teamlessed_at"`
 	TeamlessContestID uint      `gorm:"column:teamless_contest_id" json:"teamless_contest_id"`
@@ -35,7 +34,7 @@ func (c *Contestant) AfterFind(db *gorm.DB) error {
 		Error
 
 	if err != nil {
-		return err
+		return nil
 	}
 
 	return db.

@@ -33,7 +33,7 @@ func NewJoinRequestHelper(repo data.JoinRequestCRDRepo, nRepo data.NotificationC
 func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.Contestant) error {
 	reqMsg := fmt.Sprintf(
 		"_REQThe contestant '%s' with the university id '%s' wants to join your team",
-		cont.User.Name, cont.UniversityID)
+		cont.User.Name, strings.Split(cont.User.Email, "@")[0])
 
 	if jr.RequestMessage != "" {
 		reqMsg += "\nRequest message: " + jr.RequestMessage

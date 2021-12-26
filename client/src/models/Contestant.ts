@@ -4,7 +4,6 @@ import User from "@/models/User";
 class Contestant {
     user: User;
 
-    university_id?: string;
     team?: Team;
     team_id?: number;
     major_name?: string;

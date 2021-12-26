@@ -8,7 +8,7 @@
             <!--            <v-text-field label="Telegram number" id="tg"/>-->
             <!--            <v-text-field label="Whatsapp number" id="wa"/>-->
             <v-text-field label="Facebook profile URL" v-model="contactInfo.facebook_url"/>
-            <v-text-field label="Telegram URL" v-model="contactInfo.telegram_number"/>
+<!--            <v-text-field label="Telegram URL" v-model="contactInfo.telegram_number"/>-->
             <!--            <v-text-field label="Whatsapp number" v-model="contactInfo.whatsapp_number"/>-->
 
             <v-btn @click="finishProfile()">Finish profile

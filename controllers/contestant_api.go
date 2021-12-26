@@ -180,8 +180,11 @@ func (c *ContestantAPI) handleLeaveTeam(ctx context.HandlerContext) {
 
 // POST /contestant/register-as-teamless/
 func (c *ContestantAPI) handleRegisterAsTeamless(ctx context.HandlerContext) {
-	var contest models.Contest
-	if ctx.ReadJSON(&contest) != nil {
+	var respBody struct {
+		Contest    models.Contest    `json:"contest"`
+		Contestant models.Contestant `json:"contestant"`
+	}
+	if ctx.ReadJSON(&respBody) != nil {
 		return
 	}
 
@@ -191,7 +194,10 @@ func (c *ContestantAPI) handleRegisterAsTeamless(ctx context.HandlerContext) {
 		return
 	}
 
-	if c.contMgr.RegisterAsTeamless(cont, contest) != nil {
+	cont.Gender = respBody.Contestant.Gender
+	cont.ParticipateWithOtherGender = respBody.Contestant.ParticipateWithOtherGender
+
+	if c.contMgr.RegisterAsTeamless(cont, respBody.Contest) != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
