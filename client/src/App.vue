@@ -1,15 +1,26 @@
 <template>
     <v-app class="app" >
-        <v-app-bar app style="background-color: #4A148C;">
-            <v-btn @click="toggleDrawer" icon color="error" class="drawerButton">
-                <FontAwesomeIcon style="color: #4A148C;" :icon="{ prefix: 'fas', iconName: 'bars' }"/>
-                <FontAwesomeIcon
-                    class="text-red"
-                    v-if="newNotification"
-                    :icon="{ prefix: 'fas', iconName: 'bell' }"
-                />
-            </v-btn>
-            <label @click="goHome" class="title">&nbsp;Ross 2</label>
+        <v-app-bar elevation="0" style="border-bottom-width: 1px; border-color: #e4e4e4;" app>
+            <img @click="goHome" src="https://mbaraa.fun/ross2/logo_250.png" alt="Ross 2" class="logo"/>
+
+            <div class="links">
+                <router-link :to="links[0].page">
+                    <FontAwesomeIcon :class="getClass(links[0].name)" :icon="links[0].icon"/>
+                        &nbsp;
+                </router-link>
+                <router-link :to="links[1].page">
+                    <FontAwesomeIcon :class="getClass(links[1].name)" :icon="links[1].icon"/>
+                        &nbsp;
+                </router-link>
+                <router-link :to="links[2].page">
+                    <FontAwesomeIcon :class="getClass(links[2].name)" :icon="links[2].icon"/>
+                        &nbsp;
+                </router-link>
+                <router-link :to="links[3].page">
+                    <FontAwesomeIcon :class="getClass(links[3].name)" :icon="links[3].icon"/>
+                        &nbsp;
+                </router-link>
+            </div>
         </v-app-bar>
 
         <v-navigation-drawer v-model="showDrawer" temporary app>
@@ -18,10 +29,6 @@
             <v-list @click="toggleDrawer" v-for="link in links" :key="link">
                 <v-list-item>
                     <v-list-item-title>
-                        <router-link :to="link.page">
-                            <FontAwesomeIcon :class="getClass(link.name)" :icon="link.icon"/>
-                            &nbsp;{{ link.name }}
-                        </router-link>
                     </v-list-item-title>
                 </v-list-item>
             </v-list>
@@ -80,7 +87,7 @@ export default defineComponent({
 
 .title {
     font-family: 'Ropa Sans', sans-serif;
-    color: white;
+    color: #6a1b9a;
     font-weight: bold;
     font-size: 2em;
     cursor: pointer;
@@ -108,6 +115,26 @@ a.router-link-exact-active {
 }
 
 .app {
-    background-color: #eeeeee;
+    
+}
+
+.logo {
+    height: 3rem;
+    width: 3rem;
+    background-color: #E4E4E4;
+    border: 0.5px;
+    border-radius: 100%;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    display: inline;
+}
+
+.logo:hover {
+    opacity: 0.6;
+}
+
+.links {
+    position: absolute;
+    right: 0.5rem;
 }
 </style>

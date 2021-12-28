@@ -1,14 +1,8 @@
 <template>
     <div v-if="contestantProfile !== null">
-            <span class="contestName" style="font-size: 1.5em">
-                    <b>University ID: {{ contestantProfile.university_id }}</b>
-                </span>
-        <br/>
-
         <div v-if="team !== null">
-            <v-divider/>
-
             <div v-if="checkTeam()">
+                <br/>
                 <v-table style="width: 600px; margin: 0 auto; border-radius: 10px">
                     <caption>
                         <FontAwesomeIcon :icon="{ prefix: 'fas', iconName: 'file-alt' }"/>&nbsp;Team details:
@@ -28,6 +22,7 @@
                     </tr>
                     </tbody>
                 </v-table>
+                <br/>
                 <div class="buttons">
                     <v-btn @click="leaveTeam" class="text-blue-darken-4">Leave team</v-btn>
                     &nbsp;
@@ -39,9 +34,9 @@
                     </v-btn>
                 </div>
             </div>
-
         </div>
-        <v-divider/>
+        <br/>
+<!--        <v-divider/>-->
     </div>
 </template>
 

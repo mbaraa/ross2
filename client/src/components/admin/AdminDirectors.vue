@@ -1,7 +1,7 @@
 <template>
     <div class="grid">
         <AdminCreateDirector/>
-        <div v-if="directors.length > 0">
+        <div v-if="directors != null && directors.length > 0">
             <div v-for="dir in directors" :key="dir" class="grid">
                 <AdminDirectorCard :director="dir"/>
             </div>

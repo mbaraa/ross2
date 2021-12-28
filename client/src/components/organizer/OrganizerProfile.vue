@@ -1,11 +1,6 @@
 <template>
     <div v-if="organizerProfile !== null">
-        <span class="organizerName" style="font-size: 1.5em"><b>
-            Organizer Roles: {{
-                organizerProfile.roles_names.join(", ")
-            }}</b></span>
         <br/>
-
         <DirectorOperations :director="organizerProfile"/>
         <v-divider/>
     </div>
@@ -23,6 +18,11 @@ export default defineComponent({
     },
     props: {
         organizerProfile: Organizer,
+    },
+    mounted() {
+        if (this.organizerProfile.user.id > 0) {
+            this.$router.push("/profile/contests/");
+        }
     },
     data() {
         return {}

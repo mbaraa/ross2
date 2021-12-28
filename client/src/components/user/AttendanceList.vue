@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div v-else>
-                <v-table class="bg-purple-accent-4 text-white font-weight-bold tt">
+                <v-table v-if="filterUsers().length > 0" class="bg-purple-accent-4 text-white font-weight-bold tt">
                     <thead>
                     <tr>
                         <td>Name</td>

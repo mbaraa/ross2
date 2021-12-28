@@ -19,22 +19,16 @@
         <AdminProfile :adminProfile="adminProfile"/>
 
         <div class="buttons">
-            <v-btn
-                v-if="contestantProfile === null"
-                @click="registerAsContestant()"
-                class="text-blue-darken-4"
-            >Register as contestant
-            </v-btn>&nbsp;
             <v-btn @click="logout()" class="text-red-darken-4">Logout</v-btn>&nbsp;
             <!--            <v-btn @click="deleteAccount" class="text-red-darken-4">Delete account</v-btn>-->
         </div>
     </div>
     <div v-else style="padding-top: 20px; text-align: center;">
         <h1 style="font-size: 3em">Oops! you're not logged in</h1>
-                <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">
-                    <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'google' }"/>&nbsp;Login with Google
-                </v-btn>
-                <br/><br/>
+<!--                <v-btn @click="loginGoogle()" class="bg-red" style="font-size: 2em; padding: 20px">-->
+<!--                    <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'google' }"/>&nbsp;Login with Google-->
+<!--                </v-btn>-->
+<!--                <br/><br/>-->
         <v-btn @click="loginMS()" class="bg-grey" style="font-size: 2em; padding: 20px">
             <FontAwesomeIcon :icon="{ prefix: 'fab', iconName: 'microsoft' }"/>&nbsp;Login with ASU Account
         </v-btn>
@@ -105,17 +99,9 @@ export default defineComponent({
             );
             window.location.reload();
         },
-        async $logout() {
-            if (this.profile.email.indexOf("@gmail") > -1) {
-                await this.$gapi.logout();
-                await GoogleLogin.logout(this.profile);
-            } else {
-                await this.$msal.logoutPopup();
-                await MicrosoftLogin.logout(this.profile);
-            }
-        },
         async logout() {
-            await this.$logout();
+            await this.$msal.logoutPopup();
+            await MicrosoftLogin.logout(this.profile);
             window.location.reload();
         },
         async loginMS() {
@@ -126,7 +112,7 @@ export default defineComponent({
             window.location.reload();
         },
         async tokenLogin(): Promise<User> {
-            return await GoogleLogin.loginWithToken();
+            return await MicrosoftLogin.loginWithToken();
         },
         async registerAsContestant() {
             await this.$store.dispatch("setCurrentUser", await this.profile);
