@@ -1,23 +1,3 @@
-export default class User {
-    id?: number;
-    email?: string;
-    name?: string;
-    avatar_url?: string;
-    profile_status: ProfileStatus;
-
-    user_type_base: number;
-    user_type?: string;
-
-    contact_info?: ContactInfo;
-
-    constructor() {
-        this.contact_info = new ContactInfo();
-        this.user_type_base = UserType.Fresh;
-        this.profile_status = ProfileStatus.Fresh
-        this.id = 0;
-    }
-}
-
 export class ContactInfo {
     facebook_url?: string;
     telegram_number?: string;
@@ -36,4 +16,24 @@ export enum ProfileStatus {
     Fresh = 1,
     ContestantFinished = 2,
     OrganizerFinished = 4,
+}
+
+export default class User {
+    id?: number;
+    email?: string;
+    name?: string;
+    avatar_url?: string;
+    profile_status: ProfileStatus;
+
+    user_type_base: number;
+    user_type?: string;
+
+    contact_info?: ContactInfo;
+
+    constructor() {
+        this.contact_info = new ContactInfo();
+        this.user_type_base = UserType.Fresh;
+        this.profile_status = ProfileStatus.Fresh
+        this.id = 0;
+    }
 }

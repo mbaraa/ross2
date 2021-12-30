@@ -1,4 +1,4 @@
-export function getLocaleTime(time: Date): string {
+export function getLocaleTime(time: number): string {
     const over = (new Date()).getTime() > (new Date(time)).getTime();
 
     return over ? "OVER!" : new Date(time).toLocaleTimeString("en-US", {

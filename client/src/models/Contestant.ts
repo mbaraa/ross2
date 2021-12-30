@@ -1,5 +1,5 @@
-import Team from "@/models/Team";
-import User from "@/models/User";
+import Team from "./Team";
+import User from "./User";
 
 class Contestant {
     user: User;

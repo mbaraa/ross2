@@ -46,7 +46,7 @@ class OrganizerRequests {
         await RequestsManager.makeAuthPostRequest("get-participants-csv", UserType.Organizer, contest)
             .then(resp => resp.text())
             .then(resp => {
-                parts = <string>resp;
+                parts = resp as string;
                 return parts;
             });
 
@@ -81,14 +81,14 @@ class OrganizerRequests {
             method: "POST",
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem("token"),
+                "Authorization": localStorage.getItem("token") as string,
             },
             body: JSON.stringify({"contest": contest, "names": names}),
         })
             .then(resp => resp.json())
             .then(jResp => {
-                teams = <Team[]>jResp["teams"];
-                leftTeamless = <Contestant[]>jResp["left_teamless"];
+                teams = jResp["teams"] as Team[];
+                leftTeamless = jResp["left_teamless"] as Contestant[];
 
                 return [teams, leftTeamless];
             })
@@ -130,22 +130,22 @@ class OrganizerRequests {
 
     public static async getContest(contestID: number): Promise<Contest> {
         let contest = new Contest();
-        await RequestsManager.makeAuthPostRequest("get-contest", UserType.Organizer, <Contest>{id: contestID})
+        await RequestsManager.makeAuthPostRequest("get-contest", UserType.Organizer, {id: contestID} as Contest)
             .then(resp => resp.json())
             .then(resp => {
-                contest = <Contest>resp;
+                contest = resp as Contest;
             })
             .catch(err => window.alert("oi mama" + err.message));
 
         return contest;
     }
 
-    public static async getContests(): Promise<Array<Contest>> {
+    public static async getContests(): Promise<Contest[]> {
         let contests = new Array<Contest>();
         await RequestsManager.makeAuthGetRequest("get-contests", UserType.Organizer)
             .then(resp => resp.json())
             .then(resp => {
-                contests = <Array<Contest>>resp;
+                contests = resp as Contest[];
             })
             .catch(err => window.alert("oi mama " + err.message));
 

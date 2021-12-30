@@ -1,5 +1,3 @@
-import config from "@/config";
-
 class Notification {
     id: number | undefined;
     user_id: number | undefined;

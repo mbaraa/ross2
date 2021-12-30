@@ -1,5 +1,5 @@
-import Contest from "@/models/Contest";
-import Contestant from "@/models/Contestant";
+import Contest from "./Contest";
+import Contestant from "./Contestant";
 
 class Team {
     id?: number;

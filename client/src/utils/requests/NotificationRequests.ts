@@ -1,4 +1,5 @@
-import config from "@/config";
+import config from "../../config";
+import Notification from "../../models/Notification";
 
 class NotificationRequests {
     public static async clearNotifications(): Promise<void> {
@@ -6,7 +7,7 @@ class NotificationRequests {
             method: "GET",
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem("token"),
+                "Authorization": localStorage.getItem("token") as string,
             }
         })
     }
@@ -17,7 +18,7 @@ class NotificationRequests {
             method: "GET",
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem("token"),
+                "Authorization": localStorage.getItem("token") as string,
             }
         })
             .then(resp => resp.json())
@@ -35,12 +36,12 @@ class NotificationRequests {
             method: "GET",
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem("token"),
+                "Authorization": localStorage.getItem("token") as string,
             }
         })
             .then(resp => resp.json())
             .then(jResp => {
-                notifications = <Notification[]>jResp;
+                notifications = jResp as Notification[];
                 return notifications;
             })
             .catch(() => {

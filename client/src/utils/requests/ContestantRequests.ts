@@ -1,9 +1,8 @@
-import Team from "@/models/Team";
-import Notification from "@/models/Notification";
-import Contest from "@/models/Contest";
-import JoinRequest from "@/models/JoinRequest";
-import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
-import Contestant from "@/models/Contestant";
+import Team from "../../models/Team";
+import Notification from "../../models/Notification";
+import JoinRequest from "../../models/JoinRequest";
+import RequestsManager, {UserType} from "./RequestsManager";
+import Contestant from "../../models/Contestant";
 
 class ContestantRequests {
     public static async getTeam(): Promise<Team> {
@@ -11,7 +10,7 @@ class ContestantRequests {
         await RequestsManager.makeAuthGetRequest("get-team", UserType.Contestant)
             .then(resp => resp.json())
             .then(jResp => {
-                team = <Team>jResp;
+                team = jResp as Team;
                 return team;
             });
 
@@ -23,7 +22,7 @@ class ContestantRequests {
             await RequestsManager.makeAuthPostRequest("accept-join-request", UserType.Contestant, notification)
                 .then(resp => resp.json())
                 .then(resp => {
-                    window.alert(<string>resp['err']);
+                    window.alert(resp['err'] as string);
                 });
         } finally {
             window.location.reload();
@@ -39,7 +38,7 @@ class ContestantRequests {
         await RequestsManager.makeAuthPostRequest("check-joined-team", UserType.Contestant, team)
             .then(resp => resp.json())
             .then(resp => {
-                inTeam = <boolean>resp["team_status"];
+                inTeam = resp["team_status"] as boolean;
 
                 return inTeam
             });

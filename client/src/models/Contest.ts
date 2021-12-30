@@ -1,12 +1,12 @@
-import Team from "@/models/Team";
-import Contestant from "@/models/Contestant";
-import Organizer from "@/models/Organizer";
-import config from "@/config";
+import Team from "./Team";
+import Contestant from "./Contestant";
+import Organizer from "./Organizer";
+import config from "../config";
 
 class Contest {
     id: number | undefined;
     name: string | undefined;
-    starts_at: number | undefined; // timestamp goes brr
+    starts_at: number; // timestamp goes brr
     registration_ends: number | undefined;
     duration: number | undefined;
     location: string | undefined;
@@ -23,6 +23,7 @@ class Contest {
         this.organizers = new Array<Organizer>();
         this.teams = new Array<Team>();
         this.teamless_contestants = new Array<Contestant>();
+        this.starts_at = 0;
     }
 
     public static async getContestFromServer(contestId: number): Promise<Contest> {

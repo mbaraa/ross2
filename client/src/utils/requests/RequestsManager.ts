@@ -1,4 +1,4 @@
-import config from "@/config";
+import config from "../../config";
 
 class RequestsManager {
     public static async makeAuthGetRequest(action: string, userType: UserType): Promise<any> {
@@ -14,11 +14,17 @@ class RequestsManager {
             method: method,
             mode: "cors",
             headers: {
-                "Authorization": <string>localStorage.getItem("token"),
+                "Authorization": localStorage.getItem("token") as string,
             },
-            body: method == "POST" ? JSON.stringify(body) : null,
+            body: method === "POST" ? JSON.stringify(body) : null,
         })
     }
+}
+
+export enum UserType {
+    Contestant = 0,
+    Organizer = 1,
+    Admin = 2,
 }
 
 function getUserTypeString(userType: UserType): string {
@@ -31,12 +37,6 @@ function getUserTypeString(userType: UserType): string {
             return "admin";
     }
     return "";
-}
-
-export enum UserType {
-    Contestant = 0,
-    Organizer = 1,
-    Admin = 2,
 }
 
 export default RequestsManager;

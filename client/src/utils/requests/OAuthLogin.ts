@@ -33,7 +33,7 @@ class OAuthLogin {
         })
             .then(resp => resp.json())
             .then(data => {
-                localStorage.setItem("token", <string>data["token"]);
+                localStorage.setItem("token", data["token"] as string);
             })
             .catch(err => console.error(err));
     }
