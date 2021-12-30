@@ -12,7 +12,8 @@ class ContestantRequests {
             .then(jResp => {
                 team = jResp as Team;
                 return team;
-            });
+            })
+            .catch(err => console.error(err));
 
         return team;
     }

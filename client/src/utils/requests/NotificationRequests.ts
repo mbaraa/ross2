@@ -44,9 +44,7 @@ class NotificationRequests {
                 notifications = jResp as Notification[];
                 return notifications;
             })
-            .catch(() => {
-                console.error("oops I did it again!");
-            });
+            .catch(err => console.log(err));
 
         return notifications;
     }

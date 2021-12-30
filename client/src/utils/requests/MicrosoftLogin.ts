@@ -1,5 +1,5 @@
-import OAuthLogin from "@/utils/requests/OAuthLogin";
-import User from "@/models/User";
+import OAuthLogin from "../../utils/requests/OAuthLogin";
+import User from "../../models/User";
 
 class MicrosoftLogin {
     public static async login(user: any): Promise<void> {
