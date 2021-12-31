@@ -1,15 +1,20 @@
+import Button from "../../src/components/Button";
 import * as React from "react";
 import Login from "../../src/components/Login";
 import Contestant from "../../src/models/Contestant";
 import User, { UserType } from "../../src/models/User";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
 import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
+import { useRouter } from "next/router";
+import Title from "../../src/components/Title";
 
 interface Props {
   user: any;
 }
 
 const Profile = ({ user }: Props) => {
+  const router = useRouter();
+
   let u = {
     id: 48,
     name: "Akram",
@@ -29,7 +34,12 @@ const Profile = ({ user }: Props) => {
   if (user === 0) {
     return <div>Loading</div>;
   } else if (user === null) {
-    return <Login/>;
+    return (
+      <div>
+        <Title className="mb-[8px]" content="You need to Login first." />
+        <Login />
+      </div>
+    );
   }
 
   return (
@@ -48,6 +58,17 @@ const Profile = ({ user }: Props) => {
             </div>
           </div>
         )}
+
+        <Button
+          className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646] text-center"
+          content="Logout"
+          onClick={() => {
+            (async () => {
+              await MicrosoftLogin.logout(user);
+            })();
+            router.reload();
+          }}
+        />
       </div>
     </div>
   );
