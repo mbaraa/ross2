@@ -29,7 +29,7 @@ const Profile = ({ user }: Props) => {
   if (user === 0) {
     return <div>Loading</div>;
   } else if (user === null) {
-    return <div>you should login first</div>;
+    return <Login/>;
   }
 
   return (
