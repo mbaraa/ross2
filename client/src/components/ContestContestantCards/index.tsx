@@ -27,7 +27,7 @@ const ContestContestantCards = ({ contests }: Props) => {
 
       <div className="">
         {contests.map((contest) => {
-          return <ContestantContestCard contest={contest} />;
+          return <ContestantContestCard key={contest.id} contest={contest} />;
         })}
       </div>
     </div>

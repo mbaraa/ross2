@@ -5,8 +5,8 @@ import Title from "../Title";
 import * as React from "react";
 
 interface Props {
-  teams: any[];
-  teamless: any[];
+  teams: any;
+  teamless: any;
 }
 
 const ContestManageTeams = ({ teams, teamless }: Props) => {
@@ -30,7 +30,7 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
           </div>
 
           <div>
-            {teamless.map((contestant) => {
+            {teamless.map((contestant: any) => {
               return (
                 <div
                   className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] "
@@ -56,8 +56,8 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
       </div>
 
       <div className="">
-        {teams.map((team) => {
-          return <TeamCard team={team} />;
+        {teams.map((team: any) => {
+          return <TeamCard key={team.id} team={team} />;
         })}
       </div>
     </div>

@@ -1,5 +1,5 @@
 interface Props {
-  content: string;
+  content: any;
   className: string;
 }
 

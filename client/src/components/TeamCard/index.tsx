@@ -14,7 +14,7 @@ const TeamCard = ({ team }: Props) => {
         </div>
 
         <div className="">
-          {team.members.map((member) => {
+          {team.members.map((member: any) => {
             return (
               <div
                 className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] "

@@ -7,7 +7,7 @@ const config = {
         clientId: "6ab263f3-e5c8-4e89-bbda-ca56faf35977",
         authority:
           "https://login.microsoftonline.com/a6bdeb1e-7724-4165-b796-640034f507ba",
-        redirectUri: "http://localhost:3000",
+        redirectUri: "https://mbaraa.fun/ross2",
       },
       cache: {
         cacheLocation: "localStorage",

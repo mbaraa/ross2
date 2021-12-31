@@ -1,5 +1,5 @@
-import OAuthLogin from "@/utils/requests/OAuthLogin";
-import User from "@/models/User";
+import OAuthLogin from "./OAuthLogin";
+import User from "../../models/User";
 
 class GoogleLogin {
     public static async login(user: any): Promise<void> {

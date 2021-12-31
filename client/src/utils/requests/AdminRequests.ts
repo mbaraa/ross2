@@ -1,6 +1,6 @@
-import RequestsManager, {UserType} from "@/utils/requests/RequestsManager";
-import Admin from "@/models/Admin";
-import Organizer from "@/models/Organizer";
+import RequestsManager, {UserType} from "./RequestsManager";
+import Admin from "../../models/Admin";
+import Organizer from "../../models/Organizer";
 
 class AdminRequests {
     public static async getProfile(): Promise<Admin> {

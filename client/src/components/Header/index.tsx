@@ -19,6 +19,7 @@ import User from "../../models/User";
 import Login from "../Login";
 import { useRouter } from "next/router";
 import Notifications from "../Notifications";
+import Link from "next/link";
 
 interface Props {
   user: User;
@@ -97,13 +98,15 @@ const Header = (): React.ReactElement => {
         className="border-b-[1px] border-lwhite"
       >
         <Toolbar className="relative bg-white text-ross2 font-bold text-[1.5em]">
-          <a href="/">
+          <Link href="/">
+          <a>
             <img
               src="/logo192.png"
               alt="Ross 2"
               className="h-12 w-12 bg-lwhite-2 border-lwhite-1 border-[0.5px] rounded-full mr-2 cursor-pointer hover:opacity-60"
             />
           </a>
+          </Link>
           <div className="absolute right-[10px]">
             {/* <IconButton size="large" aria-label="notifications">
               <Badge badgeContent={nots.length} color="error">
@@ -139,11 +142,13 @@ const Header = (): React.ReactElement => {
               <ProfileMenu user={user} />
             </Menu> */}
 
-            <a href="/about">
+            <Link href="/about">
+            <a>
               <IconButton>
                 <Info className="text-ross2" />
               </IconButton>
             </a>
+            </Link>
           </div>
         </Toolbar>
       </AppBar>

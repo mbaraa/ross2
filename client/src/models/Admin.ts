@@ -1,4 +1,4 @@
-import User from "@/models/User";
+import User from "./User";
 
 class Admin {
     user: User;

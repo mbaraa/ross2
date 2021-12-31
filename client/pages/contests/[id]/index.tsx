@@ -72,7 +72,7 @@ const Contest = () => {
   if (contest.id) {
     return (
       <div>
-        <Title content={contest.name} />
+        <Title content={contest.name} className=""/>
 
         <Box className="font-[Poppins]" sx={{ width: "100%" }}>
           <Box
