@@ -21,7 +21,7 @@ module.exports = {
         1: "#F4F4F4",
         2: "#E4E4E4",
       },
-      indigo: "#18359A",
+      indigo: "#425CBA",
     },
   },
   plugins: [],

@@ -1,3 +1,4 @@
+import * as React from "react";
 import Title from "../Title";
 import MenuButton from "../MenuButton";
 import { useRouter } from "next/router";
@@ -63,65 +64,66 @@ const Table = ({ contests }: Props) => {
       <Title className="mb-[12px]" content="Contests"></Title>
       <div className="rounded-[10px] border-[1px] border-[#425CBA]">
         <table className="w-[100%]">
-          <tr className="border-b-[1px] border-[#425CBA]">
-            {lables.map((lable) => {
+          <tbody>
+            <tr className="border-b-[1px] border-[#425CBA]">
+              {lables.map((lable) => {
+                return (
+                  <th
+                    key={lable.id}
+                    className="float-left w-[25%] text-ellipsis text-left text-[14px] text-[#425CBA] px-[20px] py-[16px]"
+                  >
+                    {lable.value}
+                  </th>
+                );
+              })}
+            </tr>
+
+            {contests.map((contest) => {
               return (
-                <th
-                  key={lable.id}
-                  className="float-left w-[25%] text-ellipsis text-left text-[14px] text-[#425CBA] px-[20px] py-[16px]"
+                <tr
+                  key={contest.id}
+                  className="border-b-[1px] border-indigo last:border-b-[0px]"
                 >
-                  {lable.value}
-                </th>
+                  <td className={rowDesign}>{contest.name}</td>
+                  <td className={rowDesign}>
+                    {getLocaleTime(contest.starts_at)}
+                  </td>
+                  <td className={rowDesign}>{contest.location}</td>
+                  <td className="float-right text-[13px] px-[20px] py-[16px]">
+                    <MenuButton
+                      menuItems={[
+                        {
+                          id: 1,
+                          title: "Contest Page",
+                          action: () => router.push(`contests/${contest.id}`),
+                        },
+                        {
+                          id: 2,
+                          title: "Send Form Notification",
+                          action: () => sendFormNotificationHandler(contest),
+                        },
+                        {
+                          id: 3,
+                          title: "Download CSV",
+                          action: () => downloadCSVHandler(contest),
+                        },
+                        {
+                          id: 4,
+                          title: "Generate Posts",
+                          action: () => router.push(`/contests/${contest.id}/generate_posts`),
+                        },
+                        {
+                          id: 5,
+                          title: "Delete",
+                          action: () => deleteHandler(contest),
+                        },
+                      ]}
+                    />
+                  </td>
+                </tr>
               );
             })}
-          </tr>
-
-          {contests.map((contest) => {
-            return (
-              <tr
-                key={contest.id}
-                className="border-b-[1px] border-[#425CBA] last:border-b-[0px]"
-              >
-                <td className={rowDesign}>{contest.name}</td>
-                <td className={rowDesign}>
-                  {getLocaleTime(contest.starts_at)}
-                </td>
-                <td className={rowDesign}>{contest.location}</td>
-                <td className="float-right text-[13px] px-[20px] py-[16px]">
-                  <MenuButton
-                    menuItems={[
-                      {
-                        id: 1,
-                        title: "Contest Page",
-                        action: () => router.push(`contests/${contest.id}`),
-                      },
-                      {
-                        id: 2,
-                        title: "Send Form Notification",
-                        action: () => sendFormNotificationHandler(contest),
-                      },
-                      {
-                        id: 3,
-                        title: "Download CSV",
-                        action: () => downloadCSVHandler(contest),
-                      },
-                      {
-                        id: 4,
-                        title: "Generate Posts",
-                        action: () =>
-                          router.push(`contests/${contest.id}/generate_posts`),
-                      },
-                      {
-                        id: 5,
-                        title: "Delete",
-                        action: () => deleteHandler(contest),
-                      },
-                    ]}
-                  />
-                </td>
-              </tr>
-            );
-          })}
+          </tbody>
         </table>
       </div>
     </div>
