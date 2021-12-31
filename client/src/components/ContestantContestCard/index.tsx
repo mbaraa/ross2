@@ -1,6 +1,13 @@
 import { getLocaleTime } from "../../utils";
 import * as React from "react";
-import { Checkbox, Dialog, FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material";
+import {
+  Checkbox,
+  Dialog,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  TextField,
+} from "@mui/material";
 import Button from "../Button";
 import Title from "../Title";
 import Team from "../../models/Team";
@@ -101,7 +108,9 @@ const ContestantContestCard = ({ contest }: Props) => {
     window.location.reload();
   };
 
-  const [contestantProfile, setCont] = React.useState<Contestant>(new Contestant());
+  const [contestantProfile, setCont] = React.useState<Contestant>(
+    new Contestant()
+  );
   React.useEffect(() => {
     (async () => {
       const c = await ContestantRequests.getProfile();
@@ -109,16 +118,22 @@ const ContestantContestCard = ({ contest }: Props) => {
     })();
   }, []);
 
-  const joinAsTeamless = async () => {
+  const [hasTeam, setHasTeam] = React.useState<boolean>(false);
 
+  React.useEffect(() => {
+    setHasTeam(
+      contestantProfile != null && (contestantProfile.team_id as number) > 1
+    );
+  }, []);
+
+  const joinAsTeamless = async () => {
     if (
       window.confirm(
         `are you sure you want to join the contest "${contest.name}" as teamless?`
       )
     ) {
       contestantProfile.gender = state.gender == "true";
-      contestantProfile.participate_with_other =
-        state.partWithOther == "true";
+      contestantProfile.participate_with_other = state.partWithOther == "true";
 
       await ContestantRequests.joinAsTeamless({
         contest: contest,
@@ -141,25 +156,28 @@ const ContestantContestCard = ({ contest }: Props) => {
         </div>
       </div>
 
-      <div
-        className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
-        onClick={openCTHandler}
-      >
-        Create Team
-      </div>
-      <div
-        className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
-        onClick={openJTHandler}
-      >
-        Join Team
-      </div>
-      <div
-        className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
-        onClick={openJTLHandler}
-      >
-        Join as Teamless
-      </div>
-
+      {hasTeam == true && (
+        <>
+          <div
+            className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
+            onClick={openCTHandler}
+          >
+            Create Team
+          </div>
+          <div
+            className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
+            onClick={openJTHandler}
+          >
+            Join Team
+          </div>
+          <div
+            className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
+            onClick={openJTLHandler}
+          >
+            Join as Teamless
+          </div>
+        </>
+      )}
       <Dialog open={openCT} onClose={closeCTHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
           <div className="mb-[28px]">
@@ -225,26 +243,38 @@ const ContestantContestCard = ({ contest }: Props) => {
             />
           </div>
 
-          <label >Select your gender: </label>
+          <label>Select your gender: </label>
           <RadioGroup
             aria-label="gender"
             name="controlled-radio-buttons-group"
             value={state.gender}
             onChange={handleChange("gender")}
           >
-            <FormControlLabel value="true" control={<Radio />} label="Male"/>
-            <FormControlLabel value="false" control={<Radio />} label="Female"/>
+            <FormControlLabel value="true" control={<Radio />} label="Male" />
+            <FormControlLabel
+              value="false"
+              control={<Radio />}
+              label="Female"
+            />
           </RadioGroup>
 
-          <label >Do you mind participating with the other gender? </label>
+          <label>Do you mind participating with the other gender? </label>
           <RadioGroup
             aria-label="gender"
             name="controlled-radio-buttons-group"
             value={state.partWithOther}
             onChange={handleChange("partWithOther")}
           >
-            <FormControlLabel value="true" control={<Radio />} label="Yes, I mind"/>
-            <FormControlLabel value="false" control={<Radio />} label="No, I don't mind"/>
+            <FormControlLabel
+              value="true"
+              control={<Radio />}
+              label="Yes, I mind"
+            />
+            <FormControlLabel
+              value="false"
+              control={<Radio />}
+              label="No, I don't mind"
+            />
           </RadioGroup>
 
           <br />
