@@ -17,17 +17,17 @@ const Profile = ({ user }: Props): React.ReactElement => {
 };
 
 const index = (): React.ReactElement => {
-    const [user, setUser] = React.useState<User>(new User());
-    React.useEffect(() => {
-        login();
-    }, []);
-    const login = async () => {
-        const u = await MicrosoftLogin.loginWithToken();
-        setUser(u);
-    };
+    // const [user, setUser] = React.useState<User>(new User());
+    // React.useEffect(() => {
+    //     login();
+    // }, []);
+    // const login = async () => {
+    //     const u = await MicrosoftLogin.loginWithToken();
+    //     setUser(u);
+    // };
 
-    return (<div className="font-[Poppins] absolute left-[0.2rem] top-[4.2em] w-full">
-        <Profile user={user}/>
+    return (<div className="font-[Poppins] absolute left-[0.2rem] top-[1.2em] w-full">
+        <Login/> 
     </div>);
 };
 
