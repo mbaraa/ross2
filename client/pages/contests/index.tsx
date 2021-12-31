@@ -15,7 +15,7 @@ const Contests = () => {
   };
 
   return (
-    <div className="p-[52px]">
+    <div>
       <Table contests={list}></Table>
     </div>
   );
