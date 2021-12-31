@@ -23,41 +23,43 @@ interface Props {
   user: User;
 }
 
-const ProfileMenu = ({ user }: Props): React.ReactElement => {
-  const router = useRouter();
+// const ProfileMenu = ({ user }: Props): React.ReactElement => {
+//   const router = useRouter();
 
-  const profileMenu = [
-    {
-      id: 1,
-      name: "Profile",
-      action: () => {
-        router.push("/profile");
-      },
-    },
-    {
-      id: 2,
-      name: "Team",
-      action: () => {
-        router.push("/team");
-      },
-    },
-    // { name: "Logout", action: () => {  } }
-  ];
+//   const profileMenu = [
+//     {
+//       id: 1,
+//       name: "Profile",
+//       action: () => {
+//         router.push("/profile");
+//       },
+//     },
+//     {
+//       id: 2,
+//       name: "Team",
+//       action: () => {
+//         router.push("/team");
+//       },
+//     },
+//     // { name: "Logout", action: () => {  } }
+//   ];
 
-  return !user ? (
-    <Login />
-  ) : (
-    <>
-      {profileMenu.map((m: any) => (
-        <MenuItem key={m.id} onClick={() => m.action()}>
-          {m.name}
-        </MenuItem>
-      ))}
-    </>
-  );
-};
+//   return !user ? (
+//     <Login />
+//   ) : (
+//     <>
+//       {profileMenu.map((m: any) => (
+//         <MenuItem key={m.id} onClick={() => m.action()}>
+//           {m.name}
+//         </MenuItem>
+//       ))}
+//     </>
+//   );
+// };
 
 const Header = (): React.ReactElement => {
+  const router = useRouter();
+
   const profileMenu = ["Profile", "Team", "Logout"];
   const [menu, setMenu] = React.useState<null | HTMLElement>(null);
   const toggleProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -122,12 +124,12 @@ const Header = (): React.ReactElement => {
               aria-label="account of current user"
               aria-controls="menu-appbar"
               aria-haspopup="true"
-              onClick={toggleProfileMenu}
+              onClick={() => router.push("/profile")}
               color="inherit"
             >
               <AccountCircle />
             </IconButton>
-            <Menu
+            {/* <Menu
               anchorEl={menu}
               anchorOrigin={{
                 vertical: "top",
@@ -142,7 +144,7 @@ const Header = (): React.ReactElement => {
               onClose={closeMenu}
             >
               <ProfileMenu user={user} />
-            </Menu>
+            </Menu> */}
 
             <a href="/about">
               <IconButton>

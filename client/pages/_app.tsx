@@ -16,7 +16,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     })();
   }, []);
 
-  //console.log(user);
+  console.log(user);
 
   return (
     <>

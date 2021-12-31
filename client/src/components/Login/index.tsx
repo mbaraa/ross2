@@ -5,6 +5,7 @@ import * as React from "react";
 import Button from "@mui/material/Button";
 
 const Login = (): React.ReactElement => {
+<<<<<<< HEAD
   // let msal: any = null;
   // try {
   //     msal = JSON.parse(localStorage.getItem("msal") as string);
@@ -28,6 +29,25 @@ const Login = (): React.ReactElement => {
     }
     // console.log(authData.account);
     await MSLogin.login(authData);
+=======
+  const [browser, setBrowser] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    setBrowser(true);
+  }, [process.browser]);
+
+  const loginHandler = (error: any, authData: any, msalInstance: any) => {
+    // console.log("data", error);
+    // console.log("data", authData);
+    // console.log("data", msalInstance);
+    // if (!error) {
+    //   console.error(error);
+    //   return;
+    // }
+
+    (async () => {
+      await MSLogin.login(authData);
+    })();
+>>>>>>> c34836f0c50c86ab867bd1378a1ccd4bff67ae42
   };
 
   return (

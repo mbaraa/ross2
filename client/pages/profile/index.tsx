@@ -15,6 +15,7 @@ const Profile = ({ user }: Props) => {
     team: { id: 1, name: "Team 1" },
   };
 
+<<<<<<< HEAD
   if (u === 0) {
     return <div>Loading</div>;
   } else if (u === null) {
@@ -38,6 +39,21 @@ const Profile = ({ user }: Props) => {
   }
 
   return <div>hey {u.name}</div>;
+=======
+const index = (): React.ReactElement => {
+    // const [user, setUser] = React.useState<User>(new User());
+    // React.useEffect(() => {
+    //     login();
+    // }, []);
+    // const login = async () => {
+    //     const u = await MicrosoftLogin.loginWithToken();
+    //     setUser(u);
+    // };
+
+    return (<div className="font-[Poppins] absolute left-[0.2rem] top-[1.2em] w-full">
+        <Login/> 
+    </div>);
+>>>>>>> c34836f0c50c86ab867bd1378a1ccd4bff67ae42
 };
 
 export default Profile;
