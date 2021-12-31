@@ -83,6 +83,7 @@ const Table = ({ contests }: Props) => {
                 <tr
                   key={contest.id}
                   className="border-b-[1px] border-indigo last:border-b-[0px]"
+                  onClick={() => {router.push(`contests/${contest.id}`);}}
                 >
                   <td className={rowDesign}>{contest.name}</td>
                   <td className={rowDesign}>

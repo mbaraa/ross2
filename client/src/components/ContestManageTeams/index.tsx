@@ -47,9 +47,9 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
         </div>
       </Dialog>
 
-      <div className="w-[100%] inline-block mb-[12px]">
+      <div className="w-[100%] inline-block mb-[12px] pt-1">
         <Button
-          className="float-right"
+          className="float-left"
           onClick={() => setOpen(true)}
           content="View Teamless"
         />

@@ -10,6 +10,7 @@ import OrganizerRequests from "../../utils/requests/OrganizerRequests";
 import Contest from "../../models/Contest";
 import Team from "../../models/Team";
 import Contestant from "../../models/Contestant";
+import ContestManageTeams from "../ContestManageTeams";
 
 interface Props {
   id: number;
@@ -120,6 +121,8 @@ const ContestGenerateTeams = ({ id }: Props) => {
         content="Generate Teams"
         onClick={() => openHandler()}
       />
+
+      {generated == true && <ContestManageTeams teams={genTeams} teamless={teamless}/>}
 
       <Dialog open={open} onClose={closeHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
