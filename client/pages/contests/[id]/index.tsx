@@ -8,6 +8,7 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import ContestGenerateTeams from "../../../src/components/ContestGenerateTeams";
+import ContestManageTeams from "../../../src/components/ContestManageTeams";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -64,8 +65,7 @@ const Contest = () => {
       parseInt(router.query["id"] as string)
     );
 
-    console.log(router.query["id"]);
-
+    console.log(c);
     setContest(c);
   };
 
@@ -87,13 +87,18 @@ const Contest = () => {
               <Tab className="capitalize " label="About" {...a11yProps(0)} />
               <Tab
                 className="capitalize"
-                label="Generate Teams"
+                label="Generate Posts"
                 {...a11yProps(1)}
               />
               <Tab
                 className="capitalize"
-                label="Manage Teams"
+                label="Generate Teams"
                 {...a11yProps(2)}
+              />
+              <Tab
+                className="capitalize"
+                label="Manage Teams"
+                {...a11yProps(3)}
               />
             </Tabs>
           </Box>
@@ -101,10 +106,16 @@ const Contest = () => {
             Under Building
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <ContestGenerateTeams id={contest.id} />
+            Under building
           </TabPanel>
           <TabPanel value={value} index={2}>
-            Item Three
+            <ContestGenerateTeams id={contest.id} />
+          </TabPanel>
+          <TabPanel value={value} index={3}>
+            <ContestManageTeams
+              teams={contest.teams}
+              teamless={contest.teamless_contestants}
+            />
           </TabPanel>
         </Box>
       </div>

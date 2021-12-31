@@ -109,11 +109,6 @@ const Table = ({ contests }: Props) => {
                         },
                         {
                           id: 4,
-                          title: "Generate Posts",
-                          action: () => router.push(`/contests/${contest.id}/generate_posts`),
-                        },
-                        {
-                          id: 5,
                           title: "Delete",
                           action: () => deleteHandler(contest),
                         },
