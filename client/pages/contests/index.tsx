@@ -17,6 +17,7 @@ const Contests = ({ user }: Props) => {
 
   const setConts = async () => {
     const c = await Contest.getContestsFromServer();
+    console.log(c);
     setList(c);
   };
 
@@ -24,14 +25,14 @@ const Contests = ({ user }: Props) => {
     return <div>Loading</div>;
   } else if (
     user === null ||
-    (user.user_type_base & UserType.Contestant) !== 0
+    (user.user_type_base & UserType.Organizer) !== 0
   ) {
-    return <ContestContestantCards contests={list} />;
+    return <Table contests={list}></Table>;
   }
 
   return (
     <div>
-      <Table contests={list}></Table>
+      <ContestContestantCards contests={list} />
     </div>
   );
 };
