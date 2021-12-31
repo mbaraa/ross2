@@ -103,7 +103,7 @@ const Header = (): React.ReactElement => {
         className="border-b-[1px] border-lwhite"
       >
         <Toolbar className="relative bg-white text-ross2 font-bold text-[1.5em]">
-          <a href="/profile">
+          <a href="/">
             <img
               src="/logo192.png"
               alt="Ross 2"
