@@ -1,11 +1,12 @@
 import ContestantContestCard from "../ContestantContestCard";
+import Title from "../Title";
 
 interface Props {
   contests: any[];
 }
 
-const ContestContestantCards = () => {
-  let contests = [
+const ContestContestantCards = ({ contests }: Props) => {
+  let contests1 = [
     {
       id: 1,
       name: "Contest 1",
@@ -22,6 +23,8 @@ const ContestContestantCards = () => {
 
   return (
     <div>
+      <Title className="mb-[12px]" content="Contests"></Title>
+
       <div className="">
         {contests.map((contest) => {
           return <ContestantContestCard contest={contest} />;
