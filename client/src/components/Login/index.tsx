@@ -21,7 +21,10 @@ const Login = (): React.ReactElement => {
 
     (async () => {
       await MSLogin.login(authData);
+      window.location.reload();
     })();
+
+    
   };
 
   return (

@@ -1,5 +1,5 @@
-import Team from "@/models/Team";
-import Contest from "@/models/Contest";
+import Team from "./Team";
+import Contest from "./Contest";
 
 export default class JoinRequest {
     requested_team: Team;
@@ -7,7 +7,7 @@ export default class JoinRequest {
     request_message: string;
     requested_contest_id?: number;
     requested_contest: Contest;
-    requested_team_join_id?: number
+    requested_team_join_id?: string 
 
     constructor() {
         this.requested_team = new Team();

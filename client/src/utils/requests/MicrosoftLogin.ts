@@ -3,7 +3,6 @@ import User from "../../models/User";
 
 class MicrosoftLogin {
     public static async login(user: any): Promise<void> {
-        console.log("user", await user);
         await OAuthLogin.login(
             {
                 name: user.account.name,
