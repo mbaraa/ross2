@@ -6,7 +6,7 @@ class MicrosoftLogin {
         await OAuthLogin.login(
             {
                 name: user.account.name,
-                email: user.account.username,
+                email: user.account.userName,
             },
             user.idToken,
             "msauth");
