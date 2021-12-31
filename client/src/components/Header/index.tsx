@@ -18,6 +18,7 @@ import MicrosoftLogin from "../../utils/requests/MicrosoftLogin";
 import User from "../../models/User";
 import Login from "../Login";
 import { useRouter } from "next/router";
+import Notifications from "../Notifications";
 
 interface Props {
   user: User;
@@ -69,15 +70,6 @@ const Header = (): React.ReactElement => {
     setMenu(null);
   };
 
-  const [nots, setNots] = React.useState<Notification[]>([]);
-  React.useEffect(() => {
-    setNotifications();
-  }, []);
-  const setNotifications = async () => {
-    const n = await NotificationRequests.getNotifications();
-    setNots(n);
-  };
-
   const [team, setTeam] = React.useState<Team>(new Team());
   React.useEffect(() => {
     setteam();
@@ -113,11 +105,12 @@ const Header = (): React.ReactElement => {
             />
           </a>
           <div className="absolute right-[10px]">
-            <IconButton size="large" aria-label="notifications">
+            {/* <IconButton size="large" aria-label="notifications">
               <Badge badgeContent={nots.length} color="error">
                 <NotificationsIcon className="text-ross2" />
               </Badge>
-            </IconButton>
+            </IconButton> */}
+            <Notifications/>
 
             <IconButton
               size="large"

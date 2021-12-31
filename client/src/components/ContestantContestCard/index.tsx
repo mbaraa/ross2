@@ -157,7 +157,7 @@ const ContestantContestCard = ({ contest }: Props) => {
         className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
         onClick={openJTLHandler}
       >
-        Joain as Teamless
+        Join as Teamless
       </div>
 
       <Dialog open={openCT} onClose={closeCTHandler}>
@@ -255,7 +255,7 @@ const ContestantContestCard = ({ contest }: Props) => {
               content="Cancel"
               onClick={closeJTLHandler}
             />
-            <Button className="" content="Generate" onClick={joinAsTeamless} />
+            <Button className="" content="Register" onClick={joinAsTeamless} />
           </div>
         </div>
       </Dialog>
