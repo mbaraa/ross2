@@ -5,7 +5,7 @@ import Contestant from "../../src/models/Contestant";
 import User, { UserType } from "../../src/models/User";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
 import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
-import { useRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import Title from "../../src/components/Title";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 }
 
 const Profile = ({ user }: Props) => {
-  const router = useRouter();
+  const router = useHistory();
 
   let u = {
     id: 48,
@@ -36,7 +36,7 @@ const Profile = ({ user }: Props) => {
   } else if (user === null) {
     return (
       <div>
-        <Title className="mb-[8px]" content="You need to Login first." />
+        <Title className="mb-[8px]" content="You need to Login first!" />
         <Login />
       </div>
     );
@@ -66,7 +66,7 @@ const Profile = ({ user }: Props) => {
             (async () => {
               await MicrosoftLogin.logout(user);
             })();
-            router.reload();
+            router.go(0);
           }}
         />
       </div>

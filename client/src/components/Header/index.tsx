@@ -10,16 +10,13 @@ import {
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { Info } from "@mui/icons-material";
-import Notification from "../../models/Notification";
-import NotificationRequests from "../../utils/requests/NotificationRequests";
 import Team from "../../models/Team";
 import ContestantRequests from "../../utils/requests/ContestantRequests";
 import MicrosoftLogin from "../../utils/requests/MicrosoftLogin";
 import User from "../../models/User";
 import Login from "../Login";
-import { useRouter } from "next/router";
 import Notifications from "../Notifications";
-import Link from "next/link";
+import { Link, useHistory } from "react-router-dom";
 
 interface Props {
   user: User;
@@ -60,7 +57,7 @@ interface Props {
 // };
 
 const Header = (): React.ReactElement => {
-  const router = useRouter();
+  const router = useHistory();
 
   const profileMenu = ["Profile", "Team", "Logout"];
   const [menu, setMenu] = React.useState<null | HTMLElement>(null);
@@ -98,14 +95,12 @@ const Header = (): React.ReactElement => {
         className="border-b-[1px] border-lwhite"
       >
         <Toolbar className="relative bg-white text-ross2 font-bold text-[1.5em]">
-          <Link href="/">
-          <a>
+          <Link to="/">
             <img
               src="/logo192.png"
               alt="Ross 2"
               className="h-12 w-12 bg-lwhite-2 border-lwhite-1 border-[0.5px] rounded-full mr-2 cursor-pointer hover:opacity-60"
             />
-          </a>
           </Link>
           <div className="absolute right-[10px]">
             {/* <IconButton size="large" aria-label="notifications">
@@ -113,18 +108,19 @@ const Header = (): React.ReactElement => {
                 <NotificationsIcon className="text-ross2" />
               </Badge>
             </IconButton> */}
-            <Notifications/>
+            <Notifications />
 
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={() => router.push("/profile")}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
+            <Link to="/profile">
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+            </Link>
             {/* <Menu
               anchorEl={menu}
               anchorOrigin={{
@@ -142,12 +138,10 @@ const Header = (): React.ReactElement => {
               <ProfileMenu user={user} />
             </Menu> */}
 
-            <Link href="/about">
-            <a>
+            <Link to="/about">
               <IconButton>
                 <Info className="text-ross2" />
               </IconButton>
-            </a>
             </Link>
           </div>
         </Toolbar>

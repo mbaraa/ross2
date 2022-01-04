@@ -1,7 +1,7 @@
 import * as React from "react";
-import Link from "next/link";
+import { Link, useRouteMatch } from "react-router-dom";
 
-const index = () => {
+const About = () => {
   let list = [
     {
       id: 1,
@@ -51,6 +51,8 @@ const index = () => {
     },
   ];
 
+  const match = useRouteMatch("/about");
+
   return (
     <div>
       <ul className="space-y-[12px] list-disc">
@@ -59,7 +61,7 @@ const index = () => {
             <li className="font-[12px] text-[#000] font-[400]" key={i.id}>
               <div className="mr-[8px] float-left">{i.text}</div>
 
-              <Link href={`${i.link}`}>
+              <Link to={`${i.link}`}>
                 <a className="underline text-ross2">{i.link}</a>
               </Link>
             </li>
@@ -70,4 +72,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default About;

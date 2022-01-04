@@ -1,7 +1,7 @@
 import * as React from "react";
 import Title from "../Title";
 import MenuButton from "../MenuButton";
-import { useRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import Contest from "../../models/Contest";
 import { getLocaleTime } from "../../utils";
 import OrganizerRequests from "../../utils/requests/OrganizerRequests";
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const Table = ({ contests }: Props) => {
-  const router = useRouter();
+  const router = useHistory();
 
   let lables = [
     { id: 1, value: "Name" },

@@ -21,6 +21,10 @@ const Contests = ({ user }: Props) => {
     setList(c);
   };
 
+  if (list.length === 0) {
+    return <h1 className="text-ross2 font-bold text-[2rem]">No contests are available at this time</h1>;
+  }
+
   if (user === 0) {
     return <div>Loading</div>;
   } else if (
@@ -30,11 +34,7 @@ const Contests = ({ user }: Props) => {
     return <Table contests={list}></Table>;
   }
 
-  return (
-    <div>
-      <ContestContestantCards contests={list} />
-    </div>
-  );
+  return <ContestContestantCards contests={list} />;
 };
 
 export default Contests;

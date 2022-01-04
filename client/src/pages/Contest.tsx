@@ -1,14 +1,14 @@
-import { useRouter } from "next/router";
+import { useHistory, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { default as Contest2 } from "../../../src/models/Contest";
-import Title from "../../../src/components/Title";
+import { default as Contest2 } from "../models/Contest";
+import Title from "../components/Title";
 import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import ContestGenerateTeams from "../../../src/components/ContestGenerateTeams";
-import ContestManageTeams from "../../../src/components/ContestManageTeams";
+import ContestGenerateTeams from "../components/ContestGenerateTeams";
+import ContestManageTeams from "../components/ContestManageTeams";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -44,7 +44,7 @@ function a11yProps(index: number) {
 }
 
 const Contest = () => {
-  const router = useRouter();
+  const router = useHistory();
 
   const [value, setValue] = React.useState(0);
 
@@ -54,16 +54,16 @@ const Contest = () => {
 
   const [contest, setContest] = useState<Contest2>(new Contest2());
 
+  const { id }: any = useParams();
+
   useEffect(() => {
-    if (router.query["id"] !== undefined) {
+    if (id !== undefined) {
       setCont();
     }
-  }, [router.query["id"]]);
+  }, [id]);
 
   const setCont = async () => {
-    const c = await Contest2.getContestFromServer(
-      parseInt(router.query["id"] as string)
-    );
+    const c = await Contest2.getContestFromServer(parseInt(id as string));
 
     console.log(c);
     setContest(c);
@@ -72,7 +72,7 @@ const Contest = () => {
   if (contest.id) {
     return (
       <div>
-        <Title content={contest.name} className=""/>
+        <Title content={contest.name} className="" />
 
         <Box className="font-[Poppins]" sx={{ width: "100%" }}>
           <Box

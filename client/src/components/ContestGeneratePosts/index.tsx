@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { useHistory, useParams } from "react-router-dom";
 import * as React from "react";
 import Contest from "../../../src/models/Contest";
 import {
@@ -24,14 +24,15 @@ class FieldProps {
   }
 }
 
-const GeneratePosts = (): React.ReactElement => {
-  const router = useRouter();
+const ContestGeneratePosts = (): React.ReactElement => {
+  const router = useHistory();
+  const { id }: any = useParams();
 
   const [contest, setCont] = React.useState<Contest>(new Contest());
   React.useEffect(() => {
     (async () => {
       const c = await Contest.getContestFromServer(
-        parseInt(router.query["id"] as string)
+        parseInt(id as string)
       );
       setCont(c);
     })();
@@ -225,4 +226,4 @@ const GeneratePosts = (): React.ReactElement => {
   );
 };
 
-export default GeneratePosts;
+export default ContestGeneratePosts;
