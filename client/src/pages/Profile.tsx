@@ -66,7 +66,6 @@ const Profile = ({ user }: Props) => {
             (async () => {
               await MicrosoftLogin.logout(user);
             })();
-            router.go(0);
           }}
         />
       </div>

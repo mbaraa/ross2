@@ -1,13 +1,15 @@
 import React from "react";
-import { Router, Switch, Route } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import About from "./pages/About";
 import Contests from "./pages/Contests";
 import Profile from "./pages/Profile";
 import MicrosoftLogin from "./utils/requests/MicrosoftLogin";
 import Header from "./components/Header";
+import Contest from "./pages/Contest";
+import User from "./models/User";
 
 function App() {
-  const [user, setUser] = React.useState<any>(0);
+  const [user, setUser] = React.useState<User>(new User());
 
   React.useEffect(() => {
     (async () => {
@@ -23,6 +25,10 @@ function App() {
       <Switch>
         <Route exact path="/">
           <Contests user={user} />
+        </Route>
+
+        <Route path="/contest/:id">
+          <Contest />
         </Route>
 
         <Route path="/profile">

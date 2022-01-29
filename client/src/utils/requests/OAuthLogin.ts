@@ -47,6 +47,9 @@ class OAuthLogin {
     }
 
     public static async logout(user: User, oauthAPIEndpoint: string): Promise<void> {
+        await localStorage.clear();
+        await sessionStorage.clear();
+
         await fetch(`${config.backendAddress}/${oauthAPIEndpoint}/logout/`, {
             method: "POST",
             mode: "cors",
@@ -58,6 +61,7 @@ class OAuthLogin {
             .catch(err => console.error(err));
 
         localStorage.removeItem("token");
+        window.location.reload();
     }
 }
 

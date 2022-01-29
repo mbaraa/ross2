@@ -95,7 +95,7 @@ const Table = ({ contests }: Props) => {
                         {
                           id: 1,
                           title: "Contest Page",
-                          action: () => router.push(`contests/${contest.id}`),
+                          action: () => router.push(`contest/${contest.id}`),
                         },
                         {
                           id: 2,
