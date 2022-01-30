@@ -13,7 +13,7 @@ class OAuthLogin {
             }
         )
             .then(resp => {
-                if (resp.status != 200) {
+                if (resp.status !== 200) {
                     return null;
                 }
                 return resp.json()

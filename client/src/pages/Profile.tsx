@@ -1,11 +1,8 @@
 import Button from "../../src/components/Button";
 import * as React from "react";
 import Login from "../../src/components/Login";
-import Contestant from "../../src/models/Contestant";
-import User, { UserType } from "../../src/models/User";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
 import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
-import { useHistory } from "react-router-dom";
 import Title from "../../src/components/Title";
 
 interface Props {
@@ -13,15 +10,6 @@ interface Props {
 }
 
 const Profile = ({ user }: Props) => {
-  const router = useHistory();
-
-  let u = {
-    id: 48,
-    name: "Akram",
-    user_type_base: 2,
-    team: { id: 1, name: "Team 1" },
-  };
-
   const [cont, setCont] = React.useState<any>(0);
 
   React.useEffect(() => {

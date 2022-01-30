@@ -5,7 +5,7 @@ import Contest from "../../src/models/Contest";
 import User, { UserType } from "../../src/models/User";
 
 interface Props {
-  user: any;
+  user: User;
 }
 
 const Contests = ({ user }: Props) => {

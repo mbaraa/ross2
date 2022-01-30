@@ -8,6 +8,7 @@ const Login = (): React.ReactElement => {
     <MicrosoftLogin
       clientId={config.msalConfig.auth.clientId}
       authCallback={(error: any, authData: any, msalInstance: any) => {
+        window.alert(error);
         (async () => {
           await MSLogin.login(authData);
           window.location.reload();

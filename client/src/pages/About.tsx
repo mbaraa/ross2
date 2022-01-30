@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Link, useRouteMatch } from "react-router-dom";
 
-const About = () => {
+const About = (): React.ReactElement => {
   let list = [
     {
       id: 1,
@@ -20,8 +19,8 @@ const About = () => {
     },
     {
       id: 4,
-      text: "Next JS - Frontend",
-      link: "https://nextjs.org",
+      text: "ReactJS - Frontend",
+      link: "https://reactjs.org",
     },
     {
       id: 5,
@@ -51,8 +50,6 @@ const About = () => {
     },
   ];
 
-  const match = useRouteMatch("/about");
-
   return (
     <div>
       <ul className="space-y-[12px] list-disc">
@@ -61,9 +58,9 @@ const About = () => {
             <li className="font-[12px] text-[#000] font-[400]" key={i.id}>
               <div className="mr-[8px] float-left">{i.text}</div>
 
-              <Link to={`${i.link}`}>
-                <a className="underline text-ross2">{i.link}</a>
-              </Link>
+              <a href={`${i.link}`} className="text-ross2" target="_blank" rel="noreferrer">
+                {i.link}
+              </a>
             </li>
           );
         })}

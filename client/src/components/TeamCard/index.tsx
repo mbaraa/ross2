@@ -1,8 +1,7 @@
-import { CardMembership } from "@mui/icons-material";
-import { PropsWithRef } from "react";
+import Team from "../../models/Team";
 
 interface Props {
-  team: any;
+  team: Team;
 }
 
 const TeamCard = ({ team }: Props) => {

@@ -22,19 +22,6 @@ const Table = ({ contests }: Props) => {
   let rowDesign =
     "float-left text-ellipsis text-[13px] w-[25%] font-[400] text-[#425CBA] px-[20px] py-[16px]";
 
-  const menuHandler = (id: number) => {
-    return console.log(id);
-  };
-
-  let contests1 = [
-    {
-      id: 1,
-      name: "Contessss1",
-      start_at: 123456788,
-      location: "Amman - Jordan",
-    },
-  ];
-
   const sendFormNotificationHandler = async (contest: Contest) => {
     await OrganizerRequests.sendContestOverNotifications(contest);
   };

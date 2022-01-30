@@ -1,9 +1,6 @@
 import Button from "../Button";
 import * as React from "react";
-import { Dialog, Input, TextField } from "@mui/material";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
+import { Dialog, TextField } from "@mui/material";
 import Title from "../Title";
 import Dropdown from "../Dropdown";
 import OrganizerRequests from "../../utils/requests/OrganizerRequests";
@@ -75,8 +72,8 @@ const ContestGenerateTeams = ({ id }: Props) => {
 
   const checkNamesFile = (): boolean => {
     return (
-      selectedType != "given" ||
-      (selectedType == "given" && namesFile !== undefined)
+      selectedType !== "given" ||
+      (selectedType === "given" && namesFile !== undefined)
     );
   };
 
@@ -93,7 +90,7 @@ const ContestGenerateTeams = ({ id }: Props) => {
         readNamesFile()
       );
 
-    if (generateTeams.length == 0 && leftTeamless == null) {
+    if (generateTeams.length === 0 && leftTeamless == null) {
       setNoTeamless(true);
       return;
     }
@@ -122,7 +119,7 @@ const ContestGenerateTeams = ({ id }: Props) => {
         onClick={() => openHandler()}
       />
 
-      {generated == true && <ContestManageTeams teams={genTeams} teamless={teamless}/>}
+      {generated && <ContestManageTeams teams={genTeams} teamless={teamless}/>}
 
       <Dialog open={open} onClose={closeHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">

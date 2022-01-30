@@ -1,4 +1,4 @@
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { default as Contest2 } from "../models/Contest";
 import Title from "../components/Title";
@@ -44,8 +44,6 @@ function a11yProps(index: number) {
 }
 
 const Contest = () => {
-  const router = useHistory();
-
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -58,16 +56,14 @@ const Contest = () => {
 
   useEffect(() => {
     if (id !== undefined) {
-      setCont();
+      (async () => {
+        const c = await Contest2.getContestFromServer(parseInt(id as string));
+
+        console.log(c);
+        setContest(c);
+      })();
     }
   }, [id]);
-
-  const setCont = async () => {
-    const c = await Contest2.getContestFromServer(parseInt(id as string));
-
-    console.log(c);
-    setContest(c);
-  };
 
   if (contest.id) {
     return (

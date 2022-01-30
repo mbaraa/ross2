@@ -1,7 +1,6 @@
 import { getLocaleTime } from "../../utils";
 import * as React from "react";
 import {
-  Checkbox,
   Dialog,
   FormControlLabel,
   Radio,
@@ -21,7 +20,7 @@ interface Props {
 }
 
 const ContestantContestCard = ({ contest }: Props) => {
-  const [team, setTeam] = React.useState<Team>(new Team());
+  const [team, ] = React.useState<Team>(new Team());
 
   interface State {
     teamName: string;
@@ -132,8 +131,8 @@ const ContestantContestCard = ({ contest }: Props) => {
         `are you sure you want to join the contest "${contest.name}" as teamless?`
       )
     ) {
-      contestantProfile.gender = state.gender == "true";
-      contestantProfile.participate_with_other = state.partWithOther == "true";
+      contestantProfile.gender = state.gender === "true";
+      contestantProfile.participate_with_other = state.partWithOther === "true";
 
       await ContestantRequests.joinAsTeamless({
         contest: contest,
