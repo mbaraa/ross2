@@ -47,18 +47,3 @@ func (c *Contestant) BeforeCreate(db *gorm.DB) error {
 	c.Team = Team{ID: 1}
 	return nil
 }
-
-// ContestantSortable is just a sortable by creation date Contestant slice
-type ContestantSortable []Contestant
-
-func (t ContestantSortable) Less(i, j int) bool {
-	return t[i].TeamlessedAt.Before(t[j].TeamlessedAt)
-}
-
-func (t ContestantSortable) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
-}
-
-func (t ContestantSortable) Len() int {
-	return len(t)
-}

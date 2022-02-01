@@ -88,9 +88,12 @@ func deleteLastAddedTeamless(teamless []models.Contestant, min uint) []models.Co
 	var (
 		conts       = len(teamless)
 		leftConts   = conts % int(min)
-		sortedConts = models.ContestantSortable(teamless)
+		sortedConts = []models.Contestant(teamless)
 	)
-	sort.Sort(sortedConts)
+
+	sort.Slice(sortedConts, func(i, j int) bool {
+		return sortedConts[i].TeamlessedAt.Before(sortedConts[j].TeamlessedAt)
+	})
 
 	for i := conts - leftConts; i < conts; i++ {
 		leftMembers[sortedConts[i].User.ID] = false

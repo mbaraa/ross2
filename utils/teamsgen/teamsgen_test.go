@@ -1,7 +1,6 @@
 package teamsgen
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -123,7 +122,7 @@ func logTeams(teams []models.Team, t *testing.T) {
 		t.Logf("team %s member's count: %d", team.Name, len(team.Members))
 		t.Log("members:")
 		for _, cont := range team.Members {
-			t.Logf("name: %s, uni_id: %s", cont.User.Name, cont.UniversityID)
+			t.Logf("name: %s, email: %s", cont.User.Name, cont.User.Email)
 		}
 		t.Log()
 	}
@@ -165,9 +164,9 @@ func createRandomContestants(numConts uint) []models.Contestant {
 
 		conts[contI] = models.Contestant{
 			User: models.User{
-				Name: uuid.New().String(),
+				Name:  uuid.New().String(),
+				Email: uuid.New().String(),
 			},
-			UniversityID:               fmt.Sprint(rand.Intn(9000000) + 1000000),
 			Major:                      enums.MajorAny,
 			TeamlessedAt:               time.Now(),
 			Gender:                     gender,
