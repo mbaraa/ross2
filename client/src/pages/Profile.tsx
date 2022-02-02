@@ -34,21 +34,21 @@ const Profile = ({ user }: Props) => {
     <div className="flex justify-center items-center font-Ropa">
       <div className=" grid grid-cols-1">
         <div className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] w-[348px]">
-          <div className="text-[13px] text-[#425CBA] space-y-[4px]">
+          <div className="text-[16px] text-[#425CBA] space-y-[4px]">
             Your Name: {user.name}
           </div>
         </div>
 
         {cont !== 0 && cont.team.name !== "" && (
           <div className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] w-[348px]">
-            <div className="text-[13px] text-[#425CBA] space-y-[4px]">
+            <div className="text-[16px] text-[#425CBA] space-y-[4px]">
               Team Name: {cont.team.name}
             </div>
           </div>
         )}
 
         <Button
-          className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646] text-center"
+          className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646] text-center text-[16px]"
           content="Logout"
           onClick={() => {
             (async () => {
