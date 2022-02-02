@@ -11,7 +11,7 @@ const Header = (): React.ReactElement => {
       <AppBar
         position="fixed"
         elevation={0}
-        className="border-b-[1px] border-lwhite"
+        className="border-b-[1px] border-lwhite font-Ropa"
       >
         <Toolbar className="relative bg-white text-ross2 font-bold text-[1.5em]">
           <Link to="/">

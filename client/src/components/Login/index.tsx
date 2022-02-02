@@ -5,21 +5,23 @@ import * as React from "react";
 
 const Login = (): React.ReactElement => {
   return (
-    <MicrosoftLogin
-      clientId={config.msalConfig.auth.clientId}
-      authCallback={(error: any, authData: any, msalInstance: any) => {
-        window.alert(error);
-        (async () => {
-          await MSLogin.login(authData);
-          window.location.reload();
-        })();
-      }}
-      graphScopes={config.msalConfig.scopes}
-      redirectUri={config.msalConfig.auth.redirectUri}
-      buttonTheme="light_short"
-      tenantUrl={config.msalConfig.auth.authority}
-      prompt="select_account"
-    />
+    <div className="font-Ropa">
+      <MicrosoftLogin
+        clientId={config.msalConfig.auth.clientId}
+        authCallback={(error: any, authData: any, msalInstance: any) => {
+          // window.alert(error);
+          (async () => {
+            await MSLogin.login(authData);
+            window.location.reload();
+          })();
+        }}
+        graphScopes={config.msalConfig.scopes}
+        redirectUri={config.msalConfig.auth.redirectUri}
+        buttonTheme="light_short"
+        tenantUrl={config.msalConfig.auth.authority}
+        prompt="select_account"
+      />
+    </div>
   );
 };
 

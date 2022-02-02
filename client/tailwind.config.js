@@ -4,7 +4,12 @@ module.exports = {
   mode: "jit",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    // extend: {},
+    extend: {
+      fontFamily: {
+				Ropa: ["Ropa", "sans-serif"],
+				RopaItalic: ["RopaItalic", "sans-serif"],
+			},
+    },
     colors: {
       transparent: "transparent",
       current: "currentColor",
@@ -25,4 +30,7 @@ module.exports = {
     },
   },
   plugins: [],
+  corePlugins: {
+    fontFamily: true,
+  },
 };

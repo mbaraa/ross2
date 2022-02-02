@@ -31,7 +31,7 @@ const Profile = ({ user }: Props) => {
   }
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center font-Ropa">
       <div className=" grid grid-cols-1">
         <div className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] w-[348px]">
           <div className="text-[13px] text-[#425CBA] space-y-[4px]">

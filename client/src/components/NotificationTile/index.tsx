@@ -32,7 +32,7 @@ const NotificationTitle = ({ notification }: Props): React.ReactElement => {
   };
 
   return (
-    <div className="text-center rounded-[5px] border-indigo p-[10px] m-[10px] text-indigo">
+    <div className="text-center rounded-[5px] border-ross2 p-[10px] m-[10px] text-ross2 font-Ropa">
       {/* <!-- non-request --> */}
       <div className="content" v-html="filterContent()"> {filterContent()}</div>
       <div dangerouslySetInnerHTML={{ __html: filterContent()}}>
@@ -48,7 +48,7 @@ const NotificationTitle = ({ notification }: Props): React.ReactElement => {
         &nbsp;
         <Button
           content="Reject"
-          className="border-red-800 text-red-800"
+          className="border-red-800 text-red-800 hover:bg-red-800"
           onClick={waReq}
         />
       </div>

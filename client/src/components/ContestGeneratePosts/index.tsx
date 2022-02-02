@@ -145,9 +145,9 @@ const ContestGeneratePosts = (): React.ReactElement => {
   const [memberNumber, setMemberNumber] = React.useState<number>(0);
 
   return (
-    <div>
+    <>
       {/* <Dialog open={postsGenDialog} onClose={closePostsGenDialog}> */}
-        <p className="text-[Poppins] text-indigo font-[600]">
+        <p className="text-[Poppins] text-indigo font-[600] font-Ropa">
           Generate Teams Posts
         </p>
         {/* <DialogContent className="text-[Poppins]"> */}
@@ -222,7 +222,7 @@ const ContestGeneratePosts = (): React.ReactElement => {
           <Button onClick={closePostsGenDialog}>Subscribe</Button>
         {/* </DialogActions> */}
       {/* </Dialog> */}
-    </div>
+    </>
   );
 };
 

@@ -20,7 +20,7 @@ const Contests = ({ user }: Props) => {
 
   if (contests.length === 0) {
     return (
-      <h1 className="text-ross2 font-bold text-[2rem]">
+      <h1 className="text-ross2 font-bold text-[2rem] font-Ropa">
         No contests are available at this time
       </h1>
     );

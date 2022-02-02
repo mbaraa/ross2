@@ -13,7 +13,7 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div>
+    <div className="font-Ropa">
       <Dialog open={open} onClose={() => setOpen(false)}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
           <div className="mb-[28px]">

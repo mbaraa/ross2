@@ -67,7 +67,7 @@ const Contest = () => {
 
   if (contest.id) {
     return (
-      <div>
+      <div className="font-Ropa">
         <Title content={contest.name} className="" />
 
         <Box className="font-[Poppins]" sx={{ width: "100%" }}>

@@ -144,7 +144,7 @@ const ContestantContestCard = ({ contest }: Props) => {
   };
 
   return (
-    <div className="float-left border-[1px] border-[#425CBA] rounded h-auto inline-block w-[280px] ml-[16px] mb-[16px]">
+    <div className="float-left border-[1px] font-Ropa border-[#425CBA] rounded h-auto inline-block w-[280px] ml-[16px] mb-[16px]">
       <div className="p-[28px] ">
         <img alt={contest.name} src={`${config.backendAddress}${contest.logo_path}`} 
           className="rounded-full w-[75px] h-[75px] inline"/>

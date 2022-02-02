@@ -20,7 +20,7 @@ const Table = ({ contests }: Props) => {
   ];
 
   let rowDesign =
-    "float-left text-ellipsis text-[13px] w-[25%] font-[400] text-[#425CBA] px-[20px] py-[16px]";
+    "float-left text-ellipsis text-[13px] w-[25%] font-[400] text-[#425CBA] px-[20px] py-[16px] font-Ropa";
 
   const sendFormNotificationHandler = async (contest: Contest) => {
     await OrganizerRequests.sendContestOverNotifications(contest);
@@ -69,14 +69,14 @@ const Table = ({ contests }: Props) => {
               return (
                 <tr
                   key={contest.id}
-                  className="border-b-[1px] border-indigo last:border-b-[0px]"
+                  className="border-b-[1px] border-indigo last:border-b-[0px] font-Ropa"
                 >
                   <td className={rowDesign}>{contest.name}</td>
                   <td className={rowDesign}>
                     {getLocaleTime(contest.starts_at)}
                   </td>
                   <td className={rowDesign}>{contest.location}</td>
-                  <td className="float-right text-[13px] px-[20px] py-[16px]">
+                  <td className="float-right text-[13px] px-[20px] py-[16px] font-Ropa">
                     <MenuButton
                       menuItems={[
                         {

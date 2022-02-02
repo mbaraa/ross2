@@ -25,7 +25,7 @@ const ContestContestantCards = ({ contests }: Props) => {
     <div>
       <Title className="mb-[12px]" content="Contests"></Title>
 
-      <div className="">
+      <div className="font-Ropa">
         {contests.map((contest) => {
           return <ContestantContestCard key={contest.id} contest={contest} />;
         })}

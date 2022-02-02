@@ -6,7 +6,7 @@ interface Props {
 
 const TeamCard = ({ team }: Props) => {
   return (
-    <div className="float-left border-[1px] border-[#425CBA] rounded h-auto inline-block w-[280px] ml-[16px] mb-[16px]">
+    <div className="float-left border-[1px] border-[#425CBA] rounded h-auto inline-block w-[280px] ml-[16px] mb-[16px] font-Ropa">
       <div className="p-[28px] ">
         <div className="font-[700] text-[16px] text-ross2 mb-[20px]">
           {team.name}

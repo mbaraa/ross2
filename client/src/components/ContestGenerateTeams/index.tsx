@@ -112,7 +112,7 @@ const ContestGenerateTeams = ({ id }: Props) => {
     };
 
   return (
-    <div>
+    <div className="font-Ropa">
       <Button
         className=""
         content="Generate Teams"

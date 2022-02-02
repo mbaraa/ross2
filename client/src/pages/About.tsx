@@ -52,7 +52,7 @@ const About = (): React.ReactElement => {
 
   return (
     <div>
-      <ul className="space-y-[12px] list-disc">
+      <ul className="space-y-[12px] list-disc font-Ropa">
         {list.map((i) => {
           return (
             <li className="font-[12px] text-[#000] font-[400]" key={i.id}>
