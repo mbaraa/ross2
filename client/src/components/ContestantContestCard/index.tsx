@@ -7,20 +7,23 @@ import {
   RadioGroup,
   TextField,
 } from "@mui/material";
+import { GoLocation } from "react-icons/go";
+import { BiTimeFive } from "react-icons/bi";
 import Button from "../Button";
 import Title from "../Title";
 import Team from "../../models/Team";
 import ContestantRequests from "../../utils/requests/ContestantRequests";
 import JoinRequest from "../../models/JoinRequest";
 import Contestant from "../../models/Contestant";
+import Contest from "../../models/Contest";
 import config from "../../config";
 
 interface Props {
-  contest: any;
+  contest: Contest;
 }
 
 const ContestantContestCard = ({ contest }: Props) => {
-  const [team, ] = React.useState<Team>(new Team());
+  const [team] = React.useState<Team>(new Team());
 
   interface State {
     teamName: string;
@@ -68,7 +71,7 @@ const ContestantContestCard = ({ contest }: Props) => {
   };
 
   const checkRegisterEnds = (): boolean => {
-    const regOver = new Date().getTime() > contest.registration_ends;
+    const regOver = new Date().getTime() > (contest.registration_ends as number);
     if (regOver) {
       window.alert("sorry, the registration for this contest is over!");
     }
@@ -93,7 +96,7 @@ const ContestantContestCard = ({ contest }: Props) => {
       requested_team_id: team.id as number,
       requested_team_join_id: state.teamID,
       request_message: "",
-      requested_contest_id: +contest.id,
+      requested_contest_id: (contest.id as number),
       requested_contest: contest,
     } as JoinRequest);
     if (resp.ok) {
@@ -144,38 +147,53 @@ const ContestantContestCard = ({ contest }: Props) => {
   };
 
   return (
-    <div className="float-left border-[1px] font-Ropa border-[#425CBA] rounded h-auto inline-block w-[280px] ml-[16px] mb-[16px]">
-      <div className="p-[28px] ">
-        <img alt={contest.name} src={`${config.backendAddress}${contest.logo_path}`} 
-          className="rounded-full w-[75px] h-[75px] inline"/>
+    <div className="float-left border-[1px] font-Ropa border-ross2 rounded h-auto inline-block w-[280px] mr-[16px] last:mr-0 mb-[16px] last:mb-0">
+      <div className="grid grid-cols-2 p-[20px]">
+        <div>
+          <img
+            alt={contest.name}
+            src={`${config.backendAddress}${contest.logo_path}`}
+            className="rounded-full w-[75px] h-[75px] inline"
+          />
+        </div>
 
-        <label className="font-[700] text-[20px] text-ross2 pl-[15px]">{contest.name}</label>
-        <br/>
-        <label className="font-[500] text-[13px] text-[#425CBA] ">
-          {getLocaleTime(contest.starts_at)}
-        </label>
-        <br/>
-        <label className="font-[500] text-[13px] text-[#425CBA] ">
-          {contest.location}
-        </label>
+        <div className="text-left">
+          <label className="font-[700] text-[22px] text-ross2">
+            {contest.name}
+          </label>
+          <br />
+          <label className="font-[500] text-[15px] text-ross2 ">
+            <BiTimeFive className="inline-block" />{" "}
+            {getLocaleTime(contest.starts_at)}
+          </label>
+          <br />
+          <label className="font-[500] text-[15px] text-ross2 ">
+            <GoLocation size="15px" className="inline-block" />{" "}
+            {contest.location}
+          </label>
+        </div>
+      </div>
+      
+      <div className="px-[20px] pb-[5px] text-center w-full text-ross2 font-Ropa font-[500]">
+        {contest.description}
       </div>
 
       {!hasTeam && (
         <>
           <div
-            className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
+            className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
             onClick={openCTHandler}
           >
             Create Team
           </div>
           <div
-            className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
+            className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
             onClick={openJTHandler}
           >
             Join Team
           </div>
           <div
-            className="border-t-[1px] border-[#425CBA] py-[12px] text-[13px] font-[600] text-[#425CBA] text-center cursor-pointer"
+            className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
             onClick={openJTLHandler}
           >
             Join as Teamless

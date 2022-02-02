@@ -1,26 +1,12 @@
+import Contest from "../../models/Contest";
 import ContestantContestCard from "../ContestantContestCard";
 import Title from "../Title";
 
 interface Props {
-  contests: any[];
+  contests: Contest[];
 }
 
 const ContestContestantCards = ({ contests }: Props) => {
-  let contests1 = [
-    {
-      id: 1,
-      name: "Contest 1",
-      start_at: 123456788,
-      location: "Amman - Jordan",
-    },
-    {
-      id: 2,
-      name: "Contest 2",
-      start_at: 123456788,
-      location: "Amman - Jordan",
-    },
-  ];
-
   return (
     <div>
       <Title className="mb-[12px]" content="Contests"></Title>

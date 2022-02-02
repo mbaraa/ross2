@@ -20,7 +20,7 @@ const Table = ({ contests }: Props) => {
   ];
 
   let rowDesign =
-    "float-left text-ellipsis text-[13px] w-[25%] font-[400] text-[#425CBA] px-[20px] py-[16px] font-Ropa";
+    "float-left text-ellipsis text-[16px] w-[25%] font-[400] text-ross2 px-[18px] py-[16px] font-Ropa";
 
   const sendFormNotificationHandler = async (contest: Contest) => {
     await OrganizerRequests.sendContestOverNotifications(contest);
@@ -49,15 +49,15 @@ const Table = ({ contests }: Props) => {
   return (
     <div>
       <Title className="mb-[12px]" content="Contests"></Title>
-      <div className="rounded-[10px] border-[1px] border-[#425CBA]">
+      <div className="rounded-[10px] border-[1px] border-ross2">
         <table className="w-[100%]">
           <tbody>
-            <tr className="border-b-[1px] border-[#425CBA]">
+            <tr className="border-b-[1px] border-ross2">
               {lables.map((lable) => {
                 return (
                   <th
                     key={lable.id}
-                    className="float-left w-[25%] text-ellipsis text-left text-[14px] text-[#425CBA] px-[20px] py-[16px]"
+                    className="float-left w-[25%] text-ellipsis text-left text-[18px] text-ross2 px-[20px] py-[16px]"
                   >
                     {lable.value}
                   </th>
@@ -69,7 +69,7 @@ const Table = ({ contests }: Props) => {
               return (
                 <tr
                   key={contest.id}
-                  className="border-b-[1px] border-indigo last:border-b-[0px] font-Ropa"
+                  className="border-b-[1px] border-ross2 last:border-b-[0px] font-Ropa"
                 >
                   <td className={rowDesign}>{contest.name}</td>
                   <td className={rowDesign}>

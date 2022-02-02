@@ -69,10 +69,11 @@ const MenuButton = ({ menuItems }: Props) => {
         aria-controls={open ? "demo-customized-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
-        variant="contained"
+        variant="text"
         disableElevation
         onClick={handleClick}
-        className="text-[#425CBA] hover:bg-[#fff] p-[0px]"
+        className="text-ross2 p-[0px]"
+        color="secondary"
       >
         <MdMoreVert size="18" />
       </Button>
@@ -90,7 +91,7 @@ const MenuButton = ({ menuItems }: Props) => {
           return (
             <MenuItem
               key={item.id}
-              className="text-[12px] text-[#425CBA] py-[12px] font-[Poppins] font-[500]"
+              className="text-[12px] text-ross2 py-[12px] font-Ropa font-[500]"
               onClick={() => item.action()}
               disableRipple
             >
