@@ -12,7 +12,7 @@ class ActionChecker {
         if (this.checkToken()) {
             fn();
         } else {
-            window.alert("you're not logged in :)")
+            window.open("/profile", "_self");
         }
     }
 

@@ -17,6 +17,7 @@ import JoinRequest from "../../models/JoinRequest";
 import Contestant from "../../models/Contestant";
 import Contest from "../../models/Contest";
 import config from "../../config";
+import ActionChecker from "../../utils/ActionChecker";
 
 interface Props {
   contest: Contest;
@@ -45,7 +46,9 @@ const ContestantContestCard = ({ contest }: Props) => {
 
   const [openJT, setOpenJT] = React.useState(false);
   const openJTHandler = () => {
-    setOpenJT(true);
+    ActionChecker.checkUser(() => {
+      setOpenJT(true);
+    });
   };
 
   const closeJTHandler = () => {
@@ -54,7 +57,9 @@ const ContestantContestCard = ({ contest }: Props) => {
 
   const [openCT, setOpenCT] = React.useState(false);
   const openCTHandler = () => {
-    setOpenCT(true);
+    ActionChecker.checkUser(() => {
+      setOpenCT(true);
+    });
   };
 
   const closeCTHandler = () => {
@@ -63,7 +68,9 @@ const ContestantContestCard = ({ contest }: Props) => {
 
   const [openJTL, setOpenJTL] = React.useState(false);
   const openJTLHandler = () => {
-    setOpenJTL(true);
+    ActionChecker.checkUser(() => {
+      setOpenJTL(true);
+    });
   };
 
   const closeJTLHandler = () => {
@@ -71,7 +78,8 @@ const ContestantContestCard = ({ contest }: Props) => {
   };
 
   const checkRegisterEnds = (): boolean => {
-    const regOver = new Date().getTime() > (contest.registration_ends as number);
+    const regOver =
+      new Date().getTime() > (contest.registration_ends as number);
     if (regOver) {
       window.alert("sorry, the registration for this contest is over!");
     }
@@ -96,7 +104,7 @@ const ContestantContestCard = ({ contest }: Props) => {
       requested_team_id: team.id as number,
       requested_team_join_id: state.teamID,
       request_message: "",
-      requested_contest_id: (contest.id as number),
+      requested_contest_id: contest.id as number,
       requested_contest: contest,
     } as JoinRequest);
     if (resp.ok) {
@@ -173,7 +181,7 @@ const ContestantContestCard = ({ contest }: Props) => {
           </label>
         </div>
       </div>
-      
+
       <div className="px-[20px] pb-[5px] text-center w-full text-ross2 font-Ropa font-[500]">
         {contest.description}
       </div>
