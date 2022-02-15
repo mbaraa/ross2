@@ -115,6 +115,7 @@ const ContestGenerateTeams = ({ id }: Props) => {
     <div className="font-Ropa">
       <Button
         className=""
+        color=""
         content="Generate Teams"
         onClick={() => openHandler()}
       />
@@ -161,11 +162,11 @@ const ContestGenerateTeams = ({ id }: Props) => {
 
           <div className=" space-x-[4px] float-right">
             <Button
-              className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646]"
+              color="#FB4646"
               content="Cancel"
               onClick={closeHandler}
             />
-            <Button className="" content="Generate" onClick={generateTeams} />
+            <Button color="#425CBA" content="Generate" onClick={generateTeams} />
           </div>
         </div>
       </Dialog>

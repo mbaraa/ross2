@@ -225,11 +225,11 @@ const ContestantContestCard = ({ contest }: Props) => {
           <br />
           <div className=" space-x-[4px] float-right">
             <Button
-              className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646]"
+              color="#FB4646"
               content="Cancel"
               onClick={closeCTHandler}
             />
-            <Button className="" content="Generate" onClick={createTeam} />
+            <Button color="#425CBA" content="Generate" onClick={createTeam} />
           </div>
         </div>
       </Dialog>
@@ -253,11 +253,11 @@ const ContestantContestCard = ({ contest }: Props) => {
           <br />
           <div className=" space-x-[4px] float-right">
             <Button
-              className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646]"
+              color="#425CBA"
               content="Cancel"
               onClick={closeJTHandler}
             />
-            <Button className="" content="Join" onClick={joinTeam} />
+            <Button color="#425CBA" content="Join" onClick={joinTeam} />
           </div>
         </div>
       </Dialog>
@@ -311,11 +311,11 @@ const ContestantContestCard = ({ contest }: Props) => {
           <br />
           <div className=" space-x-[4px] float-right">
             <Button
-              className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646]"
+              color="#FB4646"
               content="Cancel"
               onClick={closeJTLHandler}
             />
-            <Button className="" content="Register" onClick={joinAsTeamless} />
+            <Button color="#425CBA" content="Register" onClick={joinAsTeamless} />
           </div>
         </div>
       </Dialog>

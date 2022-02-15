@@ -42,13 +42,13 @@ const NotificationTitle = ({ notification }: Props): React.ReactElement => {
       <div>
         <Button
           content="Accept"
-          className="border-sky-800 text-sky-800"
+          color="#425CBA"
           onClick={acReq}
         />
         &nbsp;
         <Button
           content="Reject"
-          className="border-red-800 text-red-800 hover:bg-red-800"
+          color="#FB4646"
           onClick={waReq}
         />
       </div>

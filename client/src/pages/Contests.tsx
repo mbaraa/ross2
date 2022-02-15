@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ContestContestantCards from "../../src/components/ContestContestantCards";
-import Table from "../../src/components/Table";
+import OrganizerContestCards from "../../src/components/OrganizerContestCards";
 import Contest from "../../src/models/Contest";
 import User, { UserType } from "../../src/models/User";
 import Title from "../components/Title";
@@ -31,7 +31,7 @@ const Contests = ({ user }: Props) => {
   }
 
   if (user !== null && (user.user_type_base & UserType.Organizer) !== 0) {
-    return <Table contests={contests}></Table>;
+    return <OrganizerContestCards contests={contests}/>;
   }
 
   return <ContestContestantCards contests={contests} />;

@@ -76,8 +76,8 @@ const Profile = ({ user }: Props) => {
         )}
 
         <Button
-          className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646] text-center text-[16px]"
           content="Logout"
+          color="#FB4646"
           onClick={() => {
             (async () => {
               await MicrosoftLogin.logout(user);

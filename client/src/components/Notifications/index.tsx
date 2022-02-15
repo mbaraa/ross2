@@ -51,7 +51,7 @@ const Notifications = (): React.ReactElement => {
 
           <div className=" space-x-[4px] float-right">
             <Button
-              className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646]"
+              color="#FB4646"
               content="Cancel"
               onClick={closeHandler}
             />

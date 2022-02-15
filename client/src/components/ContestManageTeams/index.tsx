@@ -23,7 +23,7 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
             />
 
             <Button
-              className="border-[#FB4646] text-[#FB4646] hover:bg-[#FB4646]"
+              color="#FB4646"
               content="Close"
               onClick={() => setOpen(false)}
             />
@@ -47,9 +47,10 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
         </div>
       </Dialog>
 
-      <div className="w-[100%] inline-block mb-[12px] pt-1">
+      <div className="w-[100%] inline-block mb-[12px]">
         <Button
           className="float-left"
+          color="#425CBA"
           onClick={() => setOpen(true)}
           content="View Teamless"
         />
