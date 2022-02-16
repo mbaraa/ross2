@@ -1,4 +1,4 @@
-import Button from "../Button";
+import { Button } from "@mui/material";
 import * as React from "react";
 import { Dialog, TextField } from "@mui/material";
 import Title from "../Title";
@@ -114,13 +114,17 @@ const ContestGenerateTeams = ({ id }: Props) => {
   return (
     <div className="font-Ropa">
       <Button
-        className=""
-        color=""
-        content="Generate Teams"
+        color="info"
+        variant="outlined"
         onClick={() => openHandler()}
-      />
+        size="large"
+      >
+        <label className="normal-case font-Ropa cursor-pointer">
+          Generate Teams
+        </label>
+      </Button>
 
-      {generated && <ContestManageTeams teams={genTeams} teamless={teamless}/>}
+      {generated && <ContestManageTeams teams={genTeams} teamless={teamless} />}
 
       <Dialog open={open} onClose={closeHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
@@ -162,11 +166,25 @@ const ContestGenerateTeams = ({ id }: Props) => {
 
           <div className=" space-x-[4px] float-right">
             <Button
-              color="#FB4646"
-              content="Cancel"
+              color="error"
+              variant="outlined"
               onClick={closeHandler}
-            />
-            <Button color="#425CBA" content="Generate" onClick={generateTeams} />
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Cancel
+              </label>
+            </Button>
+            <Button
+              color="info"
+              variant="outlined"
+              onClick={generateTeams}
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Generate
+              </label>
+            </Button>
           </div>
         </div>
       </Dialog>

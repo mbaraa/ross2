@@ -7,6 +7,7 @@ import MicrosoftLogin from "./utils/requests/MicrosoftLogin";
 import Header from "./components/Header";
 import Contest from "./pages/Contest";
 import User from "./models/User";
+import CreateEditContest from "./components/CreateEditContest";
 
 function App() {
   const [user, setUser] = React.useState<User>(new User());
@@ -28,7 +29,11 @@ function App() {
         </Route>
 
         <Route path="/contest/:id">
-          <Contest />
+          <Contest user={user} />
+        </Route>
+
+        <Route path="/contests/new">
+          <CreateEditContest user={user} />
         </Route>
 
         <Route path="/profile">

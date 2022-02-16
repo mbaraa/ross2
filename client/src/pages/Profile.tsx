@@ -1,4 +1,4 @@
-import Button from "../../src/components/Button";
+import {Button} from "@mui/material";
 import * as React from "react";
 import Login from "../../src/components/Login";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
@@ -76,14 +76,17 @@ const Profile = ({ user }: Props) => {
         )}
 
         <Button
-          content="Logout"
-          color="#FB4646"
           onClick={() => {
             (async () => {
               await MicrosoftLogin.logout(user);
             })();
           }}
-        />
+              color="error"
+              variant="outlined"
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">Logout</label>
+        </Button>
       </div>
     </div>
   );

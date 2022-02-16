@@ -1,5 +1,5 @@
 import TeamCard from "../TeamCard";
-import Button from "../Button";
+import { Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import Title from "../Title";
 import * as React from "react";
@@ -21,12 +21,16 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
               className="text-[18px] font-[400] mb-[16px]"
               content="Teamless Contestants"
             />
-
             <Button
-              color="#FB4646"
-              content="Close"
+              color="error"
+              variant="outlined"
               onClick={() => setOpen(false)}
-            />
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Close
+              </label>
+            </Button>
           </div>
 
           <div>
@@ -49,11 +53,15 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
 
       <div className="w-[100%] inline-block mb-[12px]">
         <Button
-          className="float-left"
-          color="#425CBA"
+          color="info"
+          variant="outlined"
           onClick={() => setOpen(true)}
-          content="View Teamless"
-        />
+          size="large"
+        >
+          <label className="normal-case font-Ropa cursor-pointer">
+            View Teamless
+          </label>
+        </Button>
       </div>
 
       <div className="">

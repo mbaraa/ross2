@@ -1,6 +1,6 @@
 import * as React from "react";
 import Notification from "../../models/Notification";
-import Button from "../Button";
+import { Button } from "@mui/material";
 import ContestantRequests from "../../utils/requests/ContestantRequests";
 
 interface Props {
@@ -34,23 +34,20 @@ const NotificationTitle = ({ notification }: Props): React.ReactElement => {
   return (
     <div className="text-center rounded-[5px] border-ross2 p-[10px] m-[10px] text-ross2 font-Ropa">
       {/* <!-- non-request --> */}
-      <div className="content" v-html="filterContent()"> {filterContent()}</div>
-      <div dangerouslySetInnerHTML={{ __html: filterContent()}}>
-
+      <div className="content" v-html="filterContent()">
+        {" "}
+        {filterContent()}
       </div>
+      <div dangerouslySetInnerHTML={{ __html: filterContent() }}></div>
       {/* <!-- request --> */}
       <div>
-        <Button
-          content="Accept"
-          color="#425CBA"
-          onClick={acReq}
-        />
+        <Button color="info" variant="outlined" onClick={acReq} size="large">
+          <label className="normal-case font-Ropa cursor-pointer">Accept</label>
+        </Button>
         &nbsp;
-        <Button
-          content="Reject"
-          color="#FB4646"
-          onClick={waReq}
-        />
+        <Button color="info" variant="outlined" onClick={waReq} size="large">
+          <label className="normal-case font-Ropa cursor-pointer">Reject</label>
+        </Button>
       </div>
     </div>
   );

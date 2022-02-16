@@ -3,9 +3,9 @@ import * as React from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import NotificationRequests from "../../utils/requests/NotificationRequests";
 import Title from "../Title";
-import Button from "../Button";
 import Notification from "../../models/Notification";
 import NotificationTitle from "../NotificationTile";
+import {Button} from "@mui/material";
 
 const Notifications = (): React.ReactElement => {
   const [nots, setNots] = React.useState<any[]>([]);
@@ -51,10 +51,13 @@ const Notifications = (): React.ReactElement => {
 
           <div className=" space-x-[4px] float-right">
             <Button
-              color="#FB4646"
-              content="Cancel"
+              color="error"
+              variant="contained"
               onClick={closeHandler}
-            />
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">Cancel</label>
+            </Button>
           </div>
         </div>
       </Dialog>

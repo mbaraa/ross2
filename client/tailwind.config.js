@@ -20,7 +20,7 @@ module.exports = {
       yellow: colors.amber,
       sky: colors.sky,
       purple: colors.purple,
-      // ...colors,
+      ...colors,
       ross2: "#6a1b9a",
       lwhite: {
         1: "#F4F4F4",

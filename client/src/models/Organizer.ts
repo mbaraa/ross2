@@ -29,4 +29,8 @@ export enum OrganizerRole {
   Receptionist = 512,
 }
 
+export function checkOrgType(org: Organizer, role: OrganizerRole): boolean {
+  return ((org.roles as number) & role) !== 0;
+}
+
 export default Organizer;

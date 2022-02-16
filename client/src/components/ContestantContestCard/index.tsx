@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { GoLocation } from "react-icons/go";
 import { BiTimeFive } from "react-icons/bi";
-import Button from "../Button";
+import { Button } from "@mui/material";
 import Title from "../Title";
 import Team from "../../models/Team";
 import ContestantRequests from "../../utils/requests/ContestantRequests";
@@ -225,11 +225,25 @@ const ContestantContestCard = ({ contest }: Props) => {
           <br />
           <div className=" space-x-[4px] float-right">
             <Button
-              color="#FB4646"
-              content="Cancel"
+              color="error"
+              variant="outlined"
               onClick={closeCTHandler}
-            />
-            <Button color="#425CBA" content="Generate" onClick={createTeam} />
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Cancel
+              </label>
+            </Button>
+            <Button
+              color="info"
+              variant="outlined"
+              onClick={createTeam}
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Create Team
+              </label>
+            </Button>
           </div>
         </div>
       </Dialog>
@@ -253,11 +267,25 @@ const ContestantContestCard = ({ contest }: Props) => {
           <br />
           <div className=" space-x-[4px] float-right">
             <Button
-              color="#425CBA"
-              content="Cancel"
+              color="error"
+              variant="outlined"
               onClick={closeJTHandler}
-            />
-            <Button color="#425CBA" content="Join" onClick={joinTeam} />
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Cancel
+              </label>
+            </Button>
+            <Button
+              color="info"
+              variant="outlined"
+              onClick={joinTeam}
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Join Team
+              </label>
+            </Button>
           </div>
         </div>
       </Dialog>
@@ -311,11 +339,25 @@ const ContestantContestCard = ({ contest }: Props) => {
           <br />
           <div className=" space-x-[4px] float-right">
             <Button
-              color="#FB4646"
-              content="Cancel"
+              color="error"
+              variant="outlined"
               onClick={closeJTLHandler}
-            />
-            <Button color="#425CBA" content="Register" onClick={joinAsTeamless} />
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Cancel
+              </label>
+            </Button>
+            <Button
+              color="info"
+              variant="outlined"
+              onClick={joinAsTeamless}
+              size="large"
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Join as Teamless
+              </label>
+            </Button>
           </div>
         </div>
       </Dialog>
