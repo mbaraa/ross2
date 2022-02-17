@@ -4,7 +4,7 @@ import Organizer from "./Organizer";
 import config from "../config";
 
 class Contest {
-  id: number | undefined;
+  id: number;
   name: string | undefined;
   starts_at: number; // timestamp goes brr
   registration_ends: number | undefined;
@@ -12,19 +12,22 @@ class Contest {
   location: string | undefined;
   logo_path: string | undefined;
   description: string | undefined;
-  participation_conditions: ParticipationConditions | undefined;
-  teams_hidden?: boolean;
+  participation_conditions: ParticipationConditions;
+  teams_hidden: boolean;
   teams: Team[] | undefined;
   organizers: Organizer[] | undefined;
   teamless_contestants: Contestant[] | undefined;
 
   constructor() {
     this.participation_conditions = new ParticipationConditions();
-    this.organizers = new Array<Organizer>();
-    this.teams = new Array<Team>();
-    this.teamless_contestants = new Array<Contestant>();
+    this.organizers = [];
+    this.teams = [];
+    this.teamless_contestants = [];
     this.starts_at = 0;
-    //this.id = 0;
+    this.id = 0;
+    this.starts_at = new Date().getTime();
+    this.registration_ends = new Date().getTime();
+    this.teams_hidden = false;
   }
 
   public static async getContestFromServer(

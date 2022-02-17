@@ -1,5 +1,5 @@
 const config = {
-    backendAddress: "https://mbaraa.fun/ross2",
+    backendAddress: "http://localhost:8080",
     googleClientID:
       "202655727003-gu3umksjmog90n6oonvfeh79msbe1j1e.apps.googleusercontent.com",
     msalConfig: {

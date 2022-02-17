@@ -12,6 +12,7 @@ import ContestManageTeams from "../components/ContestManageTeams";
 import User, { checkUserType, UserType } from "../models/User";
 import Organizer, { checkOrgType, OrganizerRole } from "../models/Organizer";
 import OrganizerRequests from "../utils/requests/OrganizerRequests";
+import CreateEditContest from "../components/CreateEditContest";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -39,12 +40,17 @@ function TabPanel(props: TabPanelProps): ReactElement {
   );
 }
 
-function a11yProps(index: number): any {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
+interface LabelProps {
+  text: string;
 }
+
+const TabLabel = ({ text }: LabelProps): ReactElement => {
+  return (
+    <label className="font-Ropa text-indigo text-[17px] normal-case">
+      {text}
+    </label>
+  );
+};
 
 interface Props {
   user: User;
@@ -101,52 +107,75 @@ const Contest = ({ user }: Props): ReactElement => {
       <div className="font-Ropa">
         <Title content={contest.name} className="pl-[20px]" />
 
-        <Box className="font-[Poppins]" sx={{ width: "100%" }}>
+        <Box className="font-Ropa" sx={{ width: "100%" }}>
           <Box
-            className="border-[#425CBA] border-opacity-20"
+            className="border-indigo border-opacity-20"
             sx={{ borderBottom: 1, borderColor: "divider" }}
           >
             <Tabs
               value={value}
               onChange={handleChange}
+              className="border-indigo"
               aria-label="basic tabs example"
             >
-              <Tab label="About" {...a11yProps(0)} />
-              {isDirector && <Tab label="Generate Posts" {...a11yProps(1)} />}
-              {isDirector && <Tab label="Generate Teams" {...a11yProps(2)} />}
-              {(isDirector || isCoreOrg) && <Tab label="Manage Teams" {...a11yProps(3)} />}
-              {(isDirector || isAdmin) && (
-                <Tab label="Manage Organizers" {...a11yProps(4)} />
+              <Tab label={<TabLabel text="About" />} value={0} />
+              {isDirector && (
+                <Tab label={<TabLabel text="Generate Posts" />} value={1} />
               )}
-              {isReseptionist && <Tab label="Attendance" {...a11yProps(5)} />}
-              {(isDirector || isCoreOrg) && <Tab label="Edit" {...a11yProps(6)} />}
+              {isDirector && (
+                <Tab label={<TabLabel text="Generate Teams" />} value={2} />
+              )}
+              {(isDirector || isCoreOrg) && (
+                <Tab label={<TabLabel text="Manage Teams" />} value={3} />
+              )}
+              {(isDirector || isAdmin) && (
+                <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
+              )}
+              {isReseptionist && (
+                <Tab label={<TabLabel text="Attendance" />} value={5} />
+              )}
+              {(isDirector || isCoreOrg) && (
+                <Tab label={<TabLabel text="Edit" />} value={6} />
+              )}
             </Tabs>
           </Box>
 
           <TabPanel value={value} index={0}>
             Building...
           </TabPanel>
-          <TabPanel value={value} index={1}>
-            Building...
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <ContestGenerateTeams id={contest.id} />
-          </TabPanel>
-          <TabPanel value={value} index={3}>
-            <ContestManageTeams
-              teams={contest.teams}
-              teamless={contest.teamless_contestants}
-            />
-          </TabPanel>
-          <TabPanel value={value} index={4}>
-            Bulding...
-          </TabPanel>
-          <TabPanel value={value} index={5}>
-            Bulding...
-          </TabPanel>
-          <TabPanel value={value} index={6}>
-            Bulding...
-          </TabPanel>
+          {isDirector && (
+            <TabPanel value={value} index={1}>
+              Building...
+            </TabPanel>
+          )}
+          {isDirector && (
+            <TabPanel value={value} index={2}>
+              <ContestGenerateTeams id={contest.id} />
+            </TabPanel>
+          )}
+          {(isDirector || isCoreOrg) && (
+            <TabPanel value={value} index={3}>
+              <ContestManageTeams
+                teams={contest.teams}
+                teamless={contest.teamless_contestants}
+              />
+            </TabPanel>
+          )}
+          {(isDirector || isAdmin) && (
+            <TabPanel value={value} index={4}>
+              Building...
+            </TabPanel>
+          )}
+          {isReseptionist && (
+            <TabPanel value={value} index={5}>
+              Building...
+            </TabPanel>
+          )}
+          {(isDirector || isCoreOrg) && (
+            <TabPanel value={value} index={6}>
+              <CreateEditContest user={user} contest={contest} />
+            </TabPanel>
+          )}
         </Box>
       </div>
     );

@@ -52,7 +52,13 @@ const OrganizerContestCards = ({ contests }: Props): ReactElement => {
   return (
     <div>
       <div className="grid grid-cols-2 w-full">
-        <Title className="mb-[12px]" content="Contests"></Title>
+        {contests.length > 0 ? (
+          <Title className="mb-[12px]" content="Contests"></Title>
+        ) : (
+          <h1 className="text-ross2 font-bold text-[2rem] font-Ropa">
+            No contests are available at this time
+          </h1>
+        )}
         <div className="absolute items-right pt-[5px] right-[52px]">
           <Link to="/contests/new">
             <Button
@@ -61,70 +67,74 @@ const OrganizerContestCards = ({ contests }: Props): ReactElement => {
               variant="outlined"
               size="large"
             >
-              <label className="normal-case font-Ropa cursor-pointer">Create Contest</label>
+              <label className="normal-case font-Ropa cursor-pointer">
+                Create Contest
+              </label>
             </Button>
           </Link>
         </div>
       </div>
-      <div className="rounded-[10px] border-[1px] border-ross2">
-        <table className="w-[100%]">
-          <tbody>
-            <tr className="border-b-[1px] border-ross2">
-              {lables.map((lable) => {
+      {contests.length > 0 && (
+        <div className="rounded-[10px] border-[1px] border-ross2">
+          <table className="w-[100%]">
+            <tbody>
+              <tr className="border-b-[1px] border-ross2">
+                {lables.map((lable) => {
+                  return (
+                    <th
+                      key={lable.id}
+                      className="float-left w-[25%] text-ellipsis text-left text-[18px] text-ross2 px-[20px] py-[16px]"
+                    >
+                      {lable.value}
+                    </th>
+                  );
+                })}
+              </tr>
+
+              {contests.map((contest) => {
                 return (
-                  <th
-                    key={lable.id}
-                    className="float-left w-[25%] text-ellipsis text-left text-[18px] text-ross2 px-[20px] py-[16px]"
+                  <tr
+                    key={contest.id}
+                    className="border-b-[1px] border-ross2 last:border-b-[0px] font-Ropa"
                   >
-                    {lable.value}
-                  </th>
+                    <td className={rowDesign}>{contest.name}</td>
+                    <td className={rowDesign}>
+                      {getLocaleTime(contest.starts_at)}
+                    </td>
+                    <td className={rowDesign}>{contest.location}</td>
+                    <td className="float-right text-[13px] px-[20px] py-[16px] font-Ropa">
+                      <MenuButton
+                        menuItems={[
+                          {
+                            id: 1,
+                            title: "Contest Page",
+                            action: () => router.push(`contest/${contest.id}`),
+                          },
+                          {
+                            id: 2,
+                            title: "Send Form Notification",
+                            action: () => sendFormNotificationHandler(contest),
+                          },
+                          {
+                            id: 3,
+                            title: "Download CSV",
+                            action: () => downloadCSVHandler(contest),
+                          },
+                          {
+                            id: 4,
+                            title: "Delete",
+                            action: () => deleteHandler(contest),
+                          },
+                        ]}
+                      />
+                    </td>
+                  </tr>
                 );
               })}
-            </tr>
-
-            {contests.map((contest) => {
-              return (
-                <tr
-                  key={contest.id}
-                  className="border-b-[1px] border-ross2 last:border-b-[0px] font-Ropa"
-                >
-                  <td className={rowDesign}>{contest.name}</td>
-                  <td className={rowDesign}>
-                    {getLocaleTime(contest.starts_at)}
-                  </td>
-                  <td className={rowDesign}>{contest.location}</td>
-                  <td className="float-right text-[13px] px-[20px] py-[16px] font-Ropa">
-                    <MenuButton
-                      menuItems={[
-                        {
-                          id: 1,
-                          title: "Contest Page",
-                          action: () => router.push(`contest/${contest.id}`),
-                        },
-                        {
-                          id: 2,
-                          title: "Send Form Notification",
-                          action: () => sendFormNotificationHandler(contest),
-                        },
-                        {
-                          id: 3,
-                          title: "Download CSV",
-                          action: () => downloadCSVHandler(contest),
-                        },
-                        {
-                          id: 4,
-                          title: "Delete",
-                          action: () => deleteHandler(contest),
-                        },
-                      ]}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
