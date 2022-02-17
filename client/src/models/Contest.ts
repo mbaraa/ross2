@@ -14,9 +14,9 @@ class Contest {
   description: string | undefined;
   participation_conditions: ParticipationConditions;
   teams_hidden: boolean;
-  teams: Team[] | undefined;
+  teams: Team[];
   organizers: Organizer[] | undefined;
-  teamless_contestants: Contestant[] | undefined;
+  teamless_contestants: Contestant[];
 
   constructor() {
     this.participation_conditions = new ParticipationConditions();

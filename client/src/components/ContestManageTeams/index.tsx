@@ -1,16 +1,20 @@
+import * as React from "react";
 import TeamCard from "../TeamCard";
 import { Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import Title from "../Title";
-import * as React from "react";
+import Contestant from "../../models/Contestant";
+import Team from "../../models/Team";
 
 interface Props {
-  teams: any;
-  teamless: any;
+  teams: Team[];
+  teamless: Contestant[];
 }
 
-const ContestManageTeams = ({ teams, teamless }: Props) => {
+const ContestManageTeams = ({ teams, teamless }: Props): React.ReactElement => {
   const [open, setOpen] = React.useState(false);
+
+  teams.sort((ti: Team, tj: Team) => ((ti.members.length as number) < (tj.members.length as number)? -1: 1));
 
   return (
     <div className="font-Ropa">
@@ -34,7 +38,7 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
           </div>
 
           <div>
-            {teamless.map((contestant: any) => {
+            {teamless.map((contestant: Contestant) => {
               return (
                 <div
                   className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] "
@@ -64,9 +68,9 @@ const ContestManageTeams = ({ teams, teamless }: Props) => {
         </Button>
       </div>
 
-      <div className="">
+      <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {teams.map((team: any) => {
-          return <TeamCard key={team.id} team={team} />;
+          return <TeamCard key={Math.random()} team={team} teamless={teamless}/>;
         })}
       </div>
     </div>
