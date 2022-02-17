@@ -39,5 +39,5 @@ export default class User {
 }
 
 export function checkUserType(user: User, type: UserType): boolean {
-  return (user.user_type_base & type) !== 0;
+  return user !== null && (user.user_type_base & type) !== 0;
 }

@@ -18,6 +18,7 @@ import Contestant from "../../../models/Contestant";
 import Contest from "../../../models/Contest";
 import config from "../../../config";
 import ActionChecker from "../../../utils/ActionChecker";
+import { checkUserType, UserType } from "../../../models/User";
 
 interface Props {
   contest: Contest;
@@ -123,8 +124,7 @@ const ContestCard = ({ contest }: Props) => {
   );
   React.useEffect(() => {
     (async () => {
-      const c = await ContestantRequests.getProfile();
-      setCont(c);
+      setCont(await ContestantRequests.getProfile());
     })();
   }, []);
 
@@ -132,9 +132,9 @@ const ContestCard = ({ contest }: Props) => {
 
   React.useEffect(() => {
     setHasTeam(
-      contestantProfile != null && (contestantProfile.team_id as number) > 1
+      contestantProfile !== null && (contestantProfile.team_id as number) > 1 && !checkUserType(contestantProfile.user, UserType.Organizer)
     );
-  }, []);
+  }, [contestantProfile]);
 
   const joinAsTeamless = async () => {
     if (
