@@ -1,10 +1,10 @@
 import { ReactElement } from "react";
-import Title from "../Title";
-import MenuButton from "../MenuButton";
+import Title from "../../Shared/Title";
+import MenuButton from "../../Shared/MenuButton";
 import { useHistory } from "react-router-dom";
-import Contest from "../../models/Contest";
-import { getLocaleTime } from "../../utils";
-import OrganizerRequests from "../../utils/requests/OrganizerRequests";
+import Contest from "../../../models/Contest";
+import { getLocaleTime } from "../../../utils";
+import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 import { Button } from "@mui/material";
 import { GoPlus } from "react-icons/go";
 import { Link } from "react-router-dom";
@@ -13,7 +13,7 @@ interface Props {
   contests: any[];
 }
 
-const OrganizerContestCards = ({ contests }: Props): ReactElement => {
+const ContestsTable = ({ contests }: Props): ReactElement => {
   const router = useHistory();
 
   let lables = [
@@ -139,4 +139,4 @@ const OrganizerContestCards = ({ contests }: Props): ReactElement => {
   );
 };
 
-export default OrganizerContestCards;
+export default ContestsTable;

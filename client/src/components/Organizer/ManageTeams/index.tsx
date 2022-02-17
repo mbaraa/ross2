@@ -2,16 +2,16 @@ import * as React from "react";
 import TeamCard from "../TeamCard";
 import { Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
-import Title from "../Title";
-import Contestant from "../../models/Contestant";
-import Team from "../../models/Team";
+import Title from "../../Shared/Title";
+import Contestant from "../../../models/Contestant";
+import Team from "../../../models/Team";
 
 interface Props {
   teams: Team[];
   teamless: Contestant[];
 }
 
-const ContestManageTeams = ({ teams, teamless }: Props): React.ReactElement => {
+const ManageTeams = ({ teams, teamless }: Props): React.ReactElement => {
   const [open, setOpen] = React.useState(false);
 
   teams.sort((ti: Team, tj: Team) => ((ti.members.length as number) < (tj.members.length as number)? -1: 1));
@@ -77,4 +77,4 @@ const ContestManageTeams = ({ teams, teamless }: Props): React.ReactElement => {
   );
 };
 
-export default ContestManageTeams;
+export default ManageTeams;

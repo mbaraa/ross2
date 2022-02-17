@@ -1,6 +1,6 @@
 import MicrosoftLogin from "react-microsoft-login";
-import { default as MSLogin } from "../../utils/requests/MicrosoftLogin";
-import config from "../../config";
+import { default as MSLogin } from "../../../utils/requests/MicrosoftLogin";
+import config from "../../../config";
 import * as React from "react";
 
 const Login = (): React.ReactElement => {

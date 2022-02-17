@@ -1,9 +1,9 @@
 import {Button} from "@mui/material";
 import * as React from "react";
-import Login from "../../src/components/Login";
+import Login from "../components/Shared/Login";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
 import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
-import Title from "../../src/components/Title";
+import Title from "../components/Shared/Title";
 import User, { UserType } from "../models/User";
 import Contestant from "../models/Contestant";
 

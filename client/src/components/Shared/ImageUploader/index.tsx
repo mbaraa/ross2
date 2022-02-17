@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "@mui/material";
 import { MdImage } from "react-icons/md";
-import { readFile } from "../../utils";
+import { readFile } from "../../../utils";
 
 interface Props {
   /**

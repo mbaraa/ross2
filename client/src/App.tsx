@@ -4,10 +4,10 @@ import About from "./pages/About";
 import Contests from "./pages/Contests";
 import Profile from "./pages/Profile";
 import MicrosoftLogin from "./utils/requests/MicrosoftLogin";
-import Header from "./components/Header";
+import Header from "./components/Shared/Header";
 import Contest from "./pages/Contest";
 import User from "./models/User";
-import CreateEditContest from "./components/CreateEditContest";
+import CreateEditContest from "./components/Organizer/CreateEditContest";
 
 function App() {
   const [user, setUser] = React.useState<User>(new User());

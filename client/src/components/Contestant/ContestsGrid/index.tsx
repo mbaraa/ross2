@@ -1,12 +1,12 @@
-import Contest from "../../models/Contest";
-import ContestantContestCard from "../ContestantContestCard";
-import Title from "../Title";
+import Contest from "../../../models/Contest";
+import ContestantContestCard from "../ContestCard";
+import Title from "../../Shared/Title";
 
 interface Props {
   contests: Contest[];
 }
 
-const ContestContestantCards = ({ contests }: Props) => {
+const ContestsGrid = ({ contests }: Props) => {
   return (
     <div>
       <Title className="mb-[12px]" content="Contests"></Title>
@@ -20,4 +20,4 @@ const ContestContestantCards = ({ contests }: Props) => {
   );
 };
 
-export default ContestContestantCards;
+export default ContestsGrid;

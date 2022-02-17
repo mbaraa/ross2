@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import ContestContestantCards from "../../src/components/ContestContestantCards";
-import OrganizerContestCards from "../../src/components/OrganizerContestCards";
+import ContestsGrid from "../../src/components/Contestant/ContestsGrid";
+import OrganizerContestCards from "../components/Organizer/ContestsTable";
 import Contest from "../../src/models/Contest";
 import User, { checkUserType, UserType } from "../../src/models/User";
-import Title from "../components/Title";
-import { Button } from "@mui/material";
-import { Link } from "react-router-dom";
-import { GoPlus } from "react-icons/go";
+import Title from "../components/Shared/Title";
 
 interface Props {
   user: User;
@@ -40,7 +37,7 @@ const Contests = ({ user }: Props) => {
     return <OrganizerContestCards contests={contests} />;
   }
 
-  return <ContestContestantCards contests={contests} />;
+  return <ContestsGrid contests={contests} />;
 };
 
 export default Contests;

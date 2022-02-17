@@ -6,16 +6,16 @@ import {
   RadioGroup,
 } from "@mui/material";
 import * as React from "react";
-import Contest, { ParticipationConditions } from "../../models/Contest";
-import User from "../../models/User";
+import Contest, { ParticipationConditions } from "../../../models/Contest";
+import User from "../../../models/User";
 import { GoPlus } from "react-icons/go";
 import { MdSave } from "react-icons/md";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
-import ImageUploader from "../ImageUploader";
-import config from "../../config";
-import OrganizerRequests from "../../utils/requests/OrganizerRequests";
+import ImageUploader from "../../Shared/ImageUploader";
+import config from "../../../config";
+import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 
 interface LabelProps {
   text: string;

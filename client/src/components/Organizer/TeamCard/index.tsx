@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Button, TextField, Dialog } from "@mui/material";
-import Team from "../../models/Team";
-import Title from "../Title";
-import Contestant from "../../models/Contestant";
+import Team from "../../../models/Team";
+import Title from "../../Shared/Title";
+import Contestant from "../../../models/Contestant";
 
 interface Props {
   team: Team;

@@ -1,7 +1,7 @@
 import * as React from "react";
-import Notification from "../../models/Notification";
+import Notification from "../../../models/Notification";
 import { Button } from "@mui/material";
-import ContestantRequests from "../../utils/requests/ContestantRequests";
+import ContestantRequests from "../../../utils/requests/ContestantRequests";
 
 interface Props {
   notification: Notification;

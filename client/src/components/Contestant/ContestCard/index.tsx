@@ -1,4 +1,4 @@
-import { getLocaleTime } from "../../utils";
+import { getLocaleTime } from "../../../utils";
 import * as React from "react";
 import {
   Dialog,
@@ -10,20 +10,20 @@ import {
 import { GoLocation } from "react-icons/go";
 import { BiTimeFive } from "react-icons/bi";
 import { Button } from "@mui/material";
-import Title from "../Title";
-import Team from "../../models/Team";
-import ContestantRequests from "../../utils/requests/ContestantRequests";
-import JoinRequest from "../../models/JoinRequest";
-import Contestant from "../../models/Contestant";
-import Contest from "../../models/Contest";
-import config from "../../config";
-import ActionChecker from "../../utils/ActionChecker";
+import Title from "../../Shared/Title";
+import Team from "../../../models/Team";
+import ContestantRequests from "../../../utils/requests/ContestantRequests";
+import JoinRequest from "../../../models/JoinRequest";
+import Contestant from "../../../models/Contestant";
+import Contest from "../../../models/Contest";
+import config from "../../../config";
+import ActionChecker from "../../../utils/ActionChecker";
 
 interface Props {
   contest: Contest;
 }
 
-const ContestantContestCard = ({ contest }: Props) => {
+const ContestCard = ({ contest }: Props) => {
   const [team] = React.useState<Team>(new Team());
 
   interface State {
@@ -366,4 +366,4 @@ const ContestantContestCard = ({ contest }: Props) => {
   );
 };
 
-export default ContestantContestCard;
+export default ContestCard;

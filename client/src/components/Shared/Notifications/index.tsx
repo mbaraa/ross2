@@ -1,9 +1,9 @@
 import { Badge, Dialog, IconButton } from "@mui/material";
 import * as React from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import NotificationRequests from "../../utils/requests/NotificationRequests";
+import NotificationRequests from "../../../utils/requests/NotificationRequests";
 import Title from "../Title";
-import Notification from "../../models/Notification";
+import Notification from "../../../models/Notification";
 import NotificationTitle from "../NotificationTile";
 import {Button} from "@mui/material";
 

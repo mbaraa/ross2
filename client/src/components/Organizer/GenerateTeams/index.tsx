@@ -1,19 +1,19 @@
 import { Button } from "@mui/material";
 import * as React from "react";
 import { Dialog, TextField } from "@mui/material";
-import Title from "../Title";
-import Dropdown from "../Dropdown";
-import OrganizerRequests from "../../utils/requests/OrganizerRequests";
-import Contest from "../../models/Contest";
-import Team from "../../models/Team";
-import Contestant from "../../models/Contestant";
-import ContestManageTeams from "../ContestManageTeams";
+import Title from "../../Shared/Title";
+import Dropdown from "../../Shared/Dropdown";
+import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
+import Contest from "../../../models/Contest";
+import Team from "../../../models/Team";
+import Contestant from "../../../models/Contestant";
+import ContestManageTeams from "../ManageTeams";
 
 interface Props {
   id: number;
 }
 
-const ContestGenerateTeams = ({ id }: Props) => {
+const GenerateTeams = ({ id }: Props) => {
   const [contest, setContest] = React.useState<Contest>(new Contest());
 
   React.useEffect(() => {
@@ -101,9 +101,6 @@ const ContestGenerateTeams = ({ id }: Props) => {
     setGenTeams(generatedTeams);
     setTeamless(leftTeamless);
     setOpen(false);
-
-    // console.log("gen", generatedTeams);
-    // console.log("tl", leftTeamless);
   };
 
   const handleChange =
@@ -192,4 +189,4 @@ const ContestGenerateTeams = ({ id }: Props) => {
   );
 };
 
-export default ContestGenerateTeams;
+export default GenerateTeams;

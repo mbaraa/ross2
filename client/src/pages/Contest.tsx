@@ -1,18 +1,18 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, ReactElement } from "react";
 import { default as Contest2 } from "../models/Contest";
-import Title from "../components/Title";
+import Title from "../components/Shared/Title";
 import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import ContestGenerateTeams from "../components/ContestGenerateTeams";
-import ContestManageTeams from "../components/ContestManageTeams";
+import ContestGenerateTeams from "../components/Organizer/GenerateTeams";
+import ContestManageTeams from "../components/Organizer/ManageTeams";
 import User, { checkUserType, UserType } from "../models/User";
 import Organizer, { checkOrgType, OrganizerRole } from "../models/Organizer";
 import OrganizerRequests from "../utils/requests/OrganizerRequests";
-import CreateEditContest from "../components/CreateEditContest";
+import CreateEditContest from "../components/Organizer/CreateEditContest";
 
 interface TabPanelProps {
   children?: React.ReactNode;
