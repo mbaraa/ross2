@@ -1,4 +1,4 @@
-import {Button} from "@mui/material";
+import { Button } from "@mui/material";
 import * as React from "react";
 import Login from "../components/Shared/Login";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
@@ -6,6 +6,7 @@ import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
 import Title from "../components/Shared/Title";
 import User, { UserType } from "../models/User";
 import Contestant from "../models/Contestant";
+import Team from "../models/Team";
 
 interface Props {
   user: User;
@@ -45,7 +46,7 @@ const Profile = ({ user }: Props) => {
       //       await this.$router.push("/finish-org-profile/");
       //   }
     })();
-  }, []);
+  }, [user]);
 
   if (user !== null && user.id === 0) {
     return <Title className="mb-[8px]" content="Loading..." />;
@@ -58,22 +59,87 @@ const Profile = ({ user }: Props) => {
     );
   }
 
+  const leaveTeam = () => {
+    if (window.confirm("Are you sure you want to leave your team?")) {
+      (async () => {
+        await ContestantRequests.leaveTeam();
+      })();
+      window.location.reload();
+    }
+  };
+
+  const deleteTeam = () => {
+    if (window.confirm("Are you sure you want to delete your team :)")) {
+      if (
+        cont.team === null ||
+        (cont.team !== undefined && (cont.team.name as string).length === 0)
+      ) {
+        window.alert("Woah... something went wrong :(");
+        return;
+      }
+
+      (async () => {
+          await ContestantRequests.deleteTeam(cont.team as Team);
+          window.location.reload();
+      })();
+    }
+  };
+
   return (
     <div className="flex justify-center items-center font-Ropa">
       <div className=" grid grid-cols-1">
         <div className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] w-[348px]">
           <div className="text-[16px] text-[#425CBA] space-y-[4px]">
-            Your Name: {user.name}
+            <b>Your Name: </b>
+            {user.name}
           </div>
-        </div>
 
-        {cont !== null && cont.team !== undefined && cont.team.name !== "" && (
-          <div className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] w-[348px]">
-            <div className="text-[16px] text-[#425CBA] space-y-[4px]">
-              Team Name: {cont.team.name}
-            </div>
-          </div>
-        )}
+          {cont !== null &&
+            cont.team !== undefined &&
+            (cont.team.id as number) > 1 && (
+              <>
+                <hr className="pb-[10px] mt-[10px]" />
+                <div className="text-[16px] text-[#425CBA] space-y-[4px]">
+                  <b>Team Name: </b> {cont.team.name}
+                </div>
+                {cont.team.members !== null && cont.team.members.length > 1 && (
+                  <>
+                    <hr className="pb-[10px] mt-[10px]" />
+                    <label className="text-[#425CBA] text-[16px]">
+                      <b>Team Members: </b>{" "}
+                      <ul>
+                        {cont.team.members.map((c) => (
+                          <li>{c.user.name}</li>
+                        ))}
+                      </ul>{" "}
+                    </label>
+                  </>
+                )}
+                <hr className="pb-[10px] mt-[10px]" />
+                <div className="relative left-[62%] translate-x-[-50%]">
+                  <Button color="info" variant="outlined" onClick={leaveTeam}>
+                    <label className="normal-case cursor-pointer">
+                      Leave Team
+                    </label>
+                  </Button>
+                  {cont.user.id === cont.team.leader_id && (
+                    <>
+                      {"  "}
+                      <Button
+                        color="error"
+                        variant="outlined"
+                        onClick={deleteTeam}
+                      >
+                        <label className="normal-case cursor-pointer">
+                          Delete Team
+                        </label>
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+        </div>
 
         <Button
           onClick={() => {
@@ -81,11 +147,11 @@ const Profile = ({ user }: Props) => {
               await MicrosoftLogin.logout(user);
             })();
           }}
-              color="error"
-              variant="outlined"
-              size="large"
-            >
-              <label className="normal-case font-Ropa cursor-pointer">Logout</label>
+          color="error"
+          variant="outlined"
+          size="large"
+        >
+          <label className="normal-case font-Ropa cursor-pointer">Logout</label>
         </Button>
       </div>
     </div>

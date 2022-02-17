@@ -31,7 +31,6 @@ const Contests = ({ user }: Props) => {
       </>
     );
   }
-  console.log(user);
 
   if (user !== null && checkUserType(user, UserType.Organizer)) {
     return <OrganizerContestCards contests={contests} />;

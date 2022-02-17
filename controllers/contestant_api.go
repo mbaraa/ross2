@@ -73,6 +73,12 @@ func (c *ContestantAPI) handleGetProfile(ctx context.HandlerContext) {
 		return
 	}
 
+	cont.Team, err = c.contMgr.GetTeam(cont)
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	_ = ctx.WriteJSON(cont, 0)
 }
 
@@ -221,6 +227,7 @@ func (c *ContestantAPI) handleCheckJoinedTeam(ctx context.HandlerContext) {
 	}, 0)
 }
 
+// Deprecated
 // GET /contestant/get-team/
 func (c *ContestantAPI) handleGetTeam(ctx context.HandlerContext) {
 	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
@@ -228,7 +235,7 @@ func (c *ContestantAPI) handleGetTeam(ctx context.HandlerContext) {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	
 	team, err := c.contMgr.GetTeam(cont)
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
