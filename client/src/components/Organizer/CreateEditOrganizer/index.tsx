@@ -42,6 +42,15 @@ const CreateEditOrganizer = ({
 }: Props): React.ReactElement => {
   const isEdit = organizer !== undefined && (organizer.user as User).id !== 0;
 
+  const [errMsg, _setErrMsg] = React.useState("");
+
+  const setErrMsg = (msg: string) => {
+    _setErrMsg(msg);
+    setTimeout(() => {
+      _setErrMsg("")
+    }, 5000);
+  };
+
   const [isModified, setIsModified] = React.useState(false);
 
   const [organizer2, setOrganizer] = React.useState<Organizer>({
@@ -133,15 +142,21 @@ const CreateEditOrganizer = ({
     // }
   };
 
+  const checkRoles = (): boolean => (organizer2.roles as number) !== 0;
+
   const createOrganizer = () => {
     setRoles();
+    if (!checkRoles()) {
+      setErrMsg("Select at least one role for the organizer!");
+      return;
+    }
     organizer2.user.email = email.email;
     organizer2.contests?.push(contest);
 
     (async () => {
       const resp = await OrganizerRequests.createOrganizer(organizer2);
       if (!resp.ok) {
-        window.alert(await resp.text());
+        setErrMsg(await resp.text());
         return;
       }
       window.alert("Organizer was created successfully!");
@@ -331,8 +346,9 @@ const CreateEditOrganizer = ({
             name="email"
             type="email"
           />
-          <br />
-          <br />
+
+          <div className="text-[#d63333] text-[20px] font-Ropa py-[10px]">{errMsg}</div>
+
           <Button
             variant="outlined"
             color="secondary"
