@@ -186,7 +186,12 @@ const ContestCard = ({ contest }: Props) => {
         {contest.description}
       </div>
 
-      {!hasTeam && (
+      {hasTeam? <div
+            className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center"
+            title="You are already registered in this contest!"
+          >
+            Already Registerd ✅
+          </div> :  (
         <>
           <div
             className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
@@ -208,6 +213,9 @@ const ContestCard = ({ contest }: Props) => {
           </div>
         </>
       )}
+
+      {/*********************/}
+
       <Dialog open={openCT} onClose={closeCTHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
           <div className="mb-[28px]">

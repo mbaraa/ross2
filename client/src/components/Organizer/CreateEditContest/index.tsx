@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import * as React from "react";
 import Contest, { ParticipationConditions } from "../../../models/Contest";
-import User from "../../../models/User";
+import User, { checkUserType, UserType } from "../../../models/User";
 import { GoPlus } from "react-icons/go";
 import { MdSave } from "react-icons/md";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -16,6 +16,7 @@ import DateTimePicker from "@mui/lab/DateTimePicker";
 import ImageUploader from "../../Shared/ImageUploader";
 import config from "../../../config";
 import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
+import Title from "../../Shared/Title";
 
 interface LabelProps {
   text: string;
@@ -142,6 +143,10 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
   const updateContest = () => {
     (async () => {})();
   };
+
+  if (!checkUserType(user, UserType.Director) || !checkUserType(user, UserType.Admin) ) {
+    return <Title className="mb-[8px]" content="Hmm... I don't think you can do that!" />
+  }
 
   return (
     <div className="grid md:grid-cols-2 grid-cols-1">
