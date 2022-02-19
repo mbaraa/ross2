@@ -15,6 +15,7 @@ import OrganizerRequests from "../utils/requests/OrganizerRequests";
 import CreateEditContest from "../components/Organizer/CreateEditContest";
 import OrganizersGrid from "../components/Organizer/OrganizersGrid";
 import CreateEditOrganizer from "../components/Organizer/CreateEditOrganizer";
+import GeneratePosts from "../components/Organizer/GeneratePosts";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -104,6 +105,14 @@ const Contest = ({ user }: Props): ReactElement => {
     checkUserType(user, UserType.Organizer) &&
     checkOrgType(org, OrganizerRole.Receptionist);
 
+  React.useEffect(() => {
+    if (isDirector) {
+      (async () => {
+        setContest(await OrganizerRequests.getContest(contest.id));
+      })();
+    }
+  }, [contest.id]);
+
   if (contest.id) {
     return (
       <div className="font-Ropa">
@@ -150,7 +159,7 @@ const Contest = ({ user }: Props): ReactElement => {
           </TabPanel>
           {isDirector && (
             <TabPanel value={value} index={1}>
-              Building...
+              <GeneratePosts contest={contest}/>
             </TabPanel>
           )}
           {isDirector && (
@@ -173,7 +182,7 @@ const Contest = ({ user }: Props): ReactElement => {
           )}
           {(isDirector || isAdmin) && (
             <TabPanel value={value} index={5}>
-              <CreateEditOrganizer user={user} contest={contest}/>
+              <CreateEditOrganizer user={user} contest={contest} />
             </TabPanel>
           )}
           {isReseptionist && (
@@ -191,7 +200,7 @@ const Contest = ({ user }: Props): ReactElement => {
     );
   }
 
-  return <div>Lodding..</div>;
+  return <div>Lodding...</div>;
 };
 
 export default Contest;

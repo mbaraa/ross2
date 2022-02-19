@@ -14,6 +14,10 @@ interface Props {
 const ManageTeams = ({ teams, teamless }: Props): React.ReactElement => {
   const [open, setOpen] = React.useState(false);
 
+  if (teams === null || teams.length === 0) {
+    return <Title content="No teams are available!" className=""/>
+  }
+
   teams.sort((ti: Team, tj: Team) => ((ti.members.length as number) < (tj.members.length as number)? -1: 1));
 
   return (

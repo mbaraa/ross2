@@ -1,217 +1,247 @@
-import { useHistory, useParams } from "react-router-dom";
 import * as React from "react";
-import Contest from "../../../models/Contest";
-import { Button, Input } from "@mui/material";
+import Contest, { ParticipationConditions } from "../../../models/Contest";
+import { Button, FormControlLabel, Switch, TextField } from "@mui/material";
 import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
-
-class Point2 {
-  x?: number;
-  y?: number;
-}
-class FieldProps {
-  startPosition: Point2;
-  width?: number;
-  fontSize?: number;
-  constructor() {
-    this.startPosition = new Point2();
-  }
+import { MdImage } from "react-icons/md";
+import { GiGears } from "react-icons/gi";
+import ImageUploader from "../../Shared/ImageUploader";
+import FieldPropsElement, { FieldProps, FieldLabel } from "./FieldPropsElement";
+import { readFile } from "../../../utils";
+interface Props {
+  contest: Contest;
 }
 
-const GeneratePosts = (): React.ReactElement => {
-  const router = useHistory();
-  const { id }: any = useParams();
-
-  const [contest, setCont] = React.useState<Contest>(new Contest());
-  React.useEffect(() => {
-    (async () => {
-      const c = await Contest.getContestFromServer(parseInt(id as string));
-      setCont(c);
-    })();
-  }, []);
-
-  const [useSampleImage, setUseSampleImage] = React.useState<boolean>(false);
-  const [loading, setLoading] = React.useState<boolean>(false);
-
-  const [teamNameProps, setTeamNameProps] = React.useState<FieldProps>(
-    new FieldProps()
-  );
-  const [teamNumberProps, setTeamNumberProps] = React.useState<FieldProps>(
-    new FieldProps()
-  );
-  const [membersProps, setMembersProps] = React.useState<any[]>([]);
-  const [imageB64, setImageB64] = React.useState<string>("");
-  const [templateFile, setTemplateFile] = React.useState<any>(undefined);
-
-  const [postsGenDialog, setPostsGenDialog] = React.useState<boolean>(false);
-
-  // const openPostsGenDialog = (contest: Contest) => {
-  // setCont(contest);
-
-  const mb = new Array<FieldProps>(
-    contest.participation_conditions?.max_team_members as number
-  ).fill({ width: 0, fontSize: 0, startPosition: new Point2() } as FieldProps);
-  // class Foo extends FieldProps {
-  //   id: number;
-  //   constructor(id: number) {
-  //     super();
-  //     this.id = id;
-  //   }
-  // }
-
-  // for (let i = 0; i < (contest.participation_conditions?.max_team_members as number); i++) {
-  //   mb.push(new Foo(i));
-  // }
-
-  console.log("mb", mb);
-  setMembersProps(mb);
-  setPostsGenDialog(true);
-  // };
-
-  const closePostsGenDialog = () => {
-    setPostsGenDialog(false);
+const GeneratePosts = ({ contest }: Props): React.ReactElement => {
+  const [useSample, setUseSample] = React.useState(false);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseSample(event.target.checked);
   };
+
+  const [templateImage, setTemplateImage] = React.useState<File>(new File([], ""));
+  const [teamNumberProps, setTeamNumberProps] = React.useState(
+    new FieldProps()
+  );
+  const [teamNameProps, setTeamNameProps] = React.useState(new FieldProps());
+
+  const membersProps: any = [];
+
+  for (
+    let i = 0;
+    i <
+    (((contest as Contest).participation_conditions as ParticipationConditions)
+      .max_team_members as number);
+    i++
+  ) {
+    membersProps.push({
+      i: i,
+      fp: new FieldProps(),
+    });
+  }
+
+  const [fp, setFP] = React.useState(membersProps);
 
   const checkImageFile = (): boolean => {
-    if (
-      !useSampleImage &&
-      (templateFile === undefined || templateFile.type.indexOf("png") == -1)
-    ) {
-      window.alert("select file of image/png type!");
-      setTemplateFile(undefined);
-      return false;
-    }
-    return true;
-  };
+            if (!useSample && (templateImage === undefined || templateImage?.type.indexOf("png") === -1)) {
+                window.alert("select file of image/png type!");
+                setTemplateImage(new File([], ""));
+                // templateImage = null;
+                return false;
+            }
+            return true;
+        }
 
-  const selectFile = (file: any) => {
-    setTemplateFile(file.target.files[0]);
-    checkImageFile();
-  };
-
-  const readFile = async (): Promise<string | ArrayBuffer | null> => {
-    let res: string | ArrayBuffer | null = "";
-    // 🙉🙊🙈 if it works it ain't stupid
-    const toBase64 = () =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(templateFile);
-        reader.onload = () => {
-          resolve(reader.result);
-          res = reader.result;
-          return res;
-        };
-        reader.onerror = (error) => reject(error);
-      });
-    await toBase64();
-    return res;
-  };
-
-  const generatePosts = async (contest: Contest) => {
+  const generatePosts = () => {
     if (!checkImageFile()) {
       return;
-    }
-    setLoading(true);
-    const templateImageB64 = useSampleImage ? "" : await readFile();
-    const zipFile = await OrganizerRequests.generateTeamsPosts({
-      contest: contest,
-      teamNameProps: teamNameProps,
-      teamOrderProps: teamNumberProps,
-      membersNamesProps: membersProps,
-      baseImage: useSampleImage
-        ? ""
-        : (templateImageB64 as string).substring(
-            (templateImageB64 as string).indexOf(",") + 1
-          ),
+  }
+
+    const theRealMembersNamesProps = new Array<FieldProps>();
+
+    fp.forEach((fpi: any) => {
+      theRealMembersNamesProps.push(fpi.fp);
     });
 
-    setLoading(false);
+    (async () => {
+      const templateImageB64 = await readFile(templateImage as File) as string;
+      const zipFile = await OrganizerRequests.generateTeamsPosts({
+        "contest": contest,
+        "teamNameProps": teamNameProps,
+        "teamOrderProps": teamNumberProps,
+        "membersNamesProps": theRealMembersNamesProps,
+        "baseImage": useSample? "": templateImageB64?.substring(templateImageB64?.indexOf(",")+1),
+      });
 
-    const f = document.createElement("a");
-    f.href = `data:application/zip;base64,${zipFile}`;
-    f.download = `${contest.name}'s teams posts.zip`;
-    f.click();
+      const a = document.createElement("a");
+      a.href = `data:application/zip;base64,${zipFile}`;
+      a.download = `${contest.name}'s_teams_posts.zip`;
+      a.click();
+    })();
+
   };
-
-  const [memberNumber, setMemberNumber] = React.useState<number>(0);
 
   return (
     <>
-      {/* <Dialog open={postsGenDialog} onClose={closePostsGenDialog}> */}
-      <p className="text-[Poppins] text-indigo font-[600] font-Ropa">
-        Generate Teams Posts
-      </p>
-      {/* <DialogContent className="text-[Poppins]"> */}
-      <p>Team number props:</p>
-      <Input
-        type="number"
-        required
-        placeholder="Start position X"
-        value={teamNameProps.startPosition.x}
-      />
-      <br />
-      <Input
-        type="number"
-        required
-        placeholder="Start position Y"
-        value={teamNameProps.startPosition.y}
-      />
-      <br />
-      <Input
-        type="number"
-        required
-        placeholder="Font Size"
-        value={teamNameProps.fontSize}
-      />
-      <br />
-      <Input
-        type="number"
-        required
-        placeholder="Width"
-        value={teamNameProps.width}
-      />
-
-      {membersProps.map((mp: FieldProps) => {
-        setMemberNumber(memberNumber + 1);
-        return (
-          <div key={Math.random()}>
-            <p>Member #{memberNumber} name props:</p>
-            <Input
-              type="number"
-              required
-              placeholder="Start position X"
-              value={mp.startPosition.x}
+      {/* sample images */}
+      <div className="grid grid-cols-1 md:grid-cols-4">
+        <div>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<MdImage size={15} />}
+            onClick={() => window.open("/team_post_template.png", "_blank")}
+          >
+            <label className="normal-case font-Ropa text-[15px] cursor-pointer">
+              Download sample template image
+            </label>
+          </Button>
+        </div>
+        <div>
+          <Button
+            variant="outlined"
+            color="info"
+            startIcon={<MdImage size={15} />}
+            onClick={() => window.open("/team_post_sample.png", "_blank")}
+          >
+            <label className="normal-case font-Ropa text-[15px] cursor-pointer">
+              Download sample filled image
+            </label>
+          </Button>
+        </div>
+      </div>
+      {/*  */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 pt-[10px]">
+        <div>
+          <FormControlLabel
+            className="py-[10px]"
+            control={
+              <Switch
+                color="info"
+                checked={useSample}
+                onChange={handleChange}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            }
+            label={
+              <label className="font-Ropa text-indigo font-[18px]">
+                Use Sample Image (for 3 members per team)
+              </label>
+            }
+          />
+        </div>
+        <div>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<GiGears size={15} />}
+            onClick={generatePosts}
+          >
+            <label className="normal-case font-Ropa text-[15px] cursor-pointer">
+              Generate Posts
+            </label>
+          </Button>
+        </div>
+      </div>
+      {/* post props */}
+      {!useSample && (
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* left side */}
+          <div>
+            <ImageUploader
+              maxSize={5120}
+              imageFile={templateImage}
+              setImageFile={setTemplateImage}
+              className="xl:w-[600px] rounded-none"
             />
-            <br />
-            <Input
-              type="number"
-              required
-              placeholder="Start position Y"
-              value={mp.startPosition.y}
-            />
-            <br />
-            <Input
-              type="number"
-              required
-              placeholder="Font Size"
-              value={mp.fontSize}
-            />
-            <br />
-            <Input
-              type="number"
-              required
-              placeholder="Width"
-              value={mp.width}
-            />
-            <br />
           </div>
-        );
-      })}
-      {/* </DialogContent> */}
-      {/* <DialogActions> */}
-      <Button onClick={closePostsGenDialog}>Cancel</Button>
-      <Button onClick={closePostsGenDialog}>Subscribe</Button>
-      {/* </DialogActions> */}
-      {/* </Dialog> */}
+          {/* right side */}
+          <div>
+            <FieldPropsElement
+              fieldName="Team Number Props:"
+              fieldProps={teamNumberProps}
+              setFieldProps={setTeamNumberProps}
+            />
+            <FieldPropsElement
+              fieldName="Team Name Props:"
+              fieldProps={teamNameProps}
+              setFieldProps={setTeamNameProps}
+            />
+            {/* well I couldn't :) */}
+            {fp.map((mp: any) => (
+              <div className="pb-[15px]" key={mp.i}>
+                <label className="font-Ropa text-[20px] text-indigo">{`Member #${
+                  mp.i + 1
+                } Name Props:`}</label>
+                <div className="grid lg:grid-cols-4 grid-cols-1 pt-[5px]">
+                  <div className="mr-[10px] mb-[10px]">
+                    <TextField
+                      className="w-[100%]"
+                      variant="outlined"
+                      value={fp[mp.i].fp.startPosition.x}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        fp[mp.i].fp.startPosition.x = Number(
+                          event.target.value
+                        );
+                        setFP(fp);
+                      }}
+                      label={<FieldLabel text="Position X (px)" />}
+                      type="number"
+                    />
+                  </div>
+                  <div className="mr-[10px] mb-[10px]">
+                    <TextField
+                      className="w-[100%]"
+                      variant="outlined"
+                      value={fp[mp.i].fp.startPosition.y}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        fp[mp.i].fp.startPosition.y = Number(
+                          event.target.value
+                        );
+                        setFP(fp);
+                      }}
+                      label={<FieldLabel text="Position Y (px)" />}
+                      type="number"
+                    />
+                  </div>
+                  <div className="mr-[10px] mb-[10px]">
+                    <TextField
+                      className="w-[100%]"
+                      variant="outlined"
+                      value={fp[mp.i].fp.fontSize}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        fp[mp.i].fp.fontSize = Number(event.target.value);
+                        setFP(fp);
+                      }}
+                      label={<FieldLabel text="Font Size (px)" />}
+                      type="number"
+                    />
+                  </div>
+                  <div className="mr-[10px]">
+                    <TextField
+                      className="w-[100%]"
+                      variant="outlined"
+                      value={fp[mp.i].fp.width}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        fp[mp.i].fp.width = Number(event.target.value);
+                        setFP(fp);
+                      }}
+                      label={<FieldLabel text="Field Width (px)" />}
+                      type="number"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 };

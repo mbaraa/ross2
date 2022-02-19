@@ -72,7 +72,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
       setIsModified(true);
     };
 
-  const [logoFile, setLogoFile] = React.useState<File | null>(null);
+  const [logoFile, setLogoFile] = React.useState<File>(new File([], ""));
 
   const uploadLogo = async (): Promise<string> => {
     if (!logoFile) {

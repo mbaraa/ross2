@@ -9,7 +9,7 @@ interface Props {
    */
   maxSize: number;
   imageFile: File | null;
-  setImageFile: React.Dispatch<React.SetStateAction<File | null>>;
+  setImageFile: React.Dispatch<React.SetStateAction<File>>;
   className?: string;
 }
 
@@ -44,12 +44,12 @@ const ImageUploader = ({
   const [errMsg, setErrMsg] = React.useState("");
 
   return (
-    <div className="items-center text-center">
+    <div className={`items-center text-center ${className}`}>
       <img
-        className="rounded-[10%] w-[350px] h-[350px] p-[15px] bg-gray-100 relative translate-x-[-50%] left-[50%]"
+        className={`rounded-[10%] w-[350px] h-[350px] p-[15px] bg-gray-100 relative translate-x-[-50%] left-[50%] ${className}`}
         id="image-to-upload"
         src="/image_upload.png"
-        alt="noov"
+        alt=""
       />
       <br />
       <input
