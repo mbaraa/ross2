@@ -19,6 +19,7 @@ import Contest from "../../../models/Contest";
 import config from "../../../config";
 import ActionChecker from "../../../utils/ActionChecker";
 import { checkUserType, UserType } from "../../../models/User";
+import { useHistory } from "react-router-dom";
 
 interface Props {
   contest: Contest;
@@ -132,7 +133,9 @@ const ContestCard = ({ contest }: Props) => {
 
   React.useEffect(() => {
     setHasTeam(
-      contestantProfile !== null && (contestantProfile.team_id as number) > 1 && !checkUserType(contestantProfile.user, UserType.Organizer)
+      contestantProfile !== null &&
+        (contestantProfile.team_id as number) > 1 &&
+        !checkUserType(contestantProfile.user, UserType.Organizer)
     );
   }, [contestantProfile]);
 
@@ -154,44 +157,56 @@ const ContestCard = ({ contest }: Props) => {
     }
   };
 
+  const router = useHistory();
+
   return (
     <div className="float-left border-[1px] font-Ropa border-ross2 rounded h-auto inline-block w-[280px] mr-[16px] last:mr-0 mb-[16px] last:mb-0">
-      <div className="grid grid-cols-2 p-[20px]">
-        <div>
-          <img
-            alt={contest.name}
-            src={`${config.backendAddress}${contest.logo_path}`}
-            className="rounded-full w-[75px] h-[75px] inline"
-          />
+      <div
+        className=" cursor-pointer"
+        title="Go to contest's page"
+        onClick={() => {
+          router.push(`/contest/${contest.id}`, "_blank");
+        }}
+      >
+        <div className="grid grid-cols-2 p-[20px]">
+          <div>
+            <img
+              alt={contest.name}
+              src={`${config.backendAddress}${contest.logo_path}`}
+              className="rounded-full w-[75px] h-[75px] inline"
+            />
+          </div>
+
+          <div className="text-left">
+            <label className="font-[700] text-[22px] text-ross2">
+              {contest.name}
+            </label>
+            <br />
+            <label className="font-[500] text-[15px] text-ross2 ">
+              <BiTimeFive className="inline-block" />{" "}
+              {getLocaleTime(contest.starts_at)}
+            </label>
+            <br />
+            <label className="font-[500] text-[15px] text-ross2 ">
+              <GoLocation size="15px" className="inline-block" />{" "}
+              {contest.location}
+            </label>
+          </div>
         </div>
 
-        <div className="text-left">
-          <label className="font-[700] text-[22px] text-ross2">
-            {contest.name}
-          </label>
-          <br />
-          <label className="font-[500] text-[15px] text-ross2 ">
-            <BiTimeFive className="inline-block" />{" "}
-            {getLocaleTime(contest.starts_at)}
-          </label>
-          <br />
-          <label className="font-[500] text-[15px] text-ross2 ">
-            <GoLocation size="15px" className="inline-block" />{" "}
-            {contest.location}
-          </label>
+        <div className="px-[20px] pb-[5px] text-center w-full text-ross2 font-Ropa font-[500]">
+          {contest.description}
         </div>
       </div>
 
-      <div className="px-[20px] pb-[5px] text-center w-full text-ross2 font-Ropa font-[500]">
-        {contest.description}
-      </div>
-
-      {hasTeam? <div
-            className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center"
-            title="You are already registered in this contest!"
-          >
-            Already Registerd ✅
-          </div> :  (
+      {hasTeam ? (
+        <div
+          className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center"
+          title="You are already registered in this contest!"
+        >
+          Already Registerd ✅
+        </div>
+      ) : (
         <>
           <div
             className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
