@@ -17,6 +17,8 @@ import OrganizersGrid from "../components/Organizer/OrganizersGrid";
 import CreateEditOrganizer from "../components/Organizer/CreateEditOrganizer";
 import GeneratePosts from "../components/Organizer/GeneratePosts";
 import ContestAbout from "../components/Shared/ContestAbout";
+import { Button } from "@mui/material";
+import { GoPlus } from "react-icons/go";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -114,6 +116,8 @@ const Contest = ({ user }: Props): ReactElement => {
     }
   }, [contest.id]);
 
+  const [newOrg, setNewOrg] = React.useState(false);
+
   if (contest.id) {
     return (
       <div className="font-Ropa">
@@ -126,9 +130,12 @@ const Contest = ({ user }: Props): ReactElement => {
           >
             <Tabs
               value={value}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
               onChange={handleChange}
               className="border-indigo"
-              aria-label="basic tabs example"
+              aria-label="scrollable auto tabs example"
             >
               <Tab label={<TabLabel text="About" />} value={0} />
               {isDirector && (
@@ -143,24 +150,21 @@ const Contest = ({ user }: Props): ReactElement => {
               {(isDirector || isAdmin) && (
                 <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
               )}
-              {(isDirector || isAdmin) && (
-                <Tab label={<TabLabel text="Create Organizer" />} value={5} />
-              )}
               {isReseptionist && (
-                <Tab label={<TabLabel text="Attendance" />} value={6} />
+                <Tab label={<TabLabel text="Attendance" />} value={5} />
               )}
               {(isDirector || isCoreOrg) && (
-                <Tab label={<TabLabel text="Edit" />} value={7} />
+                <Tab label={<TabLabel text="Edit" />} value={6} />
               )}
             </Tabs>
           </Box>
 
           <TabPanel value={value} index={0}>
-            <ContestAbout contest={contest}/>
+            <ContestAbout contest={contest} />
           </TabPanel>
           {isDirector && (
             <TabPanel value={value} index={1}>
-              <GeneratePosts contest={contest}/>
+              <GeneratePosts contest={contest} />
             </TabPanel>
           )}
           {isDirector && (
@@ -178,21 +182,36 @@ const Contest = ({ user }: Props): ReactElement => {
           )}
           {(isDirector || isAdmin) && (
             <TabPanel value={value} index={4}>
-              <OrganizersGrid />
-            </TabPanel>
-          )}
-          {(isDirector || isAdmin) && (
-            <TabPanel value={value} index={5}>
-              <CreateEditOrganizer user={user} contest={contest} />
+              <div className="pb-[10px]">
+                <Button
+                  startIcon={<GoPlus size={12} />}
+                  color="error"
+                  variant="outlined"
+                  size="large"
+                  onClick={() => {
+                    setNewOrg(!newOrg);
+                  }}
+                >
+                  <label className="normal-case font-Ropa cursor-pointer">
+                    Create Organizer
+                  </label>
+                </Button>
+                {newOrg && (
+                  <div>
+                    <CreateEditOrganizer user={user} contest={contest} />
+                  </div>
+                )}
+              </div>
+              {!newOrg && <OrganizersGrid />}
             </TabPanel>
           )}
           {isReseptionist && (
-            <TabPanel value={value} index={6}>
+            <TabPanel value={value} index={5}>
               Building...
             </TabPanel>
           )}
           {(isDirector || isCoreOrg) && (
-            <TabPanel value={value} index={7}>
+            <TabPanel value={value} index={6}>
               <CreateEditContest user={user} contest={contest} />
             </TabPanel>
           )}

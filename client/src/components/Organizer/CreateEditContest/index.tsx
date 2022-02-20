@@ -9,7 +9,7 @@ import * as React from "react";
 import Contest, { ParticipationConditions } from "../../../models/Contest";
 import User, { checkUserType, UserType } from "../../../models/User";
 import { GoPlus } from "react-icons/go";
-import { MdSave } from "react-icons/md";
+import { MdDelete, MdSave } from "react-icons/md";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
@@ -147,6 +147,19 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
     (async () => {})();
   };
 
+  const deleteContest = () => {
+    (async () => {
+        if (
+          window.confirm(
+            `Are you sure you want to delete the contest ${(contest2 as Contest).name}?`
+          )
+        ) {
+          await OrganizerRequests.deleteContest(contest2 as Contest);
+          window.open("/", "_self");
+        }
+    })();
+  };
+
   if (!checkUserType(user, UserType.Director) || !checkUserType(user, UserType.Admin) ) {
     return <Title className="mb-[8px]" content="Hmm... I don't think you can do that!" />
   }
@@ -158,6 +171,19 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
         {!isEdit && (
           <h1 className="font-Ropa text-[30px] text-ross2">New Contest</h1>
         )}
+        {isEdit && <>
+        <Button
+                startIcon={<MdDelete size={12} />}
+                color="error"
+                variant="outlined"
+                size="large"
+                onClick={deleteContest}
+              >
+                <label className="normal-case font-Ropa cursor-pointer">
+                  Delete Contest
+                </label>
+              </Button>
+      </>}
         <div className="grid sm:grid-cols-2 grid-cols-1 pt-[20px]">
           {/* inner right side */}
           <div className="pr-[25px]">
