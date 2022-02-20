@@ -15,11 +15,10 @@ export function getLocaleTime(time: number): string {
 }
 
 export function formatDuration(minutes: number): string {
-  minutes /= 100000000000;
   const hours = (minutes / 60) % 24;
   const minutes1 = minutes % 60;
 
-  return `${hours} hours & ${minutes1} minutes`;
+  return `${hours} hours${(minutes1 !== 0? ` & ${minutes1} minutes`: "")}`;
 }
 
 export async function readFile(

@@ -37,7 +37,7 @@ type Contest struct {
 func (c *Contest) BeforeCreate(db *gorm.DB) error {
 	c.StartsAt2 = time.UnixMilli(c.StartsAt)
 	c.RegistrationEnds2 = time.UnixMilli(c.RegistrationEnds)
-	c.Duration *= 1e9 * 60
+	// c.Duration *= 1e9 * 60
 	return nil
 }
 

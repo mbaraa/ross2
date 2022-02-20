@@ -16,6 +16,7 @@ import CreateEditContest from "../components/Organizer/CreateEditContest";
 import OrganizersGrid from "../components/Organizer/OrganizersGrid";
 import CreateEditOrganizer from "../components/Organizer/CreateEditOrganizer";
 import GeneratePosts from "../components/Organizer/GeneratePosts";
+import ContestAbout from "../components/Shared/ContestAbout";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -155,7 +156,7 @@ const Contest = ({ user }: Props): ReactElement => {
           </Box>
 
           <TabPanel value={value} index={0}>
-            Building...
+            <ContestAbout contest={contest}/>
           </TabPanel>
           {isDirector && (
             <TabPanel value={value} index={1}>
