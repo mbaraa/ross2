@@ -160,7 +160,7 @@ const ContestCard = ({ contest }: Props) => {
   const router = useHistory();
 
   return (
-    <div className="float-left border-[1px] font-Ropa border-ross2 rounded h-auto inline-block w-[280px] mr-[16px] last:mr-0 mb-[16px] last:mb-0">
+    <div className="float-left border-[1px] font-Ropa border-ross2 rounded h-auto inline-block w-[300px] mr-[16px] last:mr-0 mb-[16px]">
       <div
         className=" cursor-pointer"
         title="Go to contest's page"
@@ -192,10 +192,6 @@ const ContestCard = ({ contest }: Props) => {
               {contest.location}
             </label>
           </div>
-        </div>
-
-        <div className="px-[20px] pb-[5px] text-center w-full text-ross2 font-Ropa font-[500]">
-          {contest.description}
         </div>
       </div>
 
