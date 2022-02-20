@@ -17,7 +17,9 @@ const GeneratePosts = ({ contest }: Props): React.ReactElement => {
     setUseSample(event.target.checked);
   };
 
-  const [templateImage, setTemplateImage] = React.useState<File>(new File([], ""));
+  const [templateImage, setTemplateImage] = React.useState<File>(
+    new File([], "")
+  );
   const [teamNumberProps, setTeamNumberProps] = React.useState(
     new FieldProps()
   );
@@ -41,19 +43,22 @@ const GeneratePosts = ({ contest }: Props): React.ReactElement => {
   const [fp, setFP] = React.useState(membersProps);
 
   const checkImageFile = (): boolean => {
-            if (!useSample && (templateImage === undefined || templateImage?.type.indexOf("png") === -1)) {
-                window.alert("select file of image/png type!");
-                setTemplateImage(new File([], ""));
-                // templateImage = null;
-                return false;
-            }
-            return true;
-        }
+    if (
+      !useSample &&
+      (templateImage.name === "" || templateImage.type.indexOf("png") === -1)
+    ) {
+      window.alert("select file of image/png type!");
+      setTemplateImage(new File([], ""));
+      // templateImage = null;
+      return false;
+    }
+    return true;
+  };
 
   const generatePosts = () => {
     if (!checkImageFile()) {
       return;
-  }
+    }
 
     const theRealMembersNamesProps = new Array<FieldProps>();
 
@@ -62,13 +67,17 @@ const GeneratePosts = ({ contest }: Props): React.ReactElement => {
     });
 
     (async () => {
-      const templateImageB64 = await readFile(templateImage as File) as string;
+      const templateImageB64 = (await readFile(
+        templateImage as File
+      )) as string;
       const zipFile = await OrganizerRequests.generateTeamsPosts({
-        "contest": contest,
-        "teamNameProps": teamNameProps,
-        "teamOrderProps": teamNumberProps,
-        "membersNamesProps": theRealMembersNamesProps,
-        "baseImage": useSample? "": templateImageB64?.substring(templateImageB64?.indexOf(",")+1),
+        contest: contest,
+        teamNameProps: teamNameProps,
+        teamOrderProps: teamNumberProps,
+        membersNamesProps: theRealMembersNamesProps,
+        baseImage: useSample
+          ? ""
+          : templateImageB64?.substring(templateImageB64?.indexOf(",") + 1),
       });
 
       const a = document.createElement("a");
@@ -76,7 +85,6 @@ const GeneratePosts = ({ contest }: Props): React.ReactElement => {
       a.download = `${contest.name}'s_teams_posts.zip`;
       a.click();
     })();
-
   };
 
   return (

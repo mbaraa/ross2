@@ -8,7 +8,7 @@ interface Props {
    * @maxSize represents image's file size in kilo bytes
    */
   maxSize: number;
-  imageFile: File | null;
+  imageFile: File;
   setImageFile: React.Dispatch<React.SetStateAction<File>>;
   className?: string;
 }
@@ -22,6 +22,9 @@ const ImageUploader = ({
   const img = document.getElementById("image-to-upload") as HTMLImageElement;
 
   React.useEffect(() => {
+    if (imageFile.name === "") {
+      return;
+    }
     (async () => {
       if (imageFile !== null) {
         if (!imageFile?.type.includes("image")) {

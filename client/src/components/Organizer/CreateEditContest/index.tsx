@@ -75,14 +75,17 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
   const [logoFile, setLogoFile] = React.useState<File>(new File([], ""));
 
   const uploadLogo = async (): Promise<string> => {
-    if (!logoFile) {
-      window.alert("select a logo file!");
+    let res = "";
+    
+    if (logoFile.name === "") {
+      res = "Select a logo file!";
+      return res;
     }
 
     const formData = new FormData();
     formData.append("file", logoFile as File);
+    
 
-    let res = "";
     await fetch(
       `${config.backendAddress}/organizer/upload-contest-logo-file/`,
       {
