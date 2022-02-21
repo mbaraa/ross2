@@ -8,6 +8,7 @@ import Header from "./components/Shared/Header";
 import Contest from "./pages/Contest";
 import User from "./models/User";
 import CreateEditContest from "./components/Organizer/CreateEditContest";
+import Admin from "./pages/Admin";
 
 function App() {
   const [user, setUser] = React.useState<User>(new User());
@@ -26,6 +27,10 @@ function App() {
       <Switch>
         <Route exact path="/">
           <Contests user={user} />
+        </Route>
+
+        <Route path="/admin">
+          <Admin user={user}/>
         </Route>
 
         <Route path="/contest/:id">

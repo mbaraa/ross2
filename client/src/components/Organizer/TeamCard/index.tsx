@@ -67,7 +67,7 @@ const TeamCard = ({ team, teamless }: Props): React.ReactElement => {
   return (
     <>
       <div
-        className={`float-left border-[1px] border-[${color}] rounded h-auto inline-block w-[280px] ml-[16px] mb-[56px] p-0 font-Ropa`}
+        className={`float-left border-[1px] border-[${color}] rounded h-auto inline-block w-[280px] mr-[16px] mb-[56px] p-0 font-Ropa`}
       >
         <div className="p-[28px]">
           <div className="inline-grid grid-cols-2 w-full">

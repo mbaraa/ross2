@@ -30,10 +30,10 @@ class AdminRequests {
         await RequestsManager.makeAuthGetRequest("get-directors", UserType.Admin)
             .then(resp => resp.json())
             .then(resp => {
-                dirs = resp;
+                dirs = resp as Organizer[];
                 return dirs;
             })
-            .catch(err => window.alert(err));
+            .catch(err => console.log(err));
 
         return dirs;
     }
