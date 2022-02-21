@@ -19,6 +19,7 @@ import GeneratePosts from "../components/Organizer/GeneratePosts";
 import ContestAbout from "../components/Shared/ContestAbout";
 import { Button } from "@mui/material";
 import { GoPlus } from "react-icons/go";
+import UserManagerment from "../components/Organizer/UserManagement";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -150,8 +151,8 @@ const Contest = ({ user }: Props): ReactElement => {
               {(isDirector || isAdmin) && (
                 <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
               )}
-              {isReseptionist && (
-                <Tab label={<TabLabel text="Attendance" />} value={5} />
+              {(isDirector || isReseptionist) && (
+                <Tab label={<TabLabel text="Attendance & Other User Management" />} wrapped value={5} />
               )}
               {(isDirector || isCoreOrg) && (
                 <Tab label={<TabLabel text="Edit" />} value={6} />
@@ -205,9 +206,9 @@ const Contest = ({ user }: Props): ReactElement => {
               {!newOrg && <OrganizersGrid />}
             </TabPanel>
           )}
-          {isReseptionist && (
+          {(isDirector || isReseptionist) && (
             <TabPanel value={value} index={5}>
-              Building...
+              <UserManagerment contest={contest} isDirector={isDirector} isReceptionist={isReseptionist}/>
             </TabPanel>
           )}
           {(isDirector || isCoreOrg) && (
