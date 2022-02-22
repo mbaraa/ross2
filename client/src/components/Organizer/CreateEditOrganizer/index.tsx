@@ -1,16 +1,8 @@
 import * as React from "react";
-import {
-  Button,
-  TextField,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Checkbox,
-} from "@mui/material";
+import { Button, TextField, FormControlLabel, Checkbox } from "@mui/material";
 import User from "../../../models/User";
 import { GoPlus } from "react-icons/go";
 import { MdSave } from "react-icons/md";
-import config from "../../../config";
 import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 import Contest from "../../../models/Contest";
 import Organizer, { OrganizerRole } from "../../../models/Organizer";
@@ -33,8 +25,6 @@ interface Props {
   organizer?: Organizer;
 }
 
-// TODO
-// fix this shit :)
 const CreateEditOrganizer = ({
   user,
   contest,
@@ -47,8 +37,8 @@ const CreateEditOrganizer = ({
   const setErrMsg = (msg: string) => {
     _setErrMsg(msg);
     setTimeout(() => {
-      _setErrMsg("")
-    }, 5000);
+      _setErrMsg("");
+    }, 10000);
   };
 
   const [isModified, setIsModified] = React.useState(false);
@@ -56,13 +46,14 @@ const CreateEditOrganizer = ({
   const [organizer2, setOrganizer] = React.useState<Organizer>({
     ...organizer,
   } as Organizer);
+
   React.useEffect(() => {
     if (organizer === undefined) {
       setOrganizer(new Organizer());
     }
   }, [organizer]);
 
-  const [email, setEmail] = React.useState({ email: "" });
+  const [email, setEmail] = React.useState({ email: organizer2.user.email });
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail({
       ...email,
@@ -71,76 +62,48 @@ const CreateEditOrganizer = ({
   };
 
   const [roles, _setRoles] = React.useState([
-    { stateName: "isCoreOrganizer", name: "Core Organizer", checked: false },
-    { stateName: "isChiefJudge", name: "Chief Judge", checked: false },
-    { stateName: "isJudge", name: "Judge", checked: false },
-    { stateName: "isTechnical", name: "Technical", checked: false },
-    { stateName: "isCoordinator", name: "Coordinator", checked: false },
-    { stateName: "isMedia", name: "Media", checked: false },
-    { stateName: "isBalloons", name: "Balloons", checked: false },
-    { stateName: "isFood", name: "Food", checked: false },
-    { stateName: "isReceptionist", name: "Receptionist", checked: false },
+    { i: 0, name: "Core Organizer", checked: false },
+    { i: 1, name: "Chief Judge", checked: false },
+    { i: 2, name: "Judge", checked: false },
+    { i: 3, name: "Technical", checked: false },
+    { i: 4, name: "Coordinator", checked: false },
+    { i: 5, name: "Media", checked: false },
+    { i: 6, name: "Balloons", checked: false },
+    { i: 7, name: "Food", checked: false },
+    { i: 8, name: "Receptionist", checked: false },
   ]);
 
-  const [selectedRoles, setSelectedRoles] = React.useState({
-    isCoreOrganizer: false,
-    isChiefJudge: false,
-    isJudge: false,
-    isTechnical: false,
-    isCoordinator: false,
-    isMedia: false,
-    isBalloons: false,
-    isFood: false,
-    isReceptionist: false,
-  });
-
-  const handleRoleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedRoles({
-      ...selectedRoles,
-      [event.target.name]: event.target.checked,
-    });
-  };
-
   const setRoles = () => {
-    organizer2.roles = 0;
-    if (selectedRoles.isCoreOrganizer) {
-      organizer2.roles |= OrganizerRole.CoreOrganizer;
+      organizer2.roles = 0;
+
+    for (
+      let role = OrganizerRole.CoreOrganizer;
+      role <= OrganizerRole.Receptionist;
+      role <<= 1
+    ) {
+      if (roles[Math.log2(role) - 1].checked) {
+        // -1 since the roles array has only 9 elements
+        (organizer2.roles as number) |= role;
+      }
     }
-    if (selectedRoles.isChiefJudge) {
-      organizer2.roles |= OrganizerRole.ChiefJudge;
-    }
-    if (selectedRoles.isJudge) {
-      organizer2.roles |= OrganizerRole.Judge;
-    }
-    if (selectedRoles.isTechnical) {
-      organizer2.roles |= OrganizerRole.Technical;
-    }
-    if (selectedRoles.isCoordinator) {
-      organizer2.roles |= OrganizerRole.Coordinator;
-    }
-    if (selectedRoles.isMedia) {
-      organizer2.roles |= OrganizerRole.Media;
-    }
-    if (selectedRoles.isBalloons) {
-      organizer2.roles |= OrganizerRole.Balloons;
-    }
-    if (selectedRoles.isFood) {
-      organizer2.roles |= OrganizerRole.Food;
-    }
-    if (selectedRoles.isReceptionist) {
-      organizer2.roles |= OrganizerRole.Receptionist;
-    }
-    // for (
-    //   let role = OrganizerRole.CoreOrganizer;
-    //   role <= OrganizerRole.Receptionist;
-    //   role <<= 1
-    // ) {
-    //   if (roles[Math.log2(role) - 1].checked) {
-    //     // -1 since the roles array has only 9 elements
-    //     organizer2.roles |= role;
-    //   }
-    // }
   };
+
+  React.useEffect(() => {
+    if (isEdit) {
+      for (
+        let role = OrganizerRole.CoreOrganizer;
+        role <= OrganizerRole.Receptionist;
+        role <<= 1
+      ) {
+        if ((role & (organizer2.roles as number)) !== 0) {
+          roles[Math.log2(role) - 1].checked = true;
+          _setRoles(roles.flat());
+        } else {
+          roles[Math.log2(role) - 1].checked = false;
+        }
+      }
+    }
+  }, []);
 
   const checkRoles = (): boolean => (organizer2.roles as number) !== 0;
 
@@ -164,10 +127,32 @@ const CreateEditOrganizer = ({
     })();
   };
 
+  const updateOrganizer = () => {
+    setRoles();
+    if (!checkRoles()) {
+      setErrMsg("Select at least one role for the organizer!");
+      return;
+    }
+    organizer2.user.email = email.email;
+
+    (async () => {
+      const resp = await OrganizerRequests.updateOrganizer(organizer2);
+      if (!resp.ok) {
+        setErrMsg(await resp.text());
+        return;
+      }
+      window.alert("Organizer was updated successfully!");
+    })();
+  };
+
   return (
     <div>
-      {!isEdit && (
+      {!isEdit ? (
         <h1 className="font-Ropa text-[30px] text-ross2">New Organizer</h1>
+      ) : (
+        <h1 className="font-Ropa text-[30px] text-ross2">
+          {organizer2.user.name}
+        </h1>
       )}
       <div className="grid md:grid-cols-2 grid-cols-1">
         {/* left side */}
@@ -176,162 +161,32 @@ const CreateEditOrganizer = ({
             Select Organizer's Roles:
           </div>
           <div className="grid grid-cols-2">
-            {/* {roles.map(role => <> */}
-            <div>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isCoreOrganizer}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[0].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[0].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isChiefJudge}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[1].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[1].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isJudge}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[2].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[2].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isTechnical}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[3].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[3].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isCoordinator}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[4].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[4].name}
-                  </label>
-                }
-              />
-            </div>
-            <div>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isMedia}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[5].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[5].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isBalloons}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[6].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[6].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isFood}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[7].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[7].name}
-                  </label>
-                }
-              />
-              <br />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedRoles.isReceptionist}
-                    onChange={handleRoleChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                    color="secondary"
-                    name={roles[8].stateName}
-                  />
-                }
-                label={
-                  <label className="text-ross2 text-[18px] font-Ropa">
-                    {roles[8].name}
-                  </label>
-                }
-              />
-            </div>
+            {roles.map((role) => (
+              <div key={role.i}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={roles[role.i].checked}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        roles[role.i].checked = Boolean(event.target.checked);
+                        _setRoles(roles.flat());
+                        setIsModified(true);
+                      }}
+                      inputProps={{ "aria-label": "controlled" }}
+                      color="secondary"
+                    />
+                  }
+                  label={
+                    <label className="text-ross2 text-[18px] font-Ropa">
+                      {roles[role.i].name}
+                    </label>
+                  }
+                />
+                <br />
+              </div>
+            ))}
           </div>
         </div>
 
@@ -345,17 +200,26 @@ const CreateEditOrganizer = ({
             label={<FieldLabel text="Email" />}
             name="email"
             type="email"
+            disabled={isEdit}
           />
 
-          <div className="text-[#d63333] text-[20px] font-Ropa py-[10px]">{errMsg}</div>
+          <div className="text-[#d63333] text-[20px] font-Ropa py-[10px]">
+            {errMsg}
+          </div>
 
           <Button
             variant="outlined"
-            color="secondary"
+            color={isEdit ? "secondary" : "error"}
             className="w-full"
-            onClick={createOrganizer}
+            startIcon={isEdit ? <MdSave size={18} /> : <GoPlus size={18} />}
+            disabled={isEdit && !isModified}
+            onClick={() => {
+              isEdit ? updateOrganizer() : createOrganizer();
+            }}
           >
-            <FieldLabel text="Create" />
+            <label className="normal-case font-Ropa text-[20px] cursor-pointer">
+              {isEdit ? "Save" : "Create"}
+            </label>
           </Button>
         </div>
       </div>

@@ -50,6 +50,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /update-contest/":           o.handleUpdateContest,
 		"POST /upload-contest-logo-file/": o.handleUploadContestLogoFile,
 		"POST /add-organizer/":            o.handleAddOrganizer,
+		"POST /update-organizer/":            o.handleUpdateOrganizer,
 		"POST /delete-organizer/":         o.handleDeleteOrganizer,
 		"GET /get-sub-organizers/":        o.handleGetSubOrganizers,
 		"POST /generate-teams/":           o.handleGenerateTeams,
@@ -191,6 +192,32 @@ func (o *OrganizerAPI) handleAddOrganizer(ctx context.HandlerContext) {
 	}
 
 	err = o.orgMgr.AddOrganizer(newOrg, director, baseUser)
+	if err != nil {
+		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// POST /organizer/update-organizer/
+func (o *OrganizerAPI) handleUpdateOrganizer(ctx context.HandlerContext) {
+	director, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil || (director.Roles&enums.RoleDirector) == 0 {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var newOrg models.Organizer
+	if ctx.ReadJSON(&newOrg) != nil {
+		return	
+	}
+
+	baseUser, err := o.orgMgr.GetUserProfileUsingEmail(newOrg.User.Email)
+	if err != nil {
+		http.Error(ctx.Res, "user doesn't exist!", http.StatusNotFound)
+		return
+	}
+
+	err = o.orgMgr.UpdateOrganizer(newOrg, director, baseUser)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return

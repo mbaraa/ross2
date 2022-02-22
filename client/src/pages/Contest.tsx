@@ -14,11 +14,8 @@ import Organizer, { checkOrgType, OrganizerRole } from "../models/Organizer";
 import OrganizerRequests from "../utils/requests/OrganizerRequests";
 import CreateEditContest from "../components/Organizer/CreateEditContest";
 import OrganizersGrid from "../components/Organizer/OrganizersGrid";
-import CreateEditOrganizer from "../components/Organizer/CreateEditOrganizer";
 import GeneratePosts from "../components/Organizer/GeneratePosts";
 import ContestAbout from "../components/Shared/ContestAbout";
-import { Button } from "@mui/material";
-import { GoPlus } from "react-icons/go";
 import UserManagerment from "../components/Organizer/UserManagement";
 
 interface TabPanelProps {
@@ -117,8 +114,6 @@ const Contest = ({ user }: Props): ReactElement => {
     }
   }, [contest.id]);
 
-  const [newOrg, setNewOrg] = React.useState(false);
-
   if (contest.id) {
     return (
       <div className="font-Ropa">
@@ -152,7 +147,11 @@ const Contest = ({ user }: Props): ReactElement => {
                 <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
               )}
               {(isDirector || isReseptionist) && (
-                <Tab label={<TabLabel text="Attendance & Other User Management" />} wrapped value={5} />
+                <Tab
+                  label={<TabLabel text="Attendance & Other User Management" />}
+                  wrapped
+                  value={5}
+                />
               )}
               {(isDirector || isCoreOrg) && (
                 <Tab label={<TabLabel text="Edit" />} value={6} />
@@ -183,32 +182,16 @@ const Contest = ({ user }: Props): ReactElement => {
           )}
           {(isDirector || isAdmin) && (
             <TabPanel value={value} index={4}>
-              <div className="pb-[10px]">
-                <Button
-                  startIcon={<GoPlus size={12} />}
-                  color="error"
-                  variant="outlined"
-                  size="large"
-                  onClick={() => {
-                    setNewOrg(!newOrg);
-                  }}
-                >
-                  <label className="normal-case font-Ropa cursor-pointer">
-                    Create Organizer
-                  </label>
-                </Button>
-                {newOrg && (
-                  <div>
-                    <CreateEditOrganizer user={user} contest={contest} />
-                  </div>
-                )}
-              </div>
-              {!newOrg && <OrganizersGrid />}
+              <OrganizersGrid user={user} contest={contest} />
             </TabPanel>
           )}
           {(isDirector || isReseptionist) && (
             <TabPanel value={value} index={5}>
-              <UserManagerment contest={contest} isDirector={isDirector} isReceptionist={isReseptionist}/>
+              <UserManagerment
+                contest={contest}
+                isDirector={isDirector}
+                isReceptionist={isReseptionist}
+              />
             </TabPanel>
           )}
           {(isDirector || isCoreOrg) && (

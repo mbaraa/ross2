@@ -146,6 +146,14 @@ class OrganizerRequests {
     );
   }
 
+  public static async updateOrganizer(org: Organizer): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
+      "update-organizer",
+      UserType.Organizer,
+      org
+    );
+  }
+
   public static async deleteOrganizer(org: Organizer): Promise<void> {
     await RequestsManager.makeAuthPostRequest(
       "delete-organizer",

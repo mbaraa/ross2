@@ -170,6 +170,24 @@ func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUs
 	return o.repo.Add(&newOrg)
 }
 
+// UpdateOrganizer updates the given organizer
+func (o *OrganizerHelper) UpdateOrganizer(newOrg, director models.Organizer, baseUser models.User) error {
+	baseUser.UserType |= enums.UserTypeOrganizer
+
+	err := o.userRepo.Update(&baseUser)
+	if err != nil {
+		return err
+	}
+
+	newOrg.DirectorID = director.User.ID
+	newOrg.Director = &director
+
+	newOrg.User = baseUser
+	newOrg.UserID = baseUser.ID
+
+	return o.repo.Update(newOrg)
+}
+
 // DeleteOrganizer deletes the given organizer
 func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer) error {
 	if (org.User.UserType & enums.UserTypeOrganizer) != 0 {
