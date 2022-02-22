@@ -52,9 +52,11 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
     };
 
   const [registrationEnds, setRegistrationEnds] = React.useState<Date>(
-    new Date()
+    new Date(contest2.registration_ends as number)
   );
-  const [startsAt, setStartsAt] = React.useState<Date>(new Date());
+  const [startsAt, setStartsAt] = React.useState<Date>(
+    new Date(contest2.starts_at as number)
+  );
 
   const checkRegAndStartDate = (): boolean => {
     return (
@@ -74,17 +76,18 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
 
   const [logoFile, setLogoFile] = React.useState<File>(new File([], ""));
 
+  const checkLogoFile = (): string => {
+    if (logoFile.name === "") {
+      return "Select a logo file!";
+    }
+    return "";
+  };
+
   const uploadLogo = async (): Promise<string> => {
     let res = "";
-    
-    if (logoFile.name === "") {
-      res = "Select a logo file!";
-      return res;
-    }
 
     const formData = new FormData();
     formData.append("file", logoFile as File);
-    
 
     await fetch(
       `${config.backendAddress}/organizer/upload-contest-logo-file/`,
@@ -121,7 +124,12 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
       contest2.duration = Number(contest2.duration);
       contest2.teams_hidden = Boolean(contest2.teams_hidden);
 
-      const errMsg = await uploadLogo();
+      let errMsg = checkLogoFile();
+      if (errMsg.length > 0) {
+        window.alert(errMsg);
+        return;
+      }
+      errMsg = await uploadLogo();
       if (errMsg.length > 0) {
         window.alert(errMsg);
         return;
@@ -144,24 +152,66 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
   };
 
   const updateContest = () => {
-    (async () => {})();
+    (async () => {
+      contest2.starts_at = startsAt.getTime();
+      contest2.registration_ends = registrationEnds.getTime();
+
+      contest2.participation_conditions.min_team_members = Number(
+        partConds.min_team_members
+      );
+      contest2.participation_conditions.max_team_members = Number(
+        partConds.max_team_members
+      );
+      contest2.duration = Number(contest2.duration);
+      contest2.teams_hidden = Boolean(contest2.teams_hidden);
+
+      if (logoFile.name !== "") {
+        const errMsg = await uploadLogo();
+        if (errMsg.length > 0) {
+          window.alert(errMsg);
+          return;
+        }
+      }
+
+      if (!checkRegAndStartDate()) {
+        window.alert(
+          "Woah... 'Start Date' should be after 'End of Registration Date'!"
+        );
+        return;
+      }
+
+      contest2.logo_path =
+        logoFile.name !== "" ? "/" + logoFile?.name : contest2.logo_path;
+      await OrganizerRequests.updateContest(contest2);
+      window.alert("Contest was updated successfully!");
+    })();
   };
 
   const deleteContest = () => {
     (async () => {
-        if (
-          window.confirm(
-            `Are you sure you want to delete the contest ${(contest2 as Contest).name}?`
-          )
-        ) {
-          await OrganizerRequests.deleteContest(contest2 as Contest);
-          window.open("/", "_self");
-        }
+      if (
+        window.confirm(
+          `Are you sure you want to delete the contest ${
+            (contest2 as Contest).name
+          }?`
+        )
+      ) {
+        await OrganizerRequests.deleteContest(contest2 as Contest);
+        window.open("/", "_self");
+      }
     })();
   };
 
-  if (!checkUserType(user, UserType.Director) || !checkUserType(user, UserType.Admin) ) {
-    return <Title className="mb-[8px]" content="Hmm... I don't think you can do that!" />
+  if (
+    !checkUserType(user, UserType.Director) ||
+    !checkUserType(user, UserType.Admin)
+  ) {
+    return (
+      <Title
+        className="mb-[8px]"
+        content="Hmm... I don't think you can do that!"
+      />
+    );
   }
 
   return (
@@ -171,21 +221,23 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
         {!isEdit && (
           <h1 className="font-Ropa text-[30px] text-ross2">New Contest</h1>
         )}
-        {isEdit && <>
-        <Button
-                startIcon={<MdDelete size={12} />}
-                color="error"
-                variant="outlined"
-                size="large"
-                onClick={deleteContest}
-              >
-                <label className="normal-case font-Ropa cursor-pointer">
-                  Delete Contest
-                </label>
-              </Button>
-      </>}
+        {isEdit && (
+          <>
+            <Button
+              startIcon={<MdDelete size={12} />}
+              color="error"
+              variant="outlined"
+              size="large"
+              onClick={deleteContest}
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Delete Contest
+              </label>
+            </Button>
+          </>
+        )}
         <div className="grid sm:grid-cols-2 grid-cols-1 pt-[20px]">
-          {/* inner right side */}
+          {/* inner left side */}
           <div className="pr-[25px]">
             <TextField
               className="w-[100%]"
@@ -248,7 +300,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
             <div className="pt-[25px]" />
           </div>
 
-          {/* inner left side */}
+          {/* inner right side */}
 
           <div className="pr-[25px]">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -264,6 +316,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
                 value={registrationEnds}
                 onChange={(newValue) => {
                   setRegistrationEnds(newValue as Date);
+                  setIsModified(true);
                 }}
               />
             </LocalizationProvider>
@@ -283,6 +336,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
                 value={startsAt}
                 onChange={(newValue) => {
                   setStartsAt(newValue as Date);
+                  setIsModified(true);
                 }}
               />
             </LocalizationProvider>
@@ -320,6 +374,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
             maxSize={2560}
             imageFile={logoFile}
             setImageFile={setLogoFile}
+            imageURL={contest2.logo_path}
           />
         </div>
         <Button

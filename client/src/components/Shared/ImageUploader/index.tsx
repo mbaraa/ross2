@@ -11,6 +11,7 @@ interface Props {
   imageFile: File;
   setImageFile: React.Dispatch<React.SetStateAction<File>>;
   className?: string;
+  imageURL?: string;
 }
 
 const ImageUploader = ({
@@ -18,6 +19,7 @@ const ImageUploader = ({
   imageFile,
   setImageFile,
   className,
+  imageURL,
 }: Props): React.ReactElement => {
   const img = document.getElementById("image-to-upload") as HTMLImageElement;
 
@@ -51,7 +53,7 @@ const ImageUploader = ({
       <img
         className={`rounded-[10%] w-[350px] h-[350px] p-[15px] bg-gray-100 relative translate-x-[-50%] left-[50%] ${className}`}
         id="image-to-upload"
-        src="/image_upload.png"
+        src={imageURL ?? "/image_upload.png"}
         alt=""
       />
       <br />

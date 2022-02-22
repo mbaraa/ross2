@@ -180,6 +180,14 @@ class OrganizerRequests {
     );
   }
 
+  public static async updateContest(contest: Contest): Promise<void> {
+    await RequestsManager.makeAuthPostRequest(
+      "update-contest",
+      UserType.Organizer,
+      contest
+    );
+  }
+
   public static async createContest(contest: Contest): Promise<void> {
     await RequestsManager.makeAuthPostRequest(
       "create-contest",

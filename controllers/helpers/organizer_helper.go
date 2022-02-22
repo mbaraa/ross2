@@ -142,6 +142,8 @@ func (o *OrganizerHelper) DeleteContest(contest models.Contest) error {
 
 // UpdateContest you guessed it, much wow!
 func (o *OrganizerHelper) UpdateContest(contest models.Contest) error {
+	contest.StartsAt2 = time.UnixMilli(contest.StartsAt)
+	contest.RegistrationEnds2 = time.UnixMilli(contest.RegistrationEnds)
 	return o.contestRepo.Update(contest)
 }
 
