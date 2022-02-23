@@ -5,7 +5,9 @@ import NotificationRequests from "../../../utils/requests/NotificationRequests";
 import Title from "../Title";
 import Notification from "../../../models/Notification";
 import NotificationTitle from "../NotificationTile";
-import {Button} from "@mui/material";
+import { Button } from "@mui/material";
+import { MdClose } from "react-icons/md";
+import { BsTrash } from "react-icons/bs";
 
 const Notifications = (): React.ReactElement => {
   const [nots, setNots] = React.useState<any[]>([]);
@@ -28,6 +30,17 @@ const Notifications = (): React.ReactElement => {
     setOpen(false);
   };
 
+  const clearNotifications = () => {
+    (async () => {
+      if (
+        window.confirm("Are you sure you want to clear your notifications?")
+      ) {
+        await NotificationRequests.clearNotifications();
+      }
+    })();
+    setNots(new Array<Notification>());
+  };
+
   return (
     <>
       <IconButton size="large" aria-label="notifications" onClick={openHandler}>
@@ -38,25 +51,43 @@ const Notifications = (): React.ReactElement => {
 
       <Dialog open={open} onClose={closeHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
-          <div className="mb-[28px]">
-            <Title
-              className="text-[18px] font-[400] mb-[16px]"
-              content="Notifications"
-            />
+          <div className="mb-[10px]">
+            <Title className="text-[20px] font-[400]" content="Notifications" />
           </div>
 
-          {nots.map((n: Notification) => (
-            <NotificationTitle key={n.id} notification={n} />
-          ))}
+          {nots.length > 0 ? (
+            nots.map((n: Notification) => (
+              <NotificationTitle key={n.id} notification={n} />
+            ))
+          ) : (
+            <div className="text-red-600 font-Ropa text-[20px] pt-0 pb-[20px]">
+              No New Notifications!
+            </div>
+          )}
 
           <div className=" space-x-[4px] float-right">
             <Button
+              startIcon={<BsTrash />}
+              color="warning"
+              variant="contained"
+              onClick={clearNotifications}
+              size="large"
+              disabled={nots.length === 0}
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Clear
+              </label>
+            </Button>
+            <Button
+              startIcon={<MdClose />}
               color="error"
               variant="contained"
               onClick={closeHandler}
               size="large"
             >
-              <label className="normal-case font-Ropa cursor-pointer">Cancel</label>
+              <label className="normal-case font-Ropa cursor-pointer">
+                Close
+              </label>
             </Button>
           </div>
         </div>

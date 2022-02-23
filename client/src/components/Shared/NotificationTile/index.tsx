@@ -32,15 +32,11 @@ const NotificationTitle = ({ notification }: Props): React.ReactElement => {
   };
 
   return (
-    <div className="text-center rounded-[5px] border-ross2 p-[10px] m-[10px] text-ross2 font-Ropa">
+    <div className="text-center rounded-[5px] border-ross2 p-[10px] m-[10px] font-Ropa">
       {/* <!-- non-request --> */}
-      <div className="content" v-html="filterContent()">
-        {" "}
-        {filterContent()}
-      </div>
       <div dangerouslySetInnerHTML={{ __html: filterContent() }}></div>
       {/* <!-- request --> */}
-      <div>
+      {isRequest() && <div>
         <Button color="info" variant="outlined" onClick={acReq} size="large">
           <label className="normal-case font-Ropa cursor-pointer">Accept</label>
         </Button>
@@ -48,7 +44,7 @@ const NotificationTitle = ({ notification }: Props): React.ReactElement => {
         <Button color="info" variant="outlined" onClick={waReq} size="large">
           <label className="normal-case font-Ropa cursor-pointer">Reject</label>
         </Button>
-      </div>
+      </div>}
     </div>
   );
 };

@@ -17,8 +17,8 @@ func GetSheevNotifications(c models.Contest) (notifications []*models.Notificati
 			UserID: cont.User.ID,
 			Content: fmt.Sprintf(
 				`Hi %s 👋<br/>
-The contest "%s" is over, hope you had fun at it 😉<br/>
-if you participated in the contest you can generate socity service form from <a href="%s">this site</a> then print the picture and deliver it to the dean's secretary<br/>
+The contest "%s" is over, hope you had fun at it<br/>
+you can generate socity service form from <a style="text-decoration: underline; color: #425CBA;" href="%s" target="_blank">this site</a> then print the picture and deliver it to the dean's secretary<br/>
 Have a nice day!`, cont.User.Name, c.Name, "https://mbaraa.fun/sheev"),
 		})
 	}
