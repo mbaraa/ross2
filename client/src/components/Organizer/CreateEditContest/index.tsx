@@ -374,7 +374,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
             maxSize={2560}
             imageFile={logoFile}
             setImageFile={setLogoFile}
-            imageURL={contest2.logo_path}
+            imageURL={`${config.backendAddress}${contest2.logo_path}`}
           />
         </div>
         <Button

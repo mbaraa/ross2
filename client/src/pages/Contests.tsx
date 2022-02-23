@@ -24,15 +24,6 @@ const Contests = ({ user }: Props) => {
   if (user !== null && user.id === 0) {
     return <Title className="mb-[8px]" content="Loading..." />;
   }
-  if (contests.length === 0) {
-    return (
-      <>
-        <h1 className="text-ross2 font-bold text-[2rem] font-Ropa">
-          No contests are available at this time!
-        </h1>
-      </>
-    );
-  }
 
   return (
     <>

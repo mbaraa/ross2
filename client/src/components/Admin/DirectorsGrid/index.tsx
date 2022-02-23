@@ -23,7 +23,7 @@ const DirectorsGrid = (): React.ReactElement => {
 
   return (
     <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-      {dirs.map((dir) => (
+      {dirs !== null && dirs.map((dir) => (
         <>
           <div
             className={`float-left border-[1px] border-red-600 rounded h-auto inline-block w-[280px] mr-[16px] mb-[56px] p-[25px] font-Ropa`}
