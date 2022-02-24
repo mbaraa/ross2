@@ -45,6 +45,12 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 		if err != nil {
 			return err
 		}
+
+		contest, _ := j.contestRepo.Get(models.Contest{ID: jr.RequestedContestID})
+
+		if len(jr.RequestedTeam.Members) >= int(contest.ParticipationConditions.MaxTeamMembers) {
+			return errors.New("this team is full")
+		}
 	}
 
 	err = j.checkRequestedTeam(jr, cont)
