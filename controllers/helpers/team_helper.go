@@ -61,6 +61,12 @@ func (t *TeamHelper) AddContestantToTeam(contID, teamID uint) (team models.Team,
 
 	cont.TeamID = team.ID
 	cont.Team = team
+
+	if cont.TeamlessContestID != 0 {
+		cont.TeamlessContestID = 0
+		cont.TeamlessedAt = cont.CreatedAt
+	}
+
 	err = t.contRepo.Update(&cont)
 	if err != nil {
 		return

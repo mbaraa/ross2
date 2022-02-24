@@ -141,6 +141,11 @@ func (c *ContestantHelper) GetProfile(user models.User) (models.Contestant, erro
 
 // CreateTeam creates a team and adds the given contestant to it as its leader
 func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.Team) error {
+	if contestant.TeamlessContestID != 0 {
+		contestant.TeamlessContestID = 0
+		contestant.TeamlessedAt = contestant.CreatedAt
+	}
+
 	err := c.teamMgr.CreateTeam(contestant, team)
 	if err != nil {
 		return err
