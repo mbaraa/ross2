@@ -102,6 +102,10 @@ const Profile = ({ user }: Props) => {
                 <div className="text-[16px] text-[#425CBA] space-y-[4px]">
                   <b>Team Name: </b> {cont.team.name}
                 </div>
+                <hr className="pb-[10px] mt-[10px]" />
+                <div className="text-[16px] text-[#425CBA] space-y-[4px]">
+                  <b>Team Join ID: </b> {cont.team.join_id}
+                </div>
                 {cont.team.members !== null && cont.team.members.length > 1 && (
                   <>
                     <hr className="pb-[10px] mt-[10px]" />
