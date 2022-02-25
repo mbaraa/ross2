@@ -7,9 +7,14 @@ import Contestant from "../../../models/Contestant";
 interface Props {
   team: Team;
   teamless: Contestant[];
+  showGender: boolean;
 }
 
-const TeamCard = ({ team, teamless }: Props): React.ReactElement => {
+const TeamCard = ({
+  team,
+  teamless,
+  showGender,
+}: Props): React.ReactElement => {
   const setColorFromGender = (): string => {
     if (team.members.length > 0) {
       const firstMember = team.members[0];
@@ -60,7 +65,7 @@ const TeamCard = ({ team, teamless }: Props): React.ReactElement => {
       window.alert("Contestant doesn't exist!");
     }
 
-    setState({newContID: ""});
+    setState({ newContID: "" });
     closeNewContHandler();
   };
 
@@ -89,9 +94,11 @@ const TeamCard = ({ team, teamless }: Props): React.ReactElement => {
             </div>
           </div>
 
-          <label className={`text-[${color}] font-[15px]`}>
-            <b>Gender:</b> {gender}
-          </label>
+          {showGender && (
+            <label className={`text-[${color}] font-[15px]`}>
+              <b>Gender:</b> {gender}
+            </label>
+          )}
 
           <div className="pt-[10px]">
             {team.members.map((member: any) => {

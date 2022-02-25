@@ -121,7 +121,7 @@ const GenerateTeams = ({ id }: Props) => {
         </label>
       </Button>
 
-      {generated && <ContestManageTeams teams={genTeams} teamless={teamless} />}
+      {generated && <ContestManageTeams teams={genTeams} teamless={teamless} showGender={true} contest={contest}/>}
 
       <Dialog open={open} onClose={closeHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">

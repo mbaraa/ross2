@@ -177,6 +177,8 @@ const Contest = ({ user }: Props): ReactElement => {
               <ContestManageTeams
                 teams={contest.teams}
                 teamless={contest.teamless_contestants}
+                showGender={false}
+                contest={contest}
               />
             </TabPanel>
           )}

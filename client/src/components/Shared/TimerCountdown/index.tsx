@@ -35,6 +35,10 @@ const TimerCountdown = ({ endTimestamp }: Props): React.ReactElement => {
 
       const totalTime = end.getTime() - now.getTime();
       if (totalTime < 0) {
+        time.days = "0";
+        time.hours = "0";
+        time.minutes = "0";
+        time.seconds = "0";
         clearInterval(timer);
         return;
       }
@@ -48,11 +52,10 @@ const TimerCountdown = ({ endTimestamp }: Props): React.ReactElement => {
       time.minutes = formatNumber(minutes);
       time.seconds = formatNumber(seconds);
       setTime({ ...time });
-      
     }, 1000);
   };
-  
-    calcRemainingTime();
+
+  calcRemainingTime();
 
   const getRemainingTime = (): string => {
     return time.days !== "0" &&
@@ -62,7 +65,6 @@ const TimerCountdown = ({ endTimestamp }: Props): React.ReactElement => {
       ? `${time.days}:${time.hours}:${time.minutes}:${time.seconds}`
       : "OVER!";
   };
-
 
   return <div className="font-[25px]"> {getRemainingTime()} </div>;
 };
