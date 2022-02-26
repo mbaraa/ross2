@@ -2,6 +2,7 @@ import Contest from "./Contest";
 import User from "./User";
 
 class Organizer {
+  id: number;
   user: User;
 
   director?: Organizer;
@@ -10,6 +11,7 @@ class Organizer {
   roles_names?: string[];
 
   constructor() {
+    this.id = 0;
     this.contests = new Array<Contest>();
     this.user = new User();
     this.roles_names = new Array<string>();

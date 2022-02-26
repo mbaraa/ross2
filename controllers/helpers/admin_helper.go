@@ -41,8 +41,6 @@ func (a *AdminHelper) AddDirector(director models.Organizer, baseUser models.Use
 	director.User = baseUser
 	director.UserID = baseUser.ID
 
-	director.Roles |= enums.RoleDirector
-
 	return a.orgRepo.Add(&director)
 }
 
@@ -72,7 +70,7 @@ func (a *AdminHelper) GetDirectors() (dirs []models.Organizer, err error) {
 	}
 
 	for _, org := range orgs {
-		if (org.Roles & enums.RoleDirector) != 0 {
+		if (org.User.UserType & enums.UserTypeDirector) != 0 {
 			dirs = append(dirs, org)
 		}
 	}

@@ -50,7 +50,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /update-contest/":           o.handleUpdateContest,
 		"POST /upload-contest-logo-file/": o.handleUploadContestLogoFile,
 		"POST /add-organizer/":            o.handleAddOrganizer,
-		"POST /update-organizer/":            o.handleUpdateOrganizer,
+		"POST /update-organizer/":         o.handleUpdateOrganizer,
 		"POST /delete-organizer/":         o.handleDeleteOrganizer,
 		"GET /get-sub-organizers/":        o.handleGetSubOrganizers,
 		"POST /generate-teams/":           o.handleGenerateTeams,
@@ -65,6 +65,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /get-participants-csv/":     o.handleGetParticipantsCSV,
 		"POST /generate-teams-posts/":     o.handleGenerateTeamsPosts,
 		"GET /get-all-users/":             o.handleGetAllUsers,
+		"POST /check-role/":               o.handleCheckRole,
 
 		"POST /get-participants/":            o.handleGetParticipants,
 		"POST /mark-participant-as-present/": o.markParticipantAsPresent,
@@ -118,7 +119,7 @@ func (o *OrganizerAPI) handleUpdateTeam(ctx context.HandlerContext) {
 // POST /organizer/create-contest/
 func (o *OrganizerAPI) handleCreateContest(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil || (org.User.UserType&enums.UserTypeDirector) == 0 {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -137,13 +138,18 @@ func (o *OrganizerAPI) handleCreateContest(ctx context.HandlerContext) {
 // POST /organizer/delete-contest/
 func (o *OrganizerAPI) handleDeleteContest(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var contest models.Contest
 	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -156,13 +162,18 @@ func (o *OrganizerAPI) handleDeleteContest(ctx context.HandlerContext) {
 // POST /organizer/update-contest/
 func (o *OrganizerAPI) handleUpdateContest(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var contest models.Contest
 	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -175,23 +186,32 @@ func (o *OrganizerAPI) handleUpdateContest(ctx context.HandlerContext) {
 // POST /organizer/add-organizer/
 func (o *OrganizerAPI) handleAddOrganizer(ctx context.HandlerContext) {
 	director, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (director.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var newOrg models.Organizer
-	if ctx.ReadJSON(&newOrg) != nil {
+	var reqBody struct {
+		NewOrg  models.Organizer    `json:"organizer"`
+		Contest models.Contest      `json:"contest"`
+		Roles   enums.OrganizerRole `json:"roles"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	baseUser, err := o.orgMgr.GetUserProfileUsingEmail(newOrg.User.Email)
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, director.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	baseUser, err := o.orgMgr.GetUserProfileUsingEmail(reqBody.NewOrg.User.Email)
 	if err != nil {
 		http.Error(ctx.Res, "user doesn't exist!", http.StatusNotFound)
 		return
 	}
 
-	err = o.orgMgr.AddOrganizer(newOrg, director, baseUser)
+	err = o.orgMgr.AddOrganizer(reqBody.NewOrg, director, baseUser)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -201,23 +221,32 @@ func (o *OrganizerAPI) handleAddOrganizer(ctx context.HandlerContext) {
 // POST /organizer/update-organizer/
 func (o *OrganizerAPI) handleUpdateOrganizer(ctx context.HandlerContext) {
 	director, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (director.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var newOrg models.Organizer
-	if ctx.ReadJSON(&newOrg) != nil {
-		return	
+	var reqBody struct {
+		UpdatedOrg models.Organizer    `json:"organizer"`
+		Contest    models.Contest      `json:"contest"`
+		Roles      enums.OrganizerRole `json:"roles"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
+		return
 	}
 
-	baseUser, err := o.orgMgr.GetUserProfileUsingEmail(newOrg.User.Email)
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, director.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	baseUser, err := o.orgMgr.GetUserProfileUsingEmail(reqBody.UpdatedOrg.User.Email)
 	if err != nil {
 		http.Error(ctx.Res, "user doesn't exist!", http.StatusNotFound)
 		return
 	}
 
-	err = o.orgMgr.UpdateOrganizer(newOrg, director, baseUser)
+	err = o.orgMgr.UpdateOrganizer(reqBody.UpdatedOrg, director, baseUser)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -227,17 +256,25 @@ func (o *OrganizerAPI) handleUpdateOrganizer(ctx context.HandlerContext) {
 // POST /organizer/delete-organizer/
 func (o *OrganizerAPI) handleDeleteOrganizer(ctx context.HandlerContext) {
 	director, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (director.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var org models.Organizer
-	if ctx.ReadJSON(&org) != nil {
+	var reqBody struct {
+		Org     models.Organizer `json:"organizer"`
+		Contest models.Contest   `json:"contest"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	if o.orgMgr.DeleteOrganizer(org) != nil {
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, director.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if o.orgMgr.DeleteOrganizer(reqBody.Org) != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -246,21 +283,26 @@ func (o *OrganizerAPI) handleDeleteOrganizer(ctx context.HandlerContext) {
 // POST /organizer/generate-teams/?gen-type=numbered|random|given
 func (o *OrganizerAPI) handleGenerateTeams(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var respBody struct {
+	var reqBody struct {
 		Contest models.Contest `json:"contest"`
 		Names   []string       `json:"names"`
 	}
-	if ctx.ReadJSON(&respBody) != nil {
+	if ctx.ReadJSON(&reqBody) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	teams, leftTeamless, err :=
-		o.orgMgr.GenerateTeams(respBody.Contest, ctx.Req.URL.Query().Get("gen-type"), respBody.Names)
+		o.orgMgr.GenerateTeams(reqBody.Contest, ctx.Req.URL.Query().Get("gen-type"), reqBody.Names)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -275,17 +317,25 @@ func (o *OrganizerAPI) handleGenerateTeams(ctx context.HandlerContext) {
 // POST /organizer/register-generated-teams/
 func (o *OrganizerAPI) handleRegisterGeneratedTeams(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var teams []*models.Team
-	if ctx.ReadJSON(&teams) != nil {
+	var reqBody struct {
+		Teams   []*models.Team `json:"teams"`
+		Contest models.Contest `json:"contest"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	err = o.orgMgr.CreateTeams(teams)
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	err = o.orgMgr.CreateTeams(reqBody.Teams)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -295,20 +345,26 @@ func (o *OrganizerAPI) handleRegisterGeneratedTeams(ctx context.HandlerContext) 
 // POST /organizer/update-teams/
 func (o *OrganizerAPI) handleUpdateTeams(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var respBody struct {
+	var reqBody struct {
 		Teams              []models.Team       `json:"teams"`
 		RemovedContestants []models.Contestant `json:"removed_contestants"`
+		Contest            models.Contest      `json:"contest"`
 	}
-	if ctx.ReadJSON(&respBody) != nil {
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	err = o.orgMgr.UpdateTeams(respBody.Teams, respBody.RemovedContestants, org)
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	err = o.orgMgr.UpdateTeams(reqBody.Teams, reqBody.RemovedContestants, org)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -318,7 +374,7 @@ func (o *OrganizerAPI) handleUpdateTeams(ctx context.HandlerContext) {
 // POST /organizer/upload-contest-logo-file/
 func (o *OrganizerAPI) handleUploadContestLogoFile(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil || (org.User.UserType&enums.UserTypeDirector) == 0 {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -354,7 +410,7 @@ func (o *OrganizerAPI) handleUploadContestLogoFile(ctx context.HandlerContext) {
 // GET /organizer/get-contests/
 func (o *OrganizerAPI) handleGetContests(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil || (org.User.UserType&enums.UserTypeDirector) == 0 {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -372,13 +428,18 @@ func (o *OrganizerAPI) handleGetContests(ctx context.HandlerContext) {
 // this is needed because the get contest in the ContestAPI doesn't get private teams :)
 func (o *OrganizerAPI) handleGetContest(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var contest models.Contest
 	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -394,12 +455,22 @@ func (o *OrganizerAPI) handleGetContest(ctx context.HandlerContext) {
 // GET /organizer/get-sub-organizers/
 func (o *OrganizerAPI) handleGetSubOrganizers(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	orgs, err := o.orgMgr.GetOrganizers(org)
+	var contest models.Contest
+	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	orgs, err := o.orgMgr.GetOrganizers(org, contest)
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusNotFound)
 		return
@@ -413,13 +484,18 @@ func (o *OrganizerAPI) handleGetSubOrganizers(ctx context.HandlerContext) {
 // do this using a cron job :)
 func (o *OrganizerAPI) handleSendSheevNotifications(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var contest models.Contest
 	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -432,13 +508,18 @@ func (o *OrganizerAPI) handleSendSheevNotifications(ctx context.HandlerContext) 
 // POST /organizer/get-participants-csv/
 func (o *OrganizerAPI) handleGetParticipantsCSV(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var contest models.Contest
 	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -454,36 +535,47 @@ func (o *OrganizerAPI) handleGetParticipantsCSV(ctx context.HandlerContext) {
 // POST /organizer/generate-teams-posts/
 func (o *OrganizerAPI) handleGenerateTeamsPosts(ctx context.HandlerContext) {
 	// 🙉🙊🙈 if it works it ain't stupid
-	var respBody struct {
+	var reqBody struct {
 		Contest        models.Contest            `json:"contest"`
 		TeamNameProps  postsgen.TextFieldProps   `json:"teamNameProps"`
 		TeamOrderProps postsgen.TextFieldProps   `json:"teamOrderProps"`
 		MembersProps   []postsgen.TextFieldProps `json:"membersNamesProps"`
 		BaseImage      string                    `json:"baseImage"`
 	}
-	if ctx.ReadJSON(&respBody) != nil {
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
 	var err error
-	respBody.Contest, err = o.orgMgr.GetContest(respBody.Contest)
+	reqBody.Contest, err = o.orgMgr.GetContest(reqBody.Contest)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	var postsGen *postsgen.TeamPostsGenerator
-	if respBody.BaseImage == "" {
+	if reqBody.BaseImage == "" {
 		postsGen, err = postsgen.ThreeMembersPostSamplePostBuilder.
-			Teams(respBody.Contest.Teams).
+			Teams(reqBody.Contest.Teams).
 			GetTeamsPostsGenerator()
 	} else {
 		postsGen, err = postsgen.NewTeamsPostsGeneratorBuilder().
-			Teams(respBody.Contest.Teams).
-			TeamNameProps(respBody.TeamNameProps).
-			TeamOrderProps(respBody.TeamOrderProps).
-			MembersNamesProps(respBody.MembersProps).
-			B64Image(respBody.BaseImage).
+			Teams(reqBody.Contest.Teams).
+			TeamNameProps(reqBody.TeamNameProps).
+			TeamOrderProps(reqBody.TeamOrderProps).
+			MembersNamesProps(reqBody.MembersProps).
+			B64Image(reqBody.BaseImage).
 			GetTeamsPostsGenerator()
 	}
 
@@ -505,7 +597,7 @@ func (o *OrganizerAPI) handleGenerateTeamsPosts(ctx context.HandlerContext) {
 // in order to add them as organizers
 func (o *OrganizerAPI) handleGetAllUsers(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.Roles&enums.RoleDirector) == 0 {
+	if err != nil || (org.User.UserType&enums.UserTypeDirector) == 0 {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -542,17 +634,34 @@ func (o *OrganizerAPI) handleGetParticipants(ctx context.HandlerContext) {
 
 // POST /mark-participant-as-present/
 func (o *OrganizerAPI) markParticipantAsPresent(ctx context.HandlerContext) {
-	var respBody struct {
+	var reqBody struct {
 		User    models.User    `json:"user"`
 		Contest models.Contest `json:"contest"`
 	}
-	if ctx.ReadJSON(&respBody) != nil {
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	err := o.orgMgr.MarkAttendance(respBody.User, respBody.Contest)
+	err := o.orgMgr.MarkAttendance(reqBody.User, reqBody.Contest)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+// POST /check-role/
+func (o *OrganizerAPI) handleCheckRole(ctx context.HandlerContext) {
+	var reqBody struct {
+		ContestID   float64 `json:"contest_id"`
+		OrganizerID float64 `json:"organizer_id"`
+		Roles       float64 `json:"roles"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
+		return
+	}
+
+	authorized :=
+		o.orgMgr.CheckOrgRole(enums.OrganizerRole(reqBody.Roles), uint(reqBody.ContestID), uint(reqBody.OrganizerID))
+
+	_ = ctx.WriteJSON(authorized, 0)
 }

@@ -27,7 +27,7 @@ func NewContestDB(db *gorm.DB, teamRepo data.TeamGetterRepo, tl data.TeamlessCRU
 
 // CREATOR REPO
 
-func (c *ContestDB) Add(contest models.Contest) error {
+func (c *ContestDB) Add(contest *models.Contest) error {
 	return c.db.
 		Create(&contest).
 		Error

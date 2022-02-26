@@ -3,10 +3,38 @@ import Contest from "../../models/Contest";
 import Contestant from "../../models/Contestant";
 import config from "../../config";
 import RequestsManager, { UserType } from "./RequestsManager";
-import Organizer from "../../models/Organizer";
+import Organizer, { OrganizerRole } from "../../models/Organizer";
 import User from "../../models/User";
 
 class OrganizerRequests {
+  public static async checkOrgRole(
+    contestID: number,
+    organizerID: number,
+    roles: OrganizerRole
+  ): Promise<boolean> {
+    let ok = false;
+    await RequestsManager.makeAuthPostRequest(
+      "check-role",
+      UserType.Organizer,
+      {
+        contest_id: contestID,
+        organizer_id: organizerID,
+        roles: roles,
+      }
+    )
+      .then((resp) => resp.json())
+      .then((resp) => {
+        ok = resp as boolean;
+        return ok;
+      })
+      .catch((err) => {
+        console.error(err);
+        return false;
+      });
+
+    return ok;
+  }
+
   public static async markParticipantAsPresent(
     user: User,
     contest: Contest
@@ -34,7 +62,7 @@ class OrganizerRequests {
         users = resp;
         return users;
       })
-      .catch((err) => window.alert(err));
+      .catch((err) => console.error(err));
 
     return users;
   }
@@ -173,8 +201,8 @@ class OrganizerRequests {
         orgs = resp.json();
         return orgs;
       })
-      .catch(() => {
-        window.alert("something went wrong!");
+      .catch((err) => {
+        console.error(err);
       });
 
     return orgs;
@@ -215,7 +243,7 @@ class OrganizerRequests {
       .then((resp) => {
         contest = resp as Contest;
       })
-      .catch((err) => window.alert("oi mama" + err.message));
+      .catch((err) => console.error(err));
 
     return contest;
   }

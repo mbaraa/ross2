@@ -17,6 +17,10 @@ func NewOrganizerDB(db *gorm.DB) *OrganizerDB {
 	return &OrganizerDB{db: db}
 }
 
+func (o *OrganizerDB) GetDB() *gorm.DB {
+	return o.db
+}
+
 // CREATOR REPO
 
 func (o *OrganizerDB) Add(organizer *models.Organizer) error {

@@ -10,7 +10,7 @@ import Box from "@mui/material/Box";
 import ContestGenerateTeams from "../components/Organizer/GenerateTeams";
 import ContestManageTeams from "../components/Organizer/ManageTeams";
 import User, { checkUserType, UserType } from "../models/User";
-import Organizer, { checkOrgType, OrganizerRole } from "../models/Organizer";
+import Organizer, { OrganizerRole } from "../models/Organizer";
 import OrganizerRequests from "../utils/requests/OrganizerRequests";
 import CreateEditContest from "../components/Organizer/CreateEditContest";
 import OrganizersGrid from "../components/Organizer/OrganizersGrid";
@@ -91,20 +91,44 @@ const Contest = ({ user }: Props): ReactElement => {
 
   const isAdmin = defUser && checkUserType(user, UserType.Admin);
 
-  const isDirector =
-    defUser &&
-    checkUserType(user, UserType.Organizer) &&
-    checkOrgType(org, OrganizerRole.Director);
+  const [isDirector, setIsDirector] = React.useState(false);
+  React.useEffect(() => {
+    (async () => {
+      setIsDirector(
+        await OrganizerRequests.checkOrgRole(
+          parseInt(id as string),
+          org.id,
+          OrganizerRole.Director
+        )
+      );
+    })();
+  }, [org]);
 
-  const isCoreOrg =
-    defUser &&
-    checkUserType(user, UserType.Organizer) &&
-    checkOrgType(org, OrganizerRole.CoreOrganizer);
+  const [isCoreOrg, setIsCoreOrg] = React.useState(false);
+  React.useEffect(() => {
+    (async () => {
+      setIsCoreOrg(
+        await OrganizerRequests.checkOrgRole(
+          parseInt(id as string),
+          org.id,
+          OrganizerRole.CoreOrganizer
+        )
+      );
+    })();
+  }, [org]);
 
-  const isReseptionist =
-    defUser &&
-    checkUserType(user, UserType.Organizer) &&
-    checkOrgType(org, OrganizerRole.Receptionist);
+  const [isReceptionist, setIsReceptionist] = React.useState(false);
+  React.useEffect(() => {
+    (async () => {
+      setIsReceptionist(
+        await OrganizerRequests.checkOrgRole(
+          parseInt(id as string),
+          org.id,
+          OrganizerRole.Receptionist
+        )
+      );
+    })();
+  }, [org]);
 
   React.useEffect(() => {
     if (isDirector) {
@@ -112,7 +136,7 @@ const Contest = ({ user }: Props): ReactElement => {
         setContest(await OrganizerRequests.getContest(contest.id));
       })();
     }
-  }, [contest.id]);
+  }, [org]);
 
   if (contest.id) {
     return (
@@ -146,7 +170,7 @@ const Contest = ({ user }: Props): ReactElement => {
               {(isDirector || isAdmin) && (
                 <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
               )}
-              {(isDirector || isReseptionist) && (
+              {(isDirector || isReceptionist) && (
                 <Tab
                   label={<TabLabel text="Attendance & Other User Management" />}
                   wrapped
@@ -187,12 +211,12 @@ const Contest = ({ user }: Props): ReactElement => {
               <OrganizersGrid user={user} contest={contest} />
             </TabPanel>
           )}
-          {(isDirector || isReseptionist) && (
+          {(isDirector || isReceptionist) && (
             <TabPanel value={value} index={5}>
               <UserManagerment
                 contest={contest}
                 isDirector={isDirector}
-                isReceptionist={isReseptionist}
+                isReceptionist={isReceptionist}
               />
             </TabPanel>
           )}

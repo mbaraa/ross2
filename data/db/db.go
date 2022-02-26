@@ -71,6 +71,11 @@ func (db *dbManager) InitTables() {
 		if err != nil {
 			panic(err)
 		}
+
+		// err = createOrgContest(db.mysqlConn)
+		// if err != nil {
+		// 	panic(err)
+		// }
 	}
 }
 
@@ -85,5 +90,28 @@ WHERE NOT EXISTS(
         SELECT name FROM ross2.teams WHERE name = 'no_team'
     )
 LIMIT 1`).
+		Error
+}
+
+func createOrgContest(db *gorm.DB) error {
+	err := db.Exec(`
+DROP TABLE ross2.organize_contests;
+	`).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return db.Exec(`
+CREATE TABLE ross2.organize_contests (
+  organizer_id bigint(20) unsigned NOT NULL,
+  contest_id bigint(20) unsigned NOT NULL,
+  organizer_roles bigint(20),
+  created_at 	TIMESTAMP,
+  PRIMARY KEY (organizer_id,contest_id),
+  KEY fk_organize_contests_contest (contest_id),
+  CONSTRAINT fk_organize_contests_contest FOREIGN KEY (contest_id) REFERENCES contests (id),
+  CONSTRAINT fk_organize_contests_organizer FOREIGN KEY (organizer_id) REFERENCES organizers (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`).
 		Error
 }

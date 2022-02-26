@@ -1,6 +1,9 @@
 package data
 
-import "github.com/mbaraa/ross2/models"
+import (
+	"github.com/mbaraa/ross2/models"
+	"gorm.io/gorm"
+)
 
 // OrganizerCreatorRepo is an interface that allows creation of an organizer
 // into a certain data source :)
@@ -35,6 +38,7 @@ type OrganizerDeleterRepo interface {
 // OrganizerCRUDRepo is an interface that allows full CRUD operations of an organizer
 // on a certain data source :)
 type OrganizerCRUDRepo interface {
+	GetDB() *gorm.DB
 	OrganizerCreatorRepo
 	OrganizerGetterRepo
 	OrganizerUpdaterRepo

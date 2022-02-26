@@ -30,7 +30,7 @@ type Contest struct {
 	CurrentContestantsCount uint `gorm:"current_contestant_count" json:"current_contestant_count"`
 
 	Teams               []Team       `gorm:"many2many:register_teams;" json:"teams"`
-	Organizers          []Organizer  `gorm:"many2many:register_contest;" json:"organizers"`
+	Organizers          []Organizer  `gorm:"many2many:organize_contests;" json:"organizers"`
 	TeamlessContestants []Contestant `gorm:"-" json:"teamless_contestants"`
 }
 
@@ -57,6 +57,13 @@ func getMajors(majors enums.Major) []string {
 	}
 
 	return majorsTexts
+}
+
+type OrganizeContest struct {
+	ContestID      uint                `gorm:"column:contest_id;primaryKey;"`
+	OrganizerID    uint                `gorm:"column:organizer_id;primaryKey;"`
+	OrganizerRoles enums.OrganizerRole `gorm:"column:organizer_roles;type:uint;"`
+	CreatedAt      time.Time
 }
 
 // ParticipationConditions represents the conditions needed to participate in a contest

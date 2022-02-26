@@ -132,7 +132,23 @@ func (o *OrganizerHelper) UpdateTeam(team models.Team, org models.Organizer) err
 // CreateContest creates a new contest, much wow!
 func (o *OrganizerHelper) CreateContest(contest models.Contest, org models.Organizer) error {
 	contest.Organizers = []models.Organizer{org}
-	return o.contestRepo.Add(contest)
+	err := o.contestRepo.Add(&contest)
+	if err != nil {
+		return err
+	}
+
+	orgContest := models.OrganizeContest{
+		ContestID:      contest.ID,
+		OrganizerID:    org.ID,
+		OrganizerRoles: enums.RoleDirector,
+	}
+
+	return o.repo.
+		GetDB().
+		Model(&orgContest).
+		Where("contest_id = ? and organizer_id = ?", contest.ID, org.ID).
+		Updates(&orgContest).
+		Error
 }
 
 // DeleteContest deletes contest, much wow!
@@ -243,8 +259,31 @@ func (o *OrganizerHelper) GetContest(contest models.Contest) (models.Contest, er
 }
 
 // GetOrganizers returns all organizers that are under the given organizer
-func (o *OrganizerHelper) GetOrganizers(org models.Organizer) ([]models.Organizer, error) {
-	return o.repo.GetAllByOrganizer(org)
+func (o *OrganizerHelper) GetOrganizers(org models.Organizer, contest models.Contest) (orgs []models.Organizer, err error) {
+	// return o.repo.GetAllByOrganizer(org)
+
+	var orgsContests []models.OrganizeContest
+
+	err = o.repo.
+		GetDB().
+		Model(new(models.OrganizeContest)).
+		Where("contest_id = ? and director_id = ?", contest.ID, org.ID).
+		Find(&orgsContests).
+		Error
+
+	if err != nil {
+		return
+	}
+
+	for _, orgContest := range orgsContests {
+		org, err := o.repo.Get(models.Organizer{ID: orgContest.OrganizerID})
+		if err != nil {
+			continue
+		}
+		orgs = append(orgs, org)
+	}
+
+	return
 }
 
 func (o *OrganizerHelper) SendSheevNotifications(contest models.Contest) error {
@@ -288,7 +327,7 @@ func (o *OrganizerHelper) GetNonOrgUsers() ([]models.User, error) {
 }
 
 func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Organizer) (parts []models.User, err error) {
-	if (org.Roles&enums.RoleDirector) == 0 && (org.Roles&enums.RoleReceptionist) == 0 {
+	if !o.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) || !o.CheckOrgRole(enums.RoleReceptionist, contest.ID, org.ID) {
 		return nil, errors.New("you can't do that :)")
 	}
 
@@ -330,4 +369,21 @@ func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contes
 	user.AttendedAt = time.Now()
 
 	return o.userRepo.Update(&user)
+}
+
+// CheckOrgRole reports whether the given organizer has the given role over the given contest
+func (o *OrganizerHelper) CheckOrgRole(role enums.OrganizerRole, contestID, organizerID uint) bool {
+	oc := models.OrganizeContest{}
+	err := o.repo.
+		GetDB().
+		Model(new(models.OrganizeContest)).
+		Where("contest_id = ? and organizer_id = ?", contestID, organizerID).
+		First(&oc).
+		Error
+
+	if err != nil {
+		return false
+	}
+
+	return (role & oc.OrganizerRoles) != 0
 }
