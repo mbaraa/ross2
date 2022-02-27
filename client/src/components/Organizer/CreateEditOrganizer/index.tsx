@@ -90,18 +90,19 @@ const CreateEditOrganizer = ({
 
   React.useEffect(() => {
     if (isEdit) {
+      let roless = 0;
+      (async () => {
+        roless = (await OrganizerRequests.getOrgRoles(organizer?.id, contest.id)).roles;
       for (
         let role = OrganizerRole.CoreOrganizer;
         role <= OrganizerRole.Receptionist;
         role <<= 1
       ) {
-        if ((role & (organizer2.roles as number)) !== 0) {
-          roles[Math.log2(role) - 1].checked = true;
-          _setRoles(roles.flat());
-        } else {
-          roles[Math.log2(role) - 1].checked = false;
-        }
+        roles[Math.log2(role) - 1].checked =
+          (role & (roless as number)) !== 0;
+        _setRoles(roles.flat());
       }
+      })();
     }
   }, []);
 
@@ -143,7 +144,7 @@ const CreateEditOrganizer = ({
       const resp = await OrganizerRequests.updateOrganizer(
         organizer2,
         contest,
-        organizer?.roles as number
+        organizer2.roles as number
       );
       if (!resp.ok) {
         setErrMsg(await resp.text());

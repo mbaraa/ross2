@@ -231,7 +231,7 @@ func (o *OrganizerHelper) UpdateOrganizer(newOrg, director models.Organizer, bas
 }
 
 // DeleteOrganizer deletes the given organizer
-func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer) error {
+func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer, contest models.Contest) error {
 	if (org.User.UserType & enums.UserTypeOrganizer) != 0 {
 		org.User.UserType -= enums.UserTypeOrganizer
 		if (org.User.ProfileStatus & enums.ProfileStatusOrganizerFinished) != 0 {
@@ -243,7 +243,15 @@ func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer) error {
 			return err
 		}
 	}
-	return o.repo.Delete(org)
+	err := o.repo.Delete(org)
+	if err != nil {
+		return err
+	}
+
+	return o.repo.
+		GetDB().
+		Delete(new(models.OrganizeContest), "contest_id = ? and organizer_id = ?", contest.ID, org.ID).
+		Error
 }
 
 // GenerateTeams generates teams for the teamless contestants of the given contest
@@ -422,7 +430,7 @@ func (o *OrganizerHelper) CheckOrgRole(role enums.OrganizerRole, contestID, orga
 	return (role & oc.OrganizerRoles) != 0
 }
 
-func (o *OrganizerHelper) GetOrgRoles(orgID, contestID uint) (roles []string, err error) {
+func (o *OrganizerHelper) GetOrgRoles(orgID, contestID uint) (roles enums.OrganizerRole, rolesNames []string, err error) {
 	oc := models.OrganizeContest{}
 	err = o.repo.
 		GetDB().
@@ -433,8 +441,8 @@ func (o *OrganizerHelper) GetOrgRoles(orgID, contestID uint) (roles []string, er
 		return
 	}
 
-	rolesNum := enums.OrganizerRole(oc.OrganizerRoles)
-	roles = rolesNum.GetRoles()
+	roles = enums.OrganizerRole(oc.OrganizerRoles)
+	rolesNames = roles.GetRoles()
 
 	return
 }

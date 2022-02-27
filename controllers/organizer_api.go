@@ -52,7 +52,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /add-organizer/":            o.handleAddOrganizer,
 		"POST /update-organizer/":         o.handleUpdateOrganizer,
 		"POST /delete-organizer/":         o.handleDeleteOrganizer,
-		"POST /get-sub-organizers/":        o.handleGetSubOrganizers,
+		"POST /get-sub-organizers/":       o.handleGetSubOrganizers,
 		"POST /generate-teams/":           o.handleGenerateTeams,
 		"POST /register-generated-teams/": o.handleRegisterGeneratedTeams,
 		"POST /update-teams/":             o.handleUpdateTeams,
@@ -66,7 +66,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /generate-teams-posts/":     o.handleGenerateTeamsPosts,
 		"GET /get-all-users/":             o.handleGetAllUsers,
 		"POST /check-role/":               o.handleCheckRole,
-		"POST /get-org-roles-names/":      o.handleGetRolesNames,
+		"POST /get-org-roles/":            o.handleGetRoles,
 
 		"POST /get-participants/":            o.handleGetParticipants,
 		"POST /mark-participant-as-present/": o.markParticipantAsPresent,
@@ -275,7 +275,7 @@ func (o *OrganizerAPI) handleDeleteOrganizer(ctx context.HandlerContext) {
 		return
 	}
 
-	if o.orgMgr.DeleteOrganizer(reqBody.Org) != nil {
+	if o.orgMgr.DeleteOrganizer(reqBody.Org, reqBody.Contest) != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -669,8 +669,8 @@ func (o *OrganizerAPI) handleCheckRole(ctx context.HandlerContext) {
 
 // TODO:
 // move this to get contest's orgs
-// POST /get-org-roles-names/
-func (o *OrganizerAPI) handleGetRolesNames(ctx context.HandlerContext) {
+// POST /get-org-roles/
+func (o *OrganizerAPI) handleGetRoles(ctx context.HandlerContext) {
 	var reqBody struct {
 		ContestID   float64 `json:"contest_id"`
 		OrganizerID float64 `json:"organizer_id"`
@@ -679,11 +679,14 @@ func (o *OrganizerAPI) handleGetRolesNames(ctx context.HandlerContext) {
 		return
 	}
 
-	roles, err := o.orgMgr.GetOrgRoles(uint(reqBody.OrganizerID), uint(reqBody.ContestID))
+	roles, rolesNames, err := o.orgMgr.GetOrgRoles(uint(reqBody.OrganizerID), uint(reqBody.ContestID))
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_ = ctx.WriteJSON(roles, 0)
+	_ = ctx.WriteJSON(map[string]interface{}{
+		"roles":       roles,
+		"roles_names": rolesNames,
+	}, 0)
 }

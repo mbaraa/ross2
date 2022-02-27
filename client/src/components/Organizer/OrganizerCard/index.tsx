@@ -22,7 +22,7 @@ const OrganizerCard = ({ organizer, contestID }: Props): React.ReactElement => {
   const [rolesNames, setRolesName] = React.useState([""]);
   React.useEffect(() => {
     (async () => {
-      setRolesName(await OrganizerRequests.getOrgRolesNames(organizer?.id, contestID));
+      setRolesName((await OrganizerRequests.getOrgRoles(organizer?.id, contestID)).roles_names);
     })();
   }, [organizer]);
 

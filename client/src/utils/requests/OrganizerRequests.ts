@@ -7,14 +7,14 @@ import Organizer, { OrganizerRole } from "../../models/Organizer";
 import User from "../../models/User";
 
 class OrganizerRequests {
-  public static async getOrgRolesNames(
+  public static async getOrgRoles(
     organizerID: number,
     contestID: number
-  ): Promise<string[]> {
-    let roles = new Array<string>();
+  ): Promise<any> {
+    let roles: any;
 
     await RequestsManager.makeAuthPostRequest(
-      "get-org-roles-names",
+      "get-org-roles",
       UserType.Organizer,
       {
         contest_id: contestID,
@@ -23,7 +23,7 @@ class OrganizerRequests {
     )
       .then((resp) => resp.json())
       .then((resp) => {
-        roles = resp as string[];
+        roles = resp;
         return roles;
       })
       .catch((err) => console.error(err));
