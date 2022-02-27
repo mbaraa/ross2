@@ -44,7 +44,7 @@ const ManageTeams = ({
             team.contests = [contest];
           }
         }
-        await OrganizerRequests.saveTeams(teams);
+        await OrganizerRequests.saveTeams(teams, contest);
         window.location.reload();
       }
     })();

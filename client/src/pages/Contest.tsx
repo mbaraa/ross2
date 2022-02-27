@@ -133,10 +133,10 @@ const Contest = ({ user }: Props): ReactElement => {
   React.useEffect(() => {
     if (isDirector) {
       (async () => {
-        setContest(await OrganizerRequests.getContest(contest.id));
+        setContest(await OrganizerRequests.getContest(parseInt(id as string)));
       })();
     }
-  }, [org]);
+  }, [contest.id]);
 
   if (contest.id) {
     return (

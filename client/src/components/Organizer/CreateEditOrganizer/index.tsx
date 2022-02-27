@@ -62,26 +62,27 @@ const CreateEditOrganizer = ({
   };
 
   const [roles, _setRoles] = React.useState([
-    { i: 0, name: "Core Organizer", checked: false },
-    { i: 1, name: "Chief Judge", checked: false },
-    { i: 2, name: "Judge", checked: false },
-    { i: 3, name: "Technical", checked: false },
-    { i: 4, name: "Coordinator", checked: false },
-    { i: 5, name: "Media", checked: false },
-    { i: 6, name: "Balloons", checked: false },
-    { i: 7, name: "Food", checked: false },
-    { i: 8, name: "Receptionist", checked: false },
+    { i: 0, name: "Director", checked: false },
+    { i: 1, name: "Core Organizer", checked: false },
+    { i: 2, name: "Chief Judge", checked: false },
+    { i: 3, name: "Judge", checked: false },
+    { i: 4, name: "Technical", checked: false },
+    { i: 5, name: "Coordinator", checked: false },
+    { i: 6, name: "Media", checked: false },
+    { i: 7, name: "Balloons", checked: false },
+    { i: 8, name: "Food", checked: false },
+    { i: 9, name: "Receptionist", checked: false },
   ]);
 
   const setRoles = () => {
     organizer2.roles = 0;
 
     for (
-      let role = OrganizerRole.CoreOrganizer;
+      let role = OrganizerRole.Director;
       role <= OrganizerRole.Receptionist;
       role <<= 1
     ) {
-      if (roles[Math.log2(role) - 1].checked) {
+      if (roles[Math.log2(role)].checked) {
         // -1 since the roles array has only 9 elements
         (organizer2.roles as number) |= role;
       }
@@ -92,16 +93,18 @@ const CreateEditOrganizer = ({
     if (isEdit) {
       let roless = 0;
       (async () => {
-        roless = (await OrganizerRequests.getOrgRoles(organizer?.id, contest.id)).roles;
-      for (
-        let role = OrganizerRole.CoreOrganizer;
-        role <= OrganizerRole.Receptionist;
-        role <<= 1
-      ) {
-        roles[Math.log2(role) - 1].checked =
-          (role & (roless as number)) !== 0;
-        _setRoles(roles.flat());
-      }
+        roless = (
+          await OrganizerRequests.getOrgRoles(organizer2?.id, contest.id)
+        ).roles;
+        for (
+          let role = OrganizerRole.Director;
+          role <= OrganizerRole.Receptionist;
+          role <<= 1
+        ) {
+          roles[Math.log2(role)].checked =
+            (role & (roless as number)) !== 0;
+          _setRoles(roles.flat());
+        }
       })();
     }
   }, []);

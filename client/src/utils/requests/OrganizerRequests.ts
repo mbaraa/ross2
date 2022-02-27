@@ -151,11 +151,14 @@ class OrganizerRequests {
     ).catch((err) => window.alert(err));
   }
 
-  public static async saveTeams(teams: Team[]): Promise<void> {
+  public static async saveTeams(teams: Team[], contest: Contest): Promise<void> {
     await RequestsManager.makeAuthPostRequest(
       "register-generated-teams",
       UserType.Organizer,
-      teams
+      {
+        contest: contest,
+        teams: teams, 
+      }
     );
   }
 

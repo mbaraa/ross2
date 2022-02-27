@@ -22,25 +22,25 @@ const AttentanceList = ({ contest }: Props): React.ReactElement => {
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const filterUsers = (): User[] => {
-    return participants.filter((user) => user.email?.includes(searchQuery));
-    // .slice(0, participants.length >= 10? 10: participants.length);
+    return participants
+      .filter((user) => user.email?.includes(searchQuery))
+      .slice(0, participants.length >= 16 ? 16 : participants.length);
   };
 
   const checkAttended = (user: User) => {
     (async () => {
       await OrganizerRequests.markParticipantAsPresent(user, contest);
-      setParticipants(
-        participants.splice(
-          participants.findIndex((u) => u.email === user.email),
-          1
-        )
+      participants.splice(
+        participants.findIndex((u) => u.email === user.email),
+        1
       );
+      setParticipants(participants.flat());
     })();
   };
 
   return (
     <>
-      {participants !== null && participants.length === 0 && (
+      {participants !== null && participants.length !== 0 && (
         <>
           <div className="pb-[20px] px-[14px]">
             <TextField
