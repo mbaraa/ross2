@@ -2,19 +2,19 @@ import Contest from "./Contest";
 import User from "./User";
 
 class Organizer {
-  id: number;
   user: User;
 
+  id: number;
   director?: Organizer;
   contests?: Contest[];
   roles?: number;
   roles_names?: string[];
 
   constructor() {
-    this.id = 0;
     this.contests = new Array<Contest>();
     this.user = new User();
     this.roles_names = new Array<string>();
+    this.id = 0;
   }
 }
 
@@ -29,10 +29,6 @@ export enum OrganizerRole {
   Balloons = 128,
   Food = 256,
   Receptionist = 512,
-}
-
-export function checkOrgType(org: Organizer, role: OrganizerRole): boolean {
-  return ((org.roles as number) & role) !== 0;
 }
 
 export default Organizer;

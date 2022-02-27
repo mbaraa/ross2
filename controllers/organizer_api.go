@@ -52,7 +52,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /add-organizer/":            o.handleAddOrganizer,
 		"POST /update-organizer/":         o.handleUpdateOrganizer,
 		"POST /delete-organizer/":         o.handleDeleteOrganizer,
-		"GET /get-sub-organizers/":        o.handleGetSubOrganizers,
+		"POST /get-sub-organizers/":        o.handleGetSubOrganizers,
 		"POST /generate-teams/":           o.handleGenerateTeams,
 		"POST /register-generated-teams/": o.handleRegisterGeneratedTeams,
 		"POST /update-teams/":             o.handleUpdateTeams,
@@ -66,6 +66,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /generate-teams-posts/":     o.handleGenerateTeamsPosts,
 		"GET /get-all-users/":             o.handleGetAllUsers,
 		"POST /check-role/":               o.handleCheckRole,
+		"POST /get-org-roles-names/":      o.handleGetRolesNames,
 
 		"POST /get-participants/":            o.handleGetParticipants,
 		"POST /mark-participant-as-present/": o.markParticipantAsPresent,
@@ -192,9 +193,9 @@ func (o *OrganizerAPI) handleAddOrganizer(ctx context.HandlerContext) {
 	}
 
 	var reqBody struct {
-		NewOrg  models.Organizer    `json:"organizer"`
-		Contest models.Contest      `json:"contest"`
-		Roles   enums.OrganizerRole `json:"roles"`
+		NewOrg  models.Organizer `json:"organizer"`
+		Contest models.Contest   `json:"contest"`
+		Roles   float64          `json:"roles"`
 	}
 	if ctx.ReadJSON(&reqBody) != nil {
 		return
@@ -211,7 +212,7 @@ func (o *OrganizerAPI) handleAddOrganizer(ctx context.HandlerContext) {
 		return
 	}
 
-	err = o.orgMgr.AddOrganizer(reqBody.NewOrg, director, baseUser)
+	err = o.orgMgr.AddOrganizer(reqBody.NewOrg, director, baseUser, reqBody.Contest, enums.OrganizerRole(reqBody.Roles))
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -227,9 +228,9 @@ func (o *OrganizerAPI) handleUpdateOrganizer(ctx context.HandlerContext) {
 	}
 
 	var reqBody struct {
-		UpdatedOrg models.Organizer    `json:"organizer"`
-		Contest    models.Contest      `json:"contest"`
-		Roles      enums.OrganizerRole `json:"roles"`
+		UpdatedOrg models.Organizer `json:"organizer"`
+		Contest    models.Contest   `json:"contest"`
+		Roles      float64          `json:"roles"`
 	}
 	if ctx.ReadJSON(&reqBody) != nil {
 		return
@@ -246,7 +247,7 @@ func (o *OrganizerAPI) handleUpdateOrganizer(ctx context.HandlerContext) {
 		return
 	}
 
-	err = o.orgMgr.UpdateOrganizer(reqBody.UpdatedOrg, director, baseUser)
+	err = o.orgMgr.UpdateOrganizer(reqBody.UpdatedOrg, director, baseUser, reqBody.Contest, enums.OrganizerRole(reqBody.Roles))
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return
@@ -452,7 +453,7 @@ func (o *OrganizerAPI) handleGetContest(ctx context.HandlerContext) {
 	_ = ctx.WriteJSON(contest, 0)
 }
 
-// GET /organizer/get-sub-organizers/
+// POST /organizer/get-sub-organizers/
 func (o *OrganizerAPI) handleGetSubOrganizers(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
@@ -664,4 +665,25 @@ func (o *OrganizerAPI) handleCheckRole(ctx context.HandlerContext) {
 		o.orgMgr.CheckOrgRole(enums.OrganizerRole(reqBody.Roles), uint(reqBody.ContestID), uint(reqBody.OrganizerID))
 
 	_ = ctx.WriteJSON(authorized, 0)
+}
+
+// TODO:
+// move this to get contest's orgs
+// POST /get-org-roles-names/
+func (o *OrganizerAPI) handleGetRolesNames(ctx context.HandlerContext) {
+	var reqBody struct {
+		ContestID   float64 `json:"contest_id"`
+		OrganizerID float64 `json:"organizer_id"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
+		return
+	}
+
+	roles, err := o.orgMgr.GetOrgRoles(uint(reqBody.OrganizerID), uint(reqBody.ContestID))
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_ = ctx.WriteJSON(roles, 0)
 }

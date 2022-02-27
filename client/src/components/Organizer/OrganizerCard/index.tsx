@@ -1,21 +1,30 @@
 import { Button } from "@mui/material";
 import * as React from "react";
+import Contest from "../../../models/Contest";
 import Organizer from "../../../models/Organizer";
 import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 
 interface Props {
   organizer: Organizer;
+  contestID: number
 }
 
-const OrganizerCard = ({ organizer }: Props): React.ReactElement => {
+const OrganizerCard = ({ organizer, contestID }: Props): React.ReactElement => {
   const deleteOrganizer = () => {
     (async () => {
       if (window.confirm("are you sure you want to delete this organizer?")) {
-        await OrganizerRequests.deleteOrganizer(organizer);
+        await OrganizerRequests.deleteOrganizer(organizer, {id: contestID} as Contest);
         window.location.reload();
       }
     })();
   };
+
+  const [rolesNames, setRolesName] = React.useState([""]);
+  React.useEffect(() => {
+    (async () => {
+      setRolesName(await OrganizerRequests.getOrgRolesNames(organizer?.id, contestID));
+    })();
+  }, [organizer]);
 
   return (
     <div className="p-[25px] w-[300px] h-auto rounded border-[1px] border-ross2 mr-[10px] last:mr-0 mb-[10px]">
@@ -26,7 +35,7 @@ const OrganizerCard = ({ organizer }: Props): React.ReactElement => {
       <hr className="border-ross2 pb-[10px] mt-[10px]" />
       <label className="text-ross2">
         <b>Roles: </b>
-        {organizer.roles_names?.join(", ")}
+        {rolesNames.join(", ")}
       </label>
       <hr className="border-ross2 pb-[10px] mt-[10px]" />
       <Button

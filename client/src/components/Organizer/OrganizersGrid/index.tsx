@@ -18,9 +18,9 @@ const OrganizersGrid = ({ user, contest }: Props): React.ReactElement => {
 
   React.useEffect(() => {
     (async () => {
-      setOrgs(await OrganizerRequests.getSubOrganizers());
+      setOrgs(await OrganizerRequests.getSubOrganizers(contest));
     })();
-  }, []);
+  }, [user]);
 
   const [newOrg, setNewOrg] = React.useState(false);
   const [currentOrg, setCurrentOrg] = React.useState<Organizer>(new Organizer());
@@ -64,7 +64,7 @@ const OrganizersGrid = ({ user, contest }: Props): React.ReactElement => {
               }}
               className="cursor-pointer"
             >
-              <OrganizerCard key={Math.random()} organizer={org} />
+              <OrganizerCard key={Math.random()} organizer={org} contestID={contest.id} />
             </div>
           ))}
       </div>

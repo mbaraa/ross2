@@ -74,7 +74,7 @@ const CreateEditOrganizer = ({
   ]);
 
   const setRoles = () => {
-      organizer2.roles = 0;
+    organizer2.roles = 0;
 
     for (
       let role = OrganizerRole.CoreOrganizer;
@@ -117,7 +117,11 @@ const CreateEditOrganizer = ({
     organizer2.contests?.push(contest);
 
     (async () => {
-      const resp = await OrganizerRequests.createOrganizer(organizer2);
+      const resp = await OrganizerRequests.createOrganizer(
+        organizer2,
+        contest,
+        organizer2.roles as number
+      );
       if (!resp.ok) {
         setErrMsg(await resp.text());
         return;
@@ -136,7 +140,11 @@ const CreateEditOrganizer = ({
     organizer2.user.email = email.email;
 
     (async () => {
-      const resp = await OrganizerRequests.updateOrganizer(organizer2);
+      const resp = await OrganizerRequests.updateOrganizer(
+        organizer2,
+        contest,
+        organizer?.roles as number
+      );
       if (!resp.ok) {
         setErrMsg(await resp.text());
         return;

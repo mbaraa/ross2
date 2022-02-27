@@ -7,6 +7,30 @@ import Organizer, { OrganizerRole } from "../../models/Organizer";
 import User from "../../models/User";
 
 class OrganizerRequests {
+  public static async getOrgRolesNames(
+    organizerID: number,
+    contestID: number
+  ): Promise<string[]> {
+    let roles = new Array<string>();
+
+    await RequestsManager.makeAuthPostRequest(
+      "get-org-roles-names",
+      UserType.Organizer,
+      {
+        contest_id: contestID,
+        organizer_id: organizerID,
+      }
+    )
+      .then((resp) => resp.json())
+      .then((resp) => {
+        roles = resp as string[];
+        return roles;
+      })
+      .catch((err) => console.error(err));
+
+    return roles;
+  }
+
   public static async checkOrgRole(
     contestID: number,
     organizerID: number,
@@ -166,36 +190,59 @@ class OrganizerRequests {
     return [teams, leftTeamless];
   }
 
-  public static async createOrganizer(org: Organizer): Promise<Response> {
+  public static async createOrganizer(
+    org: Organizer,
+    contest: Contest,
+    roles: OrganizerRole
+  ): Promise<Response> {
     return await RequestsManager.makeAuthPostRequest(
       "add-organizer",
       UserType.Organizer,
-      org
+      {
+        organizer: org,
+        contest: contest,
+        roles: roles,
+      }
     );
   }
 
-  public static async updateOrganizer(org: Organizer): Promise<Response> {
+  public static async updateOrganizer(
+    org: Organizer,
+    contest: Contest,
+    roles: OrganizerRole
+  ): Promise<Response> {
     return await RequestsManager.makeAuthPostRequest(
       "update-organizer",
       UserType.Organizer,
-      org
+      {
+        organizer: org,
+        contest: contest,
+        roles: roles,
+      }
     );
   }
 
-  public static async deleteOrganizer(org: Organizer): Promise<void> {
+  public static async deleteOrganizer(
+    org: Organizer,
+    contest: Contest
+  ): Promise<void> {
     await RequestsManager.makeAuthPostRequest(
       "delete-organizer",
       UserType.Organizer,
-      org
+      {
+        organizer: org,
+        contest: contest,
+      }
     );
   }
 
-  public static async getSubOrganizers(): Promise<Array<Organizer>> {
+  public static async getSubOrganizers(contest: Contest): Promise<Array<Organizer>> {
     let orgs = new Array<Organizer>();
 
-    await RequestsManager.makeAuthGetRequest(
+    await RequestsManager.makeAuthPostRequest(
       "get-sub-organizers",
-      UserType.Organizer
+      UserType.Organizer,
+        contest,
     )
       .then((resp) => {
         orgs = resp.json();
