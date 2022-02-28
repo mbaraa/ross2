@@ -23,20 +23,19 @@ func NewTeamHelper(teamRepo data.TeamCRUDRepo, contRepo data.ContestantCRUDRepo)
 }
 
 // CreateTeam creates a team and adds the given contestant to it as its leader
-func (t *TeamHelper) CreateTeam(contestant models.Contestant, team models.Team) error {
+func (t *TeamHelper) CreateTeam(contestant models.Contestant, team *models.Team) error {
 	// set team's required attributes to be lead by the given contestant
 	team.Leader = &contestant
 	team.LeaderId = contestant.User.ID
-	team.Members = []models.Contestant{contestant}
 
-	err := t.repo.Add(&team)
+	err := t.repo.Add(team)
 	if err != nil {
 		return err
 	}
 
 	// set contestant's required attributes to join the team
 	contestant.TeamID = team.ID
-	contestant.Team = team
+	contestant.Team = *team
 
 	return t.contRepo.Update(&contestant)
 }
@@ -85,10 +84,12 @@ func (t *TeamHelper) UpdateTeam(team models.Team, org models.Organizer) error {
 	return nil
 }
 
-func (t *TeamHelper) UpdateTeams(teams []models.Team, removedContestants []models.Contestant, org models.Organizer) error {
+func (t *TeamHelper) CreateUpdateTeams(teams []models.Team, removedContestants []models.Contestant, contest models.Contest, org models.Organizer) error {
 	for _, cont := range removedContestants {
 		cont.Team = models.Team{}
 		cont.TeamID = 1
+		cont.TeamlessContestID = contest.ID
+		cont.TeamlessedAt = time.Now()
 
 		err := t.contRepo.Update(&cont)
 		if err != nil {
@@ -97,23 +98,28 @@ func (t *TeamHelper) UpdateTeams(teams []models.Team, removedContestants []model
 	}
 
 	for _, team := range teams {
+		// create
 		if _, err := t.GetTeam(team.ID); err != nil && (team.Members != nil && len(team.Members) > 0) {
 			team.LeaderId = team.Members[0].User.ID
 			team.Leader = &team.Members[0]
+			team.Contests = []models.Contest{contest}
 
-			err = t.CreateTeam(team.Members[0], team)
+			err = t.CreateTeam(team.Members[0], &team)
 			if err != nil {
 				return err
 			}
 		}
 
+		// delete
 		if team.Members == nil || len(team.Members) == 0 {
 			err := t.DeleteTeam(team)
 			if err != nil {
 				return err
 			}
+			continue
 		}
 
+		// update
 		for _, cont := range team.Members {
 			if cont.TeamID != team.ID {
 				cont.Team = team
@@ -128,6 +134,7 @@ func (t *TeamHelper) UpdateTeams(teams []models.Team, removedContestants []model
 			}
 		}
 
+		team.Contests = []models.Contest{contest}
 		err := t.repo.Update(team)
 		if err != nil {
 			return err

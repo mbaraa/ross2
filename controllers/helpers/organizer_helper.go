@@ -369,7 +369,7 @@ func (o *OrganizerHelper) GetNonOrgUsers() ([]models.User, error) {
 }
 
 func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Organizer) (parts []models.User, err error) {
-	if !o.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) || !o.CheckOrgRole(enums.RoleReceptionist, contest.ID, org.ID) {
+	if !o.CheckOrgRole(enums.RoleReceptionist, contest.ID, org.ID) {
 		return nil, errors.New("you can't do that :)")
 	}
 

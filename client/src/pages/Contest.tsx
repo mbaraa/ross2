@@ -89,8 +89,6 @@ const Contest = ({ user }: Props): ReactElement => {
 
   const defUser = user !== null && user !== undefined && user.id !== 0;
 
-  const isAdmin = defUser && checkUserType(user, UserType.Admin);
-
   const [isDirector, setIsDirector] = React.useState(false);
   React.useEffect(() => {
     (async () => {
@@ -167,7 +165,7 @@ const Contest = ({ user }: Props): ReactElement => {
               {(isDirector || isCoreOrg) && (
                 <Tab label={<TabLabel text="Manage Teams" />} value={3} />
               )}
-              {(isDirector || isAdmin) && (
+              {isDirector && (
                 <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
               )}
               {(isDirector || isReceptionist) && (
@@ -205,12 +203,12 @@ const Contest = ({ user }: Props): ReactElement => {
                 contest={contest}
                 updateTeams={() => {
                   contest.teams = contest.teams.flat();
-                  setContest({...contest});
+                  setContest({ ...contest });
                 }}
               />
             </TabPanel>
           )}
-          {(isDirector || isAdmin) && (
+          {isDirector && (
             <TabPanel value={value} index={4}>
               <OrganizersGrid user={user} contest={contest} />
             </TabPanel>

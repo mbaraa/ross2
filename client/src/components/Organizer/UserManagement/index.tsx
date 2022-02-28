@@ -67,7 +67,7 @@ const UserManagerment = ({
         </div>
       )}
       {/* attendance */}
-      {(isDirector || isReceptionist) && (
+      {(isReceptionist) && (
         <div>
           <AttentanceList contest={contest} />
         </div>
