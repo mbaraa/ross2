@@ -14,6 +14,7 @@ interface Props {
   teamless: Contestant[];
   showGender: boolean;
   contest: Contest;
+  updateTeams(): void;
 }
 
 const ManageTeams = ({
@@ -21,6 +22,7 @@ const ManageTeams = ({
   teamless,
   showGender,
   contest,
+  updateTeams,
 }: Props): React.ReactElement => {
   const [open, setOpen] = React.useState(false);
 
@@ -37,17 +39,14 @@ const ManageTeams = ({
       if (
         window.confirm("are you sure of the teams you are about to register?")
       ) {
-        for (const team of teams) {
-          if (team.contests !== undefined) {
-            team.contests.push(contest);
-          } else {
-            team.contests = [contest];
-          }
-        }
-        await OrganizerRequests.saveTeams(teams, contest);
-        window.location.reload();
+        await OrganizerRequests.saveTeams(teams, teamless, contest);
       }
     })();
+    // window.location.reload();
+  };
+
+  const filterTeams = (): Team[] => {
+    return teams.filter((t) => t.members.length > 0);
   };
 
   return (
@@ -130,13 +129,14 @@ const ManageTeams = ({
       </div>
 
       <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-        {teams.map((team: any) => {
+        {filterTeams().map((team: any) => {
           return (
             <TeamCard
               key={Math.random()}
               team={team}
               teamless={teamless}
               showGender={showGender}
+              updateTeams={updateTeams}
             />
           );
         })}

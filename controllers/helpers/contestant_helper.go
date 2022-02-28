@@ -146,7 +146,7 @@ func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.
 		contestant.TeamlessedAt = contestant.CreatedAt
 	}
 
-	err := c.teamMgr.CreateTeam(contestant, team)
+	err := c.teamMgr.CreateTeam(contestant, &team)
 	if err != nil {
 		return err
 	}

@@ -54,10 +54,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /delete-organizer/":         o.handleDeleteOrganizer,
 		"POST /get-sub-organizers/":       o.handleGetSubOrganizers,
 		"POST /generate-teams/":           o.handleGenerateTeams,
-		"POST /register-generated-teams/": o.handleRegisterGeneratedTeams,
-		"POST /update-teams/":             o.handleUpdateTeams,
-		// "GET /get-contestants-for-contest/": nil,
-		// "GET /get-organizers-for-contest/":  nil,
+		"POST /save-teams/":               o.handleSaveTeams,
 
 		"GET /get-contests/":              o.handleGetContests,
 		"POST /get-contest/":              o.handleGetContest,
@@ -315,8 +312,8 @@ func (o *OrganizerAPI) handleGenerateTeams(ctx context.HandlerContext) {
 	}, 0)
 }
 
-// POST /organizer/register-generated-teams/
-func (o *OrganizerAPI) handleRegisterGeneratedTeams(ctx context.HandlerContext) {
+// POST /organizer/save-teams/
+func (o *OrganizerAPI) handleSaveTeams(ctx context.HandlerContext) {
 	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
@@ -324,8 +321,9 @@ func (o *OrganizerAPI) handleRegisterGeneratedTeams(ctx context.HandlerContext) 
 	}
 
 	var reqBody struct {
-		Teams   []*models.Team `json:"teams"`
-		Contest models.Contest `json:"contest"`
+		Teams    []models.Team       `json:"teams"`
+		Teamless []models.Contestant `json:"teamless"`
+		Contest  models.Contest      `json:"contest"`
 	}
 	if ctx.ReadJSON(&reqBody) != nil {
 		return
@@ -336,36 +334,7 @@ func (o *OrganizerAPI) handleRegisterGeneratedTeams(ctx context.HandlerContext) 
 		return
 	}
 
-	err = o.orgMgr.CreateTeams(reqBody.Teams)
-	if err != nil {
-		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-// POST /organizer/update-teams/
-func (o *OrganizerAPI) handleUpdateTeams(ctx context.HandlerContext) {
-	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var reqBody struct {
-		Teams              []models.Team       `json:"teams"`
-		RemovedContestants []models.Contestant `json:"removed_contestants"`
-		Contest            models.Contest      `json:"contest"`
-	}
-	if ctx.ReadJSON(&reqBody) != nil {
-		return
-	}
-
-	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, reqBody.Contest.ID, org.ID) {
-		ctx.Res.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	err = o.orgMgr.UpdateTeams(reqBody.Teams, reqBody.RemovedContestants, org)
+	err = o.orgMgr.CreateUpdateTeams(reqBody.Teams, reqBody.Teamless, reqBody.Contest, org)
 	if err != nil {
 		http.Error(ctx.Res, err.Error(), http.StatusInternalServerError)
 		return

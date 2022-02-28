@@ -8,12 +8,14 @@ interface Props {
   team: Team;
   teamless: Contestant[];
   showGender: boolean;
+  updateTeams(): void;
 }
 
 const TeamCard = ({
   team,
   teamless,
   showGender,
+  updateTeams,
 }: Props): React.ReactElement => {
   const setColorFromGender = (): string => {
     if (team.members.length > 0) {
@@ -69,6 +71,13 @@ const TeamCard = ({
     closeNewContHandler();
   };
 
+  const removeCont = (cont: Contestant) => {
+    const mi = team.members.findIndex((c) => c.user.id === cont.user.id);
+    teamless.push(team.members[mi]);
+    team.members.splice(mi, 1);
+    updateTeams();
+  };
+
   return (
     <>
       <div
@@ -110,6 +119,16 @@ const TeamCard = ({
                   <div className={`text-[13px] text-[${color}]`}>
                     {member.user.name}
                   </div>
+                  <Button
+                    color="error"
+                    variant="outlined"
+                    onClick={() => removeCont(member)}
+                    size="large"
+                  >
+                    <label className="normal-case font-Ropa cursor-pointer">
+                      Remove
+                    </label>
+                  </Button>
                 </div>
               );
             })}

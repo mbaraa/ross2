@@ -203,6 +203,10 @@ const Contest = ({ user }: Props): ReactElement => {
                 teamless={contest.teamless_contestants}
                 showGender={false}
                 contest={contest}
+                updateTeams={() => {
+                  contest.teams = contest.teams.flat();
+                  setContest({...contest});
+                }}
               />
             </TabPanel>
           )}

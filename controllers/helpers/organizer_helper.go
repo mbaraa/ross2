@@ -272,15 +272,15 @@ func (o *OrganizerHelper) GenerateTeams(contest models.Contest, genType string, 
 	return teams, leftTeamless, nil
 }
 
-// CreateTeams creates the given teams :)
-func (o *OrganizerHelper) CreateTeams(teams []*models.Team) error {
-	return o.teamMgr.CreateTeams(teams)
+// CreateUpdateTeams creates/updates the given teams :)
+func (o *OrganizerHelper) CreateUpdateTeams(teams []models.Team, removedConts []models.Contestant, contest models.Contest, org models.Organizer) error {
+	return o.teamMgr.CreateUpdateTeams(teams, removedConts, contest, org)
 }
 
-// UpdateTeams updates the given teams after checking that the given organizer is a director on one of the contest that the teams are in
-func (o *OrganizerHelper) UpdateTeams(teams []models.Team, removedConts []models.Contestant, org models.Organizer) error {
-	return o.teamMgr.UpdateTeams(teams, removedConts, org)
-}
+// // UpdateTeams updates the given teams after checking that the given organizer is a director on one of the contest that the teams are in
+// func (o *OrganizerHelper) UpdateTeams(teams []models.Team, removedConts []models.Contestant, org models.Organizer) error {
+// 	return o.teamMgr.CreateUpdateTeams(teams, removedConts, org)
+// }
 
 // GetContests returns the contests of the given organizer, and an occurring error
 func (o *OrganizerHelper) GetContests(org models.Organizer) ([]models.Contest, error) {
