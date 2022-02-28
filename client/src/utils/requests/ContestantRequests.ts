@@ -6,6 +6,22 @@ import Contestant from "../../models/Contestant";
 import Contest from "../../models/Contest";
 
 class ContestantRequests {
+  public static async registerInContest(contest: Contest): Promise<string> {
+    let msg = "";
+    await RequestsManager.makeAuthPostRequest(
+      "register-in-contest",
+      UserType.Contestant,
+      contest
+    )
+      .then((resp) => resp.json())
+      .then((resp) => {
+        msg = resp as string;
+        return msg;
+      })
+      .catch((err) => console.error(err));
+
+    return msg;
+  }
   public static async checkContestJoin(contest: Contest): Promise<boolean> {
     let joined = false;
 

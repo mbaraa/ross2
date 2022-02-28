@@ -15,7 +15,7 @@ import (
 type ContestantHelperBuilder struct {
 	userRepo         data.UserCRUDRepo
 	contestantRepo   data.ContestantCRUDRepo
-	contestRepo      data.ContestUpdaterRepo
+	contestRepo      data.ContestCRUDRepo
 	notificationRepo data.NotificationCRUDRepo
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
@@ -35,7 +35,7 @@ func (b *ContestantHelperBuilder) ContestantRepo(c data.ContestantCRUDRepo) *Con
 	return b
 }
 
-func (b *ContestantHelperBuilder) ContestRepo(c data.ContestUpdaterRepo) *ContestantHelperBuilder {
+func (b *ContestantHelperBuilder) ContestRepo(c data.ContestCRUDRepo) *ContestantHelperBuilder {
 	b.contestRepo = c
 	return b
 }
@@ -93,7 +93,7 @@ func (b *ContestantHelperBuilder) GetContestantManager() *ContestantHelper {
 type ContestantHelper struct {
 	repo             data.ContestantCRUDRepo
 	userRepo         data.UserUpdaterRepo
-	contestRepo      data.ContestUpdaterRepo
+	contestRepo      data.ContestCRUDRepo
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
 	notificationRepo data.NotificationCRUDRepo
@@ -223,4 +223,65 @@ func (c *ContestantHelper) CheckJoinedContest(contest models.Contest, contestant
 	}
 
 	return errors.New("contestant is not registered in this contest")
+}
+
+// RegisterInContest adds the given contestant's team to the given contest
+func (c *ContestantHelper) RegisterInContest(contest models.Contest, contestant models.Contestant) error {
+	team, err := c.teamMgr.GetTeam(contestant.TeamID)
+	if err != nil {
+		return err
+	}
+
+	if team.LeaderId != contestant.UserID {
+		return errors.New("only the team's leader can join contests")
+	}
+
+	contest, err = c.contestRepo.Get(contest)
+	if err != nil {
+		return err
+	}
+
+	err = c.checkCollidingContests(&team, contest)
+	if err != nil {
+		return err
+	}
+
+	// team.Contests = append(team.Contests, contest)
+
+	err = c.contestRepo.GetDB().Model(&team).Association("Contests").Append(&contest)
+	if err != nil {
+		return err
+	}
+
+	return errors.New("all good")
+}
+
+func (c *ContestantHelper) checkCollidingContests(team *models.Team, contest models.Contest) error {
+	contests := []models.Contest{}
+
+	err := c.contestRepo.
+		GetDB().
+		Model(&team).
+		Association("Contests").
+		Find(&contests)
+
+	if err != nil {
+		return err
+	}
+
+	cStarts := contest.StartsAt
+	cEnds := cStarts + int64(contest.Duration*60*1e3)
+
+	for i := 0; i < len(contests); i++ {
+		starts := contests[i].StartsAt
+		ends := starts + int64(contests[i].Duration*60*1e3)
+
+		if (cStarts <= starts && starts <= cEnds) || (ends <= cEnds && ends >= cStarts) {
+			return fmt.Errorf(`can't join the contest "%s", because it collids with the contest "%s"`, contest.Name, contests[i].Name)
+		}
+	}
+
+	team.Contests = contests
+
+	return nil
 }

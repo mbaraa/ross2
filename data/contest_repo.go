@@ -1,6 +1,9 @@
 package data
 
-import "github.com/mbaraa/ross2/models"
+import (
+	"github.com/mbaraa/ross2/models"
+	"gorm.io/gorm"
+)
 
 // ContestCreatorRepo is an interface that allows creation of a contest
 // into a certain data source :)
@@ -34,6 +37,7 @@ type ContestDeleterRepo interface {
 // ContestCRUDRepo is an interface that allows full CRUD operations of a contest
 // on a certain data source :)
 type ContestCRUDRepo interface {
+	GetDB() *gorm.DB
 	ContestCreatorRepo
 	ContestGetterRepo
 	ContestUpdaterRepo

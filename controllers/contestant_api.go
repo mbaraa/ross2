@@ -46,8 +46,9 @@ func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 		"POST /check-joined-team/":    c.handleCheckJoinedTeam,
 		//"POST /invite-teamless/":      nil,
 
-		"GET /get-team/":            c.handleGetTeam,
-		"POST /check-contest-join/": c.handleCheckContestJoin,
+		"GET /get-team/":             c.handleGetTeam,
+		"POST /check-contest-join/":  c.handleCheckContestJoin,
+		"POST /register-in-contest/": c.handleRegisterInContest,
 	})
 	return c
 }
@@ -266,4 +267,22 @@ func (c *ContestantAPI) handleCheckContestJoin(ctx context.HandlerContext) {
 	}
 
 	_ = ctx.WriteJSON(err == nil, 0)
+}
+
+// POST /register-in-contest/
+func (c *ContestantAPI) handleRegisterInContest(ctx context.HandlerContext) {
+	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var contest models.Contest
+	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	err = c.contMgr.RegisterInContest(contest, cont)
+
+	_ = ctx.WriteJSON(err.Error(), 0)
 }

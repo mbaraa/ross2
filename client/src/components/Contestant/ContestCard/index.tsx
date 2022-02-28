@@ -155,6 +155,20 @@ const ContestCard = ({ contest }: Props) => {
     }
   };
 
+  const [hasTeam, setHasTeam] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setHasTeam(
+      contestantProfile !== null && (contestantProfile.team_id as number) > 1
+    );
+  }, [contestantProfile]);
+
+  const registerInContest = () => {
+    (async () => {
+      window.alert(await ContestantRequests.registerInContest(contest));
+    })();
+  };
+
   const router = useHistory();
 
   return (
@@ -199,6 +213,14 @@ const ContestCard = ({ contest }: Props) => {
           title="You are already registered in this contest!"
         >
           Already Registerd ✅
+        </div>
+      ) : hasTeam ? (
+        <div
+          className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
+          title="Join using the current team"
+          onClick={registerInContest}
+        >
+          Register in Contest
         </div>
       ) : (
         <>
