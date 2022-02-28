@@ -203,3 +203,24 @@ func (c *ContestantHelper) CheckJoinedTeam(cont models.Contestant, team models.T
 func (c *ContestantHelper) GetTeam(contestant models.Contestant) (models.Team, error) {
 	return c.teamMgr.GetTeam(contestant.TeamID)
 }
+
+// CheckJoinedContest reports whether the contestant is in the given contest or not
+func (c *ContestantHelper) CheckJoinedContest(contest models.Contest, contestant models.Contestant) error {
+	teams, err := c.teamMgr.repo.GetAllByContest(contest)
+	if err != nil {
+		return err
+	}
+
+	team, err := c.teamMgr.GetTeam(contestant.TeamID)
+	if err != nil {
+		return err
+	}
+
+	for _, t := range teams {
+		if t.ID == team.ID {
+			return nil
+		}
+	}
+
+	return errors.New("contestant is not registered in this contest")
+}

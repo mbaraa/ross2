@@ -129,15 +129,13 @@ const ContestCard = ({ contest }: Props) => {
     })();
   }, []);
 
-  const [hasTeam, setHasTeam] = React.useState<boolean>(false);
+  const [joinedContest, setJoinedContest] = React.useState(false);
 
   React.useEffect(() => {
-    setHasTeam(
-      contestantProfile !== null &&
-        (contestantProfile.team_id as number) > 1 &&
-        !checkUserType(contestantProfile.user, UserType.Organizer)
-    );
-  }, [contestantProfile]);
+    (async () => {
+      setJoinedContest(await ContestantRequests.checkContestJoin(contest));
+    })();
+  }, []);
 
   const joinAsTeamless = async () => {
     if (
@@ -195,7 +193,7 @@ const ContestCard = ({ contest }: Props) => {
         </div>
       </div>
 
-      {hasTeam ? (
+      {joinedContest ? (
         <div
           className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center"
           title="You are already registered in this contest!"
