@@ -246,7 +246,9 @@ func (c *ContestantHelper) RegisterInContest(contest models.Contest, contestant 
 		return err
 	}
 
-	// team.Contests = append(team.Contests, contest)
+	if contest.RegistrationEnds2.Before(time.Now()) {
+		return errors.New("registration for this contest is over")
+	}
 
 	err = c.contestRepo.GetDB().Model(&team).Association("Contests").Append(&contest)
 	if err != nil {

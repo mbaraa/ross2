@@ -63,8 +63,8 @@ const Profile = ({ user }: Props) => {
     if (window.confirm("Are you sure you want to leave your team?")) {
       (async () => {
         await ContestantRequests.leaveTeam();
+        window.location.reload();
       })();
-      window.location.reload();
     }
   };
 
@@ -79,8 +79,8 @@ const Profile = ({ user }: Props) => {
       }
 
       (async () => {
-          await ContestantRequests.deleteTeam(cont.team as Team);
-          window.location.reload();
+        await ContestantRequests.deleteTeam(cont.team as Team);
+        window.location.reload();
       })();
     }
   };

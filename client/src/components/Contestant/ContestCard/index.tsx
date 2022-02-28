@@ -165,7 +165,13 @@ const ContestCard = ({ contest }: Props) => {
 
   const registerInContest = () => {
     (async () => {
-      window.alert(await ContestantRequests.registerInContest(contest));
+      if (
+        window.confirm(
+          `Are you sure that you want to register in the contest "${contest.name}"`
+        )
+      ) {
+        window.alert(await ContestantRequests.registerInContest(contest));
+      }
     })();
   };
 
