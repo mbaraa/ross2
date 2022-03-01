@@ -8,7 +8,7 @@ import { BrowserRouter } from "react-router-dom";
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-d      <div className="font-[Poppins] absolute left-[0.2rem] top-[4.2em] w-full p-[52px] bg-white">
+      <div className="font-[Poppins] absolute left-[0.2rem] top-[4.2em] w-full p-[25px] sm:p-[52px] bg-white">
         <App />
       </div>
     </BrowserRouter>
