@@ -135,7 +135,7 @@ const Contest = ({ user }: Props): ReactElement => {
         setContest(await OrganizerRequests.getContest(parseInt(id as string)));
       })();
     }
-  }, [id]);
+  }, [contest.id]);
 
   if (contest.id) {
     return (
