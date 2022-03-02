@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
 import * as React from "react";
+import { Button, TextField } from "@mui/material";
 import Login from "../components/Shared/Login";
 import ContestantRequests from "../../src/utils/requests/ContestantRequests";
 import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
@@ -7,6 +7,8 @@ import Title from "../components/Shared/Title";
 import User, { UserType } from "../models/User";
 import Contestant from "../models/Contestant";
 import Team from "../models/Team";
+import Organizer from "../models/Organizer";
+import OrganizerRequests from "../utils/requests/OrganizerRequests";
 
 interface Props {
   user: User;
@@ -18,7 +20,7 @@ const Profile = ({ user }: Props) => {
   };
 
   const [cont, setCont] = React.useState<Contestant>(new Contestant());
-  // const [org, setOrg] = React.useState<Organizer>(new Organizer());
+  const [org, setOrg] = React.useState<Organizer>(new Organizer());
   // const [admin, setAdmin] = React.useState<Admin>(new Admin());
 
   React.useEffect(() => {
@@ -28,10 +30,10 @@ const Profile = ({ user }: Props) => {
         setCont(_cont);
       }
 
-      // if (checkUserType(UserType.Organizer)) {
-      //   const _org = await OrganizerRequests.getProfile();
-      //   setOrg(_org);
-      // }
+      if (checkUserType(UserType.Organizer)) {
+        const _org = await OrganizerRequests.getProfile();
+        setOrg(_org);
+      }
 
       // if (checkUserType(UserType.Admin)) {
       //   const _admin = await AdminRequests.getProfile();
@@ -47,6 +49,9 @@ const Profile = ({ user }: Props) => {
       //   }
     })();
   }, [user]);
+
+  const [editContact, setEditContact] = React.useState(false);
+  const [modified, setModified] = React.useState(false);
 
   if (user !== null && user.id === 0) {
     return <Title className="mb-[8px]" content="Loading..." />;
@@ -85,6 +90,15 @@ const Profile = ({ user }: Props) => {
     }
   };
 
+  const updateOrgProfile = () => {
+    (async () => {
+      if (modified) {
+        await OrganizerRequests.finishProfile(org);
+      }
+      setModified(false);
+    })();
+  };
+
   return (
     <div className="flex justify-center items-center font-Ropa">
       <div className=" grid grid-cols-1">
@@ -93,6 +107,61 @@ const Profile = ({ user }: Props) => {
             <b>Your Name: </b>
             {user.name}
           </div>
+          {org.id !== 0 && (
+            <>
+              <hr className="pb-[10px] mt-[10px]" />
+              <div className="text-[16px] text-[#425CBA] space-y-[4px] w-full">
+                <b>Facebook Profile: </b>
+                {editContact ? (
+                  <TextField
+                    className="w-[100%]"
+                    variant="outlined"
+                    value={org.user.contact_info.facebook_url}
+                    onKeyDown={(
+                      event: React.KeyboardEvent<HTMLInputElement>
+                    ) => {
+                      if (event.key === "Enter") {
+                        updateOrgProfile();
+                        setEditContact(false);
+                      }
+                    }}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      org.user.contact_info.facebook_url = event.target.value;
+                      setModified(true);
+                      setOrg({ ...org });
+                    }}
+                    label={
+                      <label className="font-Ropa text-[18px] text-indigo">
+                        Facebook URL
+                      </label>
+                    }
+                  />
+                ) : (
+                  <a href={org.user.contact_info.facebook_url}>
+                    {org.user.contact_info.facebook_url.includes("https://")
+                      ? org.user.contact_info.facebook_url.substring(
+                          "https://".length
+                        )
+                      : org.user.contact_info.facebook_url}
+                  </a>
+                )}
+                <div>
+                  <Button
+                    color="success"
+                    variant="outlined"
+                    onClick={() => {
+                      setEditContact(!editContact);
+                      if (!editContact) {
+                        updateOrgProfile();
+                      }
+                    }}
+                  >
+                    <label className="normal-case cursor-pointer">Edit</label>
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
 
           {cont !== null &&
             cont.team !== undefined &&

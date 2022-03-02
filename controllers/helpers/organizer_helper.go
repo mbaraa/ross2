@@ -116,12 +116,32 @@ func (o *OrganizerHelper) GetUserProfileUsingEmail(userEmail string) (models.Use
 // FinishProfile sets the organizer's profile after the first sign in after the promotion
 func (o *OrganizerHelper) FinishProfile(org models.Organizer) error {
 	org.User.ProfileStatus |= enums.ProfileStatusOrganizerFinished
+
+	org.User.ContactInfo = o.validateProfile(org.User.ContactInfo)
+
 	err := o.userRepo.Update(&org.User)
 	if err != nil {
 		return err
 	}
 
 	return o.repo.Update(org)
+}
+
+func (o *OrganizerHelper) verifyProfile(ci models.ContactInfo) bool {
+	return len(ci.FacebookURL) > len("https://") && len(ci.TelegramNumber) > len("https://") &&
+		ci.FacebookURL[:len("https://")] == "https://" && ci.TelegramNumber[:len("https://")] == "https://"
+}
+
+func (o *OrganizerHelper) validateProfile(ci models.ContactInfo) models.ContactInfo {
+	if !o.verifyProfile(ci) {
+		if !strings.Contains(ci.FacebookURL, "http") {
+			ci.FacebookURL = "https://" + ci.FacebookURL
+		}
+		if !strings.Contains(ci.TelegramNumber, "http") {
+			ci.TelegramNumber = "https://" + ci.TelegramNumber
+		}
+	}
+	return ci
 }
 
 // UpdateTeam updates the given team after checking that the given organizer is a director on one of the contest that the team is in
