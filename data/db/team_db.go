@@ -6,7 +6,7 @@ import (
 
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
-	"github.com/mbaraa/useless"
+	"github.com/mbaraa/ross2/utils/strutils"
 	"gorm.io/gorm"
 )
 
@@ -38,9 +38,8 @@ func (t *TeamDB) AddMany(teams []*models.Team) error {
 
 // createTeam finds a suitable joining id for the team in a very stupid way
 func (t *TeamDB) createTeam(team *models.Team) error {
-	randomizer := useless.NewRandASCII()
 	for {
-		team.JoinID = randomizer.GetRandomAlphanumString(5)
+		team.JoinID = strutils.GetRandomString(3)
 
 		err := t.db.
 			Create(team).
@@ -50,7 +49,7 @@ func (t *TeamDB) createTeam(team *models.Team) error {
 			if !strings.Contains(err.Error(), "Duplicate") {
 				return err
 			}
-			team.JoinID = randomizer.GetRandomAlphanumString(5)
+			team.JoinID = strutils.GetRandomString(3)
 		} else {
 			return nil
 		}
