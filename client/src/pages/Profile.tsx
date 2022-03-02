@@ -40,13 +40,6 @@ const Profile = ({ user }: Props) => {
       //   setAdmin(_admin);
       // }
 
-      // TODO:
-      // do this after making org signup page :)
-      // if ((this.profile.user_type_base & UserType.Organizer) != 0 &&
-      //       (this.profile.profile_status & ProfileStatus.OrganizerFinished) == 0) {
-      //       await this.$store.dispatch("setCurrentOrganizer", await this.organizerProfile);
-      //       await this.$router.push("/finish-org-profile/");
-      //   }
     })();
   }, [user]);
 
