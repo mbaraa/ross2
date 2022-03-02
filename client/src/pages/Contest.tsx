@@ -17,6 +17,7 @@ import OrganizersGrid from "../components/Organizer/OrganizersGrid";
 import GeneratePosts from "../components/Organizer/GeneratePosts";
 import ContestAbout from "../components/Shared/ContestAbout";
 import UserManagerment from "../components/Organizer/UserManagement";
+import ContestSupport from "../components/Contestant/ContestSupport";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -134,7 +135,7 @@ const Contest = ({ user }: Props): ReactElement => {
         setContest(await OrganizerRequests.getContest(parseInt(id as string)));
       })();
     }
-  }, [contest.id]);
+  }, [id]);
 
   if (contest.id) {
     return (
@@ -177,6 +178,9 @@ const Contest = ({ user }: Props): ReactElement => {
               )}
               {(isDirector || isCoreOrg) && (
                 <Tab label={<TabLabel text="Edit" />} value={6} />
+              )}
+              {!isDirector && (
+                <Tab label={<TabLabel text={"Support"} />} value={7} />
               )}
             </Tabs>
           </Box>
@@ -225,6 +229,14 @@ const Contest = ({ user }: Props): ReactElement => {
           {(isDirector || isCoreOrg) && (
             <TabPanel value={value} index={6}>
               <CreateEditContest user={user} contest={contest} />
+            </TabPanel>
+          )}
+          {!isDirector && (
+            <TabPanel value={value} index={7}>
+              <ContestSupport
+                orgs={contest.organizers as Organizer[]}
+                contest={contest}
+              />
             </TabPanel>
           )}
         </Box>

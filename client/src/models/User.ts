@@ -1,7 +1,13 @@
 export class ContactInfo {
-  facebook_url?: string;
-  telegram_number?: string;
-  whatsapp_number?: string;
+  facebook_url: string;
+  telegram_number: string;
+  whatsapp_number: string;
+
+  constructor() {
+    this.facebook_url = "";
+    this.telegram_number = "";
+    this.whatsapp_number = "";
+  }
 }
 
 export enum UserType {
@@ -28,7 +34,7 @@ export default class User {
   user_type_base: number;
   user_type?: string;
 
-  contact_info?: ContactInfo;
+  contact_info: ContactInfo;
 
   constructor() {
     this.contact_info = new ContactInfo();
