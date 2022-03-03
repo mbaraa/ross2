@@ -88,9 +88,21 @@ const ContestCard = ({ contest }: Props) => {
     return regOver;
   };
 
+    const hasArabic = (s: string): boolean => {
+      for (const c of s) {
+        if (c.charCodeAt(0) >= 0x600 && c.charCodeAt(0) <= 0x6FF) {
+          return true;
+        }
+      }
+        return false;
+    };
+
   const createTeam = async () => {
     if (checkRegisterEnds()) {
       return;
+    }
+    if (hasArabic(team.name as string)) {
+        window.alert("Team name can't contain arabic letters");
     }
     team.name = state.teamName;
     team.contests.push(contest);

@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"errors"
 	"math"
 	"time"
 
@@ -24,6 +25,10 @@ func NewTeamHelper(teamRepo data.TeamCRUDRepo, contRepo data.ContestantCRUDRepo)
 
 // CreateTeam creates a team and adds the given contestant to it as its leader
 func (t *TeamHelper) CreateTeam(contestant models.Contestant, team *models.Team) error {
+	if contestant.TeamID > 1 {
+		return errors.New("contestant already has a team")
+	}
+
 	// set team's required attributes to be lead by the given contestant
 	team.Leader = &contestant
 	team.LeaderId = contestant.User.ID

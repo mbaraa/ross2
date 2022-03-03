@@ -97,7 +97,10 @@ func (c *ContestantAPI) handleCreateTeam(ctx context.HandlerContext) {
 		return
 	}
 
-	if c.contMgr.CreateTeam(cont, team) != nil {
+	err = c.contMgr.CreateTeam(cont, team)
+	if err != nil {
+		ctx.Res.Write([]byte(err.Error()))
+		ctx.Res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 }
