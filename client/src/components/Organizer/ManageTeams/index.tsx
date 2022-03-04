@@ -24,19 +24,30 @@ const ManageTeams = ({
   contest,
   updateTeams,
 }: Props): React.ReactElement => {
-  console.log("teamless", teamless);
   const [open, setOpen] = React.useState(false);
 
   teams.sort((ti: Team, tj: Team) =>
     (ti.members.length as number) < (tj.members.length as number) ? -1 : 1
   );
 
+  const [changedTeams, setChangedTeams] = React.useState(new Array<Team>());
+  const [changedTeam, setChangedTeam] = React.useState(new Team());
+
+  React.useEffect(() => {
+    changedTeams.push(changedTeam);
+    setChangedTeams(changedTeams.flat());
+  }, [changedTeam.id]);
+
   const saveTeams = () => {
     (async () => {
       if (
         window.confirm("are you sure of the teams you are about to register?")
       ) {
-        await OrganizerRequests.saveTeams(teams, teamless, contest);
+        await OrganizerRequests.saveTeams(
+          changedTeams.length > 0 ? changedTeams : teams,
+          teamless,
+          contest
+        );
       }
     })();
     // window.location.reload();
@@ -137,6 +148,7 @@ const ManageTeams = ({
               teamless={teamless}
               showGender={showGender}
               updateTeams={updateTeams}
+              updateChangedTeam={setChangedTeam}
             />
           );
         })}

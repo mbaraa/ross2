@@ -9,6 +9,7 @@ interface Props {
   teamless: Contestant[];
   showGender: boolean;
   updateTeams(): void;
+  updateChangedTeam: React.Dispatch<React.SetStateAction<Team>>;
 }
 
 const TeamCard = ({
@@ -16,6 +17,7 @@ const TeamCard = ({
   teamless,
   showGender,
   updateTeams,
+  updateChangedTeam,
 }: Props): React.ReactElement => {
   const setColorFromGender = (): string => {
     if (team.members.length > 0) {
@@ -76,7 +78,11 @@ const TeamCard = ({
     teamless.push(team.members[mi]);
     team.members.splice(mi, 1);
     updateTeams();
+    updateChangedTeam(team);
   };
+
+  const [changeName, setChangeName] = React.useState(false);
+  const [name, setName] = React.useState(team.name);
 
   return (
     <>
@@ -85,11 +91,37 @@ const TeamCard = ({
       >
         <div className="p-[28px]">
           <div className="inline-grid grid-cols-2 w-full">
-            <label
-              className={`font-[700] text-[20px] text-[${color}] mb-[20px]`}
-            >
-              {team.name}
-            </label>
+            {changeName ? (
+              <TextField
+                className="w-[100%]"
+                variant="outlined"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setName(e.target.value);
+                }}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === "Enter") {
+                    team.name = name;
+                    updateTeams();
+                    updateChangedTeam(team);
+                  }
+                }}
+                label={
+                  <label className="font-Ropa text-[18px] text-indigo">
+                    Team Name
+                  </label>
+                }
+              />
+            ) : (
+              <label
+                onClick={() => {
+                  setChangeName(true);
+                }}
+                className={`font-[700] text-[20px] text-[${color}] mb-[20px]`}
+              >
+                {name}
+              </label>
+            )}
             <div className="relative top-0 right-[-3px] ">
               <Button
                 variant="outlined"
