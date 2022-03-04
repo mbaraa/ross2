@@ -24,11 +24,8 @@ const ManageTeams = ({
   contest,
   updateTeams,
 }: Props): React.ReactElement => {
+  console.log("teamless", teamless);
   const [open, setOpen] = React.useState(false);
-
-  if (teams === null || teams.length === 0) {
-    return <Title content="No teams are available!" className="" />;
-  }
 
   teams.sort((ti: Team, tj: Team) =>
     (ti.members.length as number) < (tj.members.length as number) ? -1 : 1
@@ -48,7 +45,9 @@ const ManageTeams = ({
   const filterTeams = (): Team[] => {
     return teams.filter((t) => t.members.length > 0);
   };
-
+  if (teams === null || teams.length === 0) {
+    return <Title content="No teams are available!" className="" />;
+  }
   return (
     <div className="font-Ropa">
       <Dialog open={open} onClose={() => setOpen(false)}>
@@ -71,26 +70,27 @@ const ManageTeams = ({
           </div>
 
           <div>
-            {teamless.map((contestant: Contestant) => {
-              return (
-                <div
-                  className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] "
-                  key={contestant.user.id}
-                >
-                  <div className="text-[14px] text-[#425CBA] space-y-[4px] font-Ropa">
-                    <div>
-                      <b>ID: </b> {contestant.user.id}
-                    </div>
-                    <div>
-                      <b>Name: </b> {contestant.user.name}
-                    </div>
-                    <div>
-                      <b>Gender</b> {contestant.gender ? "Male" : "Female"}
+            {teamless !== null &&
+              teamless.map((contestant: Contestant) => {
+                return (
+                  <div
+                    className="border-[1px] border-[#eee] p-[16px] mb-[8px] rounded-[8px] "
+                    key={contestant.user.id}
+                  >
+                    <div className="text-[14px] text-[#425CBA] space-y-[4px] font-Ropa">
+                      <div>
+                        <b>ID: </b> {contestant.user.id}
+                      </div>
+                      <div>
+                        <b>Name: </b> {contestant.user.name}
+                      </div>
+                      <div>
+                        <b>Gender</b> {contestant.gender ? "Male" : "Female"}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       </Dialog>
@@ -128,7 +128,7 @@ const ManageTeams = ({
         </div>
       </div>
 
-      <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      <div className="font-Ropa flex flex-row flex-wrap justify-center sm:grid sm:w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {filterTeams().map((team: any) => {
           return (
             <TeamCard

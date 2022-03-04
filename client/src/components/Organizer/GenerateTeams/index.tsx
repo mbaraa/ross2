@@ -90,16 +90,11 @@ const GenerateTeams = ({ id }: Props) => {
         readNamesFile()
       );
 
-    if (generateTeams.length === 0 && leftTeamless == null) {
-      setNoTeamless(true);
-      return;
-    }
-
     setGenerated(true);
-    setNoTeamless(false);
+    setNoTeamless(leftTeamless === null || leftTeamless.length === 0);
     setLoadin(false);
     setGenTeams(generatedTeams);
-    setTeamless(leftTeamless);
+    setTeamless(noTeamless ? [] : leftTeamless);
     setOpen(false);
   };
 
