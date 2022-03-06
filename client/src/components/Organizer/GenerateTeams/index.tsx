@@ -94,7 +94,7 @@ const GenerateTeams = ({ id }: Props) => {
     setNoTeamless(leftTeamless === null || leftTeamless.length === 0);
     setLoadin(false);
     setGenTeams(generatedTeams);
-    setTeamless(noTeamless ? [] : leftTeamless);
+    setTeamless(leftTeamless ?? new Array<Contestant>());
     setOpen(false);
   };
 
