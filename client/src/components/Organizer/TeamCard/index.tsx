@@ -9,7 +9,6 @@ interface Props {
   teamless: Contestant[];
   showGender: boolean;
   updateTeams(): void;
-  updateChangedTeam: React.Dispatch<React.SetStateAction<Team>>;
 }
 
 const TeamCard = ({
@@ -17,7 +16,6 @@ const TeamCard = ({
   teamless,
   showGender,
   updateTeams,
-  updateChangedTeam,
 }: Props): React.ReactElement => {
   const setColorFromGender = (): string => {
     if (team.members.length > 0) {
@@ -78,7 +76,6 @@ const TeamCard = ({
     teamless.push(team.members[mi]);
     team.members.splice(mi, 1);
     updateTeams();
-    updateChangedTeam(team);
   };
 
   const [changeName, setChangeName] = React.useState(false);
@@ -103,7 +100,6 @@ const TeamCard = ({
                   if (e.key === "Enter") {
                     team.name = name;
                     updateTeams();
-                    updateChangedTeam(team);
                   }
                 }}
                 label={
