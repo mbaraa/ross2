@@ -98,12 +98,21 @@ class ContestantRequests {
     return inTeam;
   }
 
-  public static async createTeam(team: Team): Promise<void> {
+  public static async createTeam(team: Team): Promise<string> {
+    let respMsg = "";
     await RequestsManager.makeAuthPostRequest(
       "create-team",
       UserType.Contestant,
       team
-    );
+    )
+      .then((resp) => resp.text())
+      .then((resp) => {
+        respMsg = resp as string;
+        return respMsg;
+      })
+      .catch((err) => console.log(err));
+
+    return respMsg;
   }
 
   public static async joinAsTeamless(body: any): Promise<void> {

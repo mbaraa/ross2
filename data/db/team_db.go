@@ -38,6 +38,9 @@ func (t *TeamDB) AddMany(teams []*models.Team) error {
 
 // createTeam finds a suitable joining id for the team in a very stupid way
 func (t *TeamDB) createTeam(team *models.Team) error {
+	if strutils.IsBadWord(team.Name) {
+		return errors.New("team name can't contain bad words 🙂")
+	}
 	for {
 		team.JoinID = strutils.GetRandomString(3)
 

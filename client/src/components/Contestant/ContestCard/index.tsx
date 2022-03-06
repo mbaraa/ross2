@@ -94,10 +94,14 @@ const ContestCard = ({ contest }: Props) => {
     }
     team.name = state.teamName;
     team.contests.push(contest);
-    await ContestantRequests.createTeam(team);
+    const msg = await ContestantRequests.createTeam(team);
+    if (msg.length > 0) {
+      window.alert(msg);
+      closeCTHandler();
+      return;
+    }
     closeCTHandler();
     window.alert(`your team "${team.name}" was created successfully ☺️`);
-    window.location.reload();
   };
 
   const joinTeam = async () => {
