@@ -20,5 +20,9 @@ func GetRandomString(length int) string {
 		sb.WriteByte(GetRandomChar())
 	}
 
+	if IsBadWord(sb.String()) {
+		return GetRandomString(3)
+	}
+
 	return sb.String()
 }

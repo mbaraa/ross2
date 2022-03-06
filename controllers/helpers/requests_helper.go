@@ -94,20 +94,6 @@ func (j *JoinRequestHelper) checkRequestedTeam(jr models.JoinRequest, cont model
 		return errors.New("sorry, this team is full")
 	}
 
-	errMsg := "you can't join this team since you are a "
-	//if !cont.ParticipateWithOtherGender {
-	if cont.Gender && !jr.RequestedTeam.Members[0].Gender {
-		errMsg += "male and you chose that you don't want to participate with females"
-	} else if !cont.Gender && jr.RequestedTeam.Members[0].Gender {
-		errMsg += "female and you chose that you don't want to participate with males"
-	}
-	errMsg += "\nyou can talk to an organizer to change this preference\nor 'register as teamless' and you'll be placed in a proper team ☺️"
-	//}
-
-	if cont.Gender != jr.RequestedTeam.Members[0].Gender {
-		return errors.New(errMsg)
-	}
-
 	return nil
 }
 
