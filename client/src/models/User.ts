@@ -1,12 +1,12 @@
 export class ContactInfo {
   facebook_url: string;
   telegram_number: string;
-  whatsapp_number: string;
+  msteams_email: string;
 
   constructor() {
     this.facebook_url = "";
     this.telegram_number = "";
-    this.whatsapp_number = "";
+    this.msteams_email = "";
   }
 }
 

@@ -44,7 +44,7 @@ func (u *User) BeforeCreate(db *gorm.DB) error {
 // ContactInfo represents a user's(any user on Ross) fields
 type ContactInfo struct {
 	gorm.Model
-	FacebookURL    string `gorm:"column:facebook_url" json:"facebook_url"`
-	WhatsappNumber string `gorm:"column:whatsapp_number" json:"whatsapp_number"`
-	TelegramNumber string `gorm:"column:telegram_number" json:"telegram_number"`
+	FacebookURL         string `gorm:"column:facebook_url" json:"facebook_url"`
+	MicrosoftTeamsEmail string `gorm:"column:msteams_email" json:"msteams_email"`
+	TelegramNumber      string `gorm:"column:telegram_number" json:"telegram_number"`
 }

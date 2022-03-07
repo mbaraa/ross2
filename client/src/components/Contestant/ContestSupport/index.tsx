@@ -11,10 +11,11 @@ interface Props {
 
 const ContestSupport = ({ orgs, contest }: Props): React.ReactElement => {
   const filterOrgs = (): Organizer[] => {
-    return orgs.filter((o) =>
-      (o.user.contact_info?.facebook_url as string).includes(
-        "https://facebook.com"
-      )
+    return orgs.filter(
+      (o) =>
+        (o.user.contact_info?.facebook_url as string).includes(
+          "https://facebook.com"
+        ) || (o.user.contact_info?.msteams_email as string).includes("20")
     );
   };
 
@@ -23,12 +24,14 @@ const ContestSupport = ({ orgs, contest }: Props): React.ReactElement => {
       {filterOrgs().length > 0 ? (
         <>
           <Title content="Contact us for support" className="" />
-          <br/>
+          <br />
           {filterOrgs().map((org) => (
             <OrganizerCard key={Math.random()} organizer={org} />
           ))}
         </>
-      ): <Title content="Hmm..." className=""/>}
+      ) : (
+        <Title content="Hmm..." className="" />
+      )}
     </div>
   );
 };

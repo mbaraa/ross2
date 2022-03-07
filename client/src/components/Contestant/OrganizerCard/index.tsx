@@ -1,5 +1,6 @@
 import * as React from "react";
 import { MdFacebook } from "react-icons/md";
+import { SiMicrosoftteams } from "react-icons/si";
 import Contest from "../../../models/Contest";
 import Organizer from "../../../models/Organizer";
 
@@ -16,7 +17,19 @@ const OrganizerCard = ({ organizer }: Props): React.ReactElement => {
       </label>
       <hr className="border-ross2 pb-[10px] mt-[10px]" />
       <div className="font-Ropa text-[#4267B2]">
-      <MdFacebook className="inline-block"/> <a target="_blank" rel="noreferrer" href={organizer.user.contact_info?.facebook_url} > Facebook URL</a>
+        <MdFacebook className="inline-block" />{" "}
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={organizer.user.contact_info?.facebook_url}
+        >
+          {" "}
+          Facebook URL
+        </a>
+      </div>
+      <div className="font-Ropa text-[#7B83EB]">
+        <SiMicrosoftteams className="inline-block" /> <b>MS Teams Account: </b>{" "}
+        {organizer.user.contact_info?.msteams_email}
       </div>
     </div>
   );

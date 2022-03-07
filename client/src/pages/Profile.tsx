@@ -39,7 +39,6 @@ const Profile = ({ user }: Props) => {
       //   const _admin = await AdminRequests.getProfile();
       //   setAdmin(_admin);
       // }
-
     })();
   }, [user]);
 
@@ -136,6 +135,60 @@ const Profile = ({ user }: Props) => {
                           "https://".length
                         )
                       : org.user.contact_info.facebook_url}
+                  </a>
+                )}
+                <div>
+                  <Button
+                    color="success"
+                    variant="outlined"
+                    onClick={() => {
+                      setEditContact(!editContact);
+                      if (!editContact) {
+                        updateOrgProfile();
+                      }
+                    }}
+                  >
+                    <label className="normal-case cursor-pointer">Edit</label>
+                  </Button>
+                </div>
+              </div>
+
+              {/*******/}
+
+              <hr className="pb-[10px] mt-[10px]" />
+              <div className="text-[16px] text-[#7B83EB] space-y-[4px] w-full">
+                <b>University ID for MS Teams: </b>
+                {editContact ? (
+                  <TextField
+                    className="w-[100%]"
+                    variant="outlined"
+                    value={org.user.contact_info.msteams_email}
+                    onKeyDown={(
+                      event: React.KeyboardEvent<HTMLInputElement>
+                    ) => {
+                      if (event.key === "Enter") {
+                        updateOrgProfile();
+                        setEditContact(false);
+                      }
+                    }}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      org.user.contact_info.msteams_email = event.target.value;
+                      setModified(true);
+                      setOrg({ ...org });
+                    }}
+                    label={
+                      <label className="font-Ropa text-[18px] text-indigo">
+                        University ID for MS Teams
+                      </label>
+                    }
+                  />
+                ) : (
+                  <a href={org.user.contact_info.msteams_email}>
+                    {org.user.contact_info.msteams_email.includes("https://")
+                      ? org.user.contact_info.msteams_email.substring(
+                          "https://".length
+                        )
+                      : org.user.contact_info.msteams_email}
                   </a>
                 )}
                 <div>
