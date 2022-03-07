@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, useHistory } from "react-router-dom";
 import About from "./pages/About";
 import Contests from "./pages/Contests";
 import Profile from "./pages/Profile";
@@ -11,12 +11,17 @@ import CreateEditContest from "./components/Organizer/CreateEditContest";
 import Admin from "./pages/Admin";
 
 function App() {
+  const router = useHistory();
   const [user, setUser] = React.useState<User>(new User());
 
   React.useEffect(() => {
     (async () => {
       const u = await MicrosoftLogin.loginWithToken();
       setUser(u);
+      if (u === null || u.id === 0) {
+        router.push("/profile");
+        return;
+      }
     })();
   }, []);
 
@@ -30,7 +35,7 @@ function App() {
         </Route>
 
         <Route path="/admin">
-          <Admin user={user}/>
+          <Admin user={user} />
         </Route>
 
         <Route path="/contest/:id">
