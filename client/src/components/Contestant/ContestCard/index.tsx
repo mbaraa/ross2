@@ -123,7 +123,7 @@ const ContestCard = ({ contest }: Props) => {
     } as JoinRequest);
     if (resp.ok) {
       window.alert(
-        "request sent successfully, now wait for the team's leader to accept your request!"
+        "request sent successfully, now wait for the team's creator to accept your request!"
       );
     } else {
       window.alert(await resp.text());

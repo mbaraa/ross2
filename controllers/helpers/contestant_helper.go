@@ -3,6 +3,7 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -141,10 +142,8 @@ func (c *ContestantHelper) GetProfile(user models.User) (models.Contestant, erro
 
 // CreateTeam creates a team and adds the given contestant to it as its leader
 func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.Team) error {
-	if contestant.TeamlessContestID != 0 {
-		contestant.TeamlessContestID = 0
-		contestant.TeamlessedAt = contestant.CreatedAt
-	}
+	contestant.TeamlessContestID = math.MaxInt64
+	contestant.TeamlessedAt = contestant.CreatedAt
 
 	err := c.teamMgr.CreateTeam(contestant, &team)
 	if err != nil {
@@ -233,7 +232,7 @@ func (c *ContestantHelper) RegisterInContest(contest models.Contest, contestant 
 	}
 
 	if team.LeaderId != contestant.UserID {
-		return errors.New("only the team's leader can join contests")
+		return errors.New("only the team's creator can join contests")
 	}
 
 	contest, err = c.contestRepo.Get(contest)
