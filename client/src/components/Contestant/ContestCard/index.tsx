@@ -1,11 +1,13 @@
 import { getLocaleTime } from "../../../utils";
 import * as React from "react";
 import {
+  CircularProgress,
   Dialog,
   FormControlLabel,
   Radio,
   RadioGroup,
   TextField,
+  Box,
 } from "@mui/material";
 import { GoLocation } from "react-icons/go";
 import { BiTimeFive } from "react-icons/bi";
@@ -27,6 +29,8 @@ interface Props {
 
 const ContestCard = ({ contest }: Props) => {
   const [team] = React.useState<Team>(new Team());
+
+  const router = useHistory();
 
   interface State {
     teamName: string;
@@ -88,12 +92,15 @@ const ContestCard = ({ contest }: Props) => {
     return regOver;
   };
 
+  const [loading, setLoading] = React.useState(false);
+
   const createTeam = async () => {
     if (checkRegisterEnds()) {
       return;
     }
     team.name = state.teamName;
     team.contests.push(contest);
+    setLoading(true);
     const msg = await ContestantRequests.createTeam(team);
     if (msg.length > 0) {
       window.alert(msg);
@@ -102,6 +109,7 @@ const ContestCard = ({ contest }: Props) => {
     }
     closeCTHandler();
     window.alert(`your team "${team.name}" was created successfully ☺️`);
+    router.go(0);
   };
 
   const joinTeam = async () => {
@@ -178,8 +186,6 @@ const ContestCard = ({ contest }: Props) => {
       }
     })();
   };
-
-  const router = useHistory();
 
   return (
     <div className="shrink-0 float-left border-[1px] font-Ropa border-ross2 rounded h-auto inline-block w-[300px] mr-[16px] mb-[16px]">
@@ -283,16 +289,33 @@ const ContestCard = ({ contest }: Props) => {
                 Cancel
               </label>
             </Button>
-            <Button
-              color="info"
-              variant="outlined"
-              onClick={createTeam}
-              size="large"
-            >
-              <label className="normal-case font-Ropa cursor-pointer">
-                Create Team
-              </label>
-            </Button>
+
+            <Box sx={{ m: 1, position: "relative" }} className="inline-block">
+              <Button
+                color="info"
+                variant="outlined"
+                disabled={loading}
+                onClick={createTeam}
+                size="large"
+              >
+                <label className="normal-case font-Ropa cursor-pointer">
+                  Create Team
+                </label>
+              </Button>
+              {loading && (
+                <CircularProgress
+                  size={24}
+                  sx={{
+                    color: "skyblue",
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    marginTop: "-12px",
+                    marginLeft: "-12px",
+                  }}
+                />
+              )}
+            </Box>
           </div>
         </div>
       </Dialog>
