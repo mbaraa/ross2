@@ -1,5 +1,5 @@
 const config = {
-  backendAddress: "https://ross2.sheev.xyz",
+  backendAddress: "https://api.ross2.club",
   googleClientID:
     "202655727003-gu3umksjmog90n6oonvfeh79msbe1j1e.apps.googleusercontent.com",
   msalConfig: {
@@ -18,4 +18,3 @@ const config = {
 };
 
 export default config;
-
