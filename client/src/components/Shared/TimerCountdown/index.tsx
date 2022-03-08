@@ -62,7 +62,7 @@ const TimerCountdown = ({ endTimestamp }: Props): React.ReactElement => {
       time.hours !== "0" &&
       time.minutes !== "0" &&
       time.seconds !== "0"
-      ? `${time.days}:${time.hours}:${time.minutes}:${time.seconds}`
+      ? `${time.days}:${time.hours}:${time.minutes}`
       : "OVER!";
   };
 
