@@ -203,7 +203,7 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
   };
 
   if (
-    !checkUserType(user, UserType.Director) ||
+    !checkUserType(user, UserType.Director) &&
     !checkUserType(user, UserType.Admin)
   ) {
     return (
