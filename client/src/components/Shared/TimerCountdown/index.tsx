@@ -57,13 +57,27 @@ const TimerCountdown = ({ endTimestamp }: Props): React.ReactElement => {
 
   calcRemainingTime();
 
-  const getRemainingTime = (): string => {
+  const getRemainingTime = (): React.ReactNode => {
     return time.days !== "0" &&
       time.hours !== "0" &&
       time.minutes !== "0" &&
-      time.seconds !== "0"
-      ? `${time.days}:${time.hours}:${time.minutes}`
-      : "OVER!";
+      time.seconds !== "0" ? (
+      <div>
+        <label>{time.days}</label>
+        <label className="text-[11px]"> day{time.days !== "01" && "s"}</label>
+        {" : "}
+        <label>{time.hours}</label>
+        <label className="text-[11px]"> hour{time.hours !== "01" && "s"}</label>
+        {" : "}
+        <label>{time.minutes}</label>
+        <label className="text-[11px]">
+          {" "}
+          minute{time.minutes !== "01" && "s"}
+        </label>
+      </div>
+    ) : (
+      "OVER!"
+    );
   };
 
   return <div className="font-[25px]"> {getRemainingTime()} </div>;
