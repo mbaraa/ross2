@@ -127,6 +127,11 @@ const ManageTeams = ({
         </div>
       </div>
 
+      <Title
+        content={`${teams.length} Teams in This Contest`}
+        className="text-indigo text-[22px] mb-[10px]"
+      />
+
       <div className="font-Ropa flex flex-row flex-wrap justify-center sm:grid sm:w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {filterTeams().map((team: any) => {
           return (
