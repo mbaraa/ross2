@@ -60,6 +60,20 @@ const ManageTeams = ({
     return teams.filter((t) => t.members.length > 0);
   };
 
+  const getCompleteTeams = (): Team[] => {
+    return filterTeams().filter(
+      (t) =>
+        t.members.length === contest.participation_conditions.max_team_members
+    );
+  };
+
+  const getInCompleteTeams = (): Team[] => {
+    return filterTeams().filter(
+      (t) =>
+        t.members.length !== contest.participation_conditions.max_team_members
+    );
+  };
+
   const getTeamGender = (_team: Team): string => {
     const firstMember = _team.members[0];
     return firstMember.participate_with_other
@@ -249,12 +263,68 @@ const ManageTeams = ({
       {!isModTeam && (
         <>
           <Title
-            content={`${filterTeams().length} Teams`}
+            content={`${filterTeams().length} Teams, ${
+              getCompleteTeams().length
+            } Complete Teams`}
             className="text-indigo text-[22px] mb-[10px]"
           />
 
+          {/* complete teams */}
+          <div className="border-t-2 border-t-gray-300 mt-[10px] pb-[10px]" />
+          <Title
+            content="Completed Teams"
+            className="text-indigo text-[22px] mb-[10px]"
+          />
           <div className="font-Ropa flex flex-row flex-wrap justify-center sm:grid sm:w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {filterTeams().map((team: any) => (
+            {getCompleteTeams().map((team: any) => (
+              <div
+                className={`float-left border-[1px] border-ross2 rounded h-auto inline-block w-[280px] mr-[16px] mb-[56px] p-0 font-Ropa hover:cursor-pointer`}
+                onClick={() => {
+                  setModTeam(team);
+                  setIsModTeam(true);
+                }}
+                title="Click to edit this team"
+              >
+                <div className="p-[28px]">
+                  <label
+                    className={`font-[700] text-[20px] text-indigo mb-[20px]`}
+                  >
+                    {team.name}
+                  </label>
+
+                  {showGender && (
+                    <label className={`text-black font-[15px]`}>
+                      <b>Gender:</b> {getTeamGender(team)}
+                    </label>
+                  )}
+
+                  <div className="pt-[10px]">
+                    {team.members.map((member: any) => {
+                      return (
+                        <div
+                          className="border-[1px] border-[#eee] p-[16px] mb-[8px] last:mb-0 rounded-[8px] "
+                          key={member.user.id}
+                        >
+                          <div className={`text-[13px] text-indigo`}>
+                            {member.user.name}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* incomplete teams */}
+          <div className="border-t-2 border-t-gray-300 pb-[10px]" />
+          <Title
+            content="Incompleted Teams"
+            className="text-indigo text-[22px] mb-[10px]"
+          />
+          <div className="font-Ropa flex flex-row flex-wrap justify-center sm:grid sm:w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {getInCompleteTeams().map((team: any) => (
               <div
                 className={`float-left border-[1px] border-ross2 rounded h-auto inline-block w-[280px] mr-[16px] mb-[56px] p-0 font-Ropa hover:cursor-pointer`}
                 onClick={() => {
