@@ -1,5 +1,4 @@
 import * as React from "react";
-import TeamCard from "../TeamCard";
 import { Button, TextField } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import Title from "../../Shared/Title";
@@ -11,7 +10,6 @@ import { BsArrowLeft } from "react-icons/bs";
 import { BiTrash } from "react-icons/bi";
 import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 import Contest from "../../../models/Contest";
-import CreateEditTeam from "../CreateEditTeam";
 
 interface LabelProps {
   text: string;
@@ -308,7 +306,7 @@ const ManageTeams = ({
             <div className="grid md:grid-cols-2 grid-cols-1">
               {/* left side */}
               <div className="mr-[20px]">
-                <div className="mb-[10px]">
+                <div className="my-[15px]">
                   <TextField
                     className="w-[100%]"
                     variant="outlined"
@@ -331,9 +329,12 @@ const ManageTeams = ({
                           className="border-[1px] border-[#eee] p-[16px] mr-[8px] mb-[8px] rounded-[8px] "
                           key={contestant.user.id}
                         >
-                          <div className="text-[14px] text-[#425CBA] space-y-[4px] font-Ropa">
+                          <div className="text-[15px] text-[#425CBA] space-y-[4px] font-Ropa">
                             <div>
                               <b>Name: </b> {contestant.user.name}
+                            </div>
+                            <div>
+                              <b>Email: </b> {contestant.user.email}
                             </div>
                             {showGender && (
                               <div>
@@ -345,10 +346,10 @@ const ManageTeams = ({
                               <Button
                                 variant="outlined"
                                 color={"error"}
-                                startIcon={<BiTrash size={18} />}
+                                startIcon={<BiTrash size={13} />}
                                 onClick={() => removeCont(contestant)}
                               >
-                                <label className="normal-case font-Ropa text-[20px] cursor-pointer">
+                                <label className="normal-case font-Ropa text-[13px] cursor-pointer">
                                   Remove from Team
                                 </label>
                               </Button>
@@ -391,7 +392,7 @@ const ManageTeams = ({
               </div>
 
               {/* right side */}
-              <div>
+              <div className="mt-[10px] sm:mt-0">
                 {teamless !== undefined && teamless.length > 0 ? (
                   <>
                     <Title
@@ -405,9 +406,12 @@ const ManageTeams = ({
                             className="border-[1px] border-[#eee] p-[16px] mr-[8px] mb-[8px] rounded-[8px] "
                             key={contestant.user.id}
                           >
-                            <div className="text-[14px] text-[#425CBA] space-y-[4px] font-Ropa">
+                            <div className="text-[15px] text-[#425CBA] space-y-[4px] font-Ropa">
                               <div>
                                 <b>Name: </b> {contestant.user.name}
+                              </div>
+                              <div>
+                                <b>Email: </b> {contestant.user.email}
                               </div>
                               <div>
                                 <b>Gender: </b>{" "}
@@ -426,7 +430,7 @@ const ManageTeams = ({
                                   startIcon={<GoPlus size={18} />}
                                   onClick={() => addContestant(contestant)}
                                 >
-                                  <label className="normal-case font-Ropa text-[20px] cursor-pointer">
+                                  <label className="normal-case font-Ropa text-[13px] cursor-pointer">
                                     Add to Team
                                   </label>
                                 </Button>
