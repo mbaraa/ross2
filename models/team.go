@@ -51,7 +51,7 @@ func (t *Team) AfterCreate(db *gorm.DB) error {
 	for i := range t.Members {
 		t.Members[i].TeamID = t.ID
 		t.Members[i].TeamlessContestID = math.MaxInt
-		t.Members[i].TeamlessedAt = time.Time{}
+		t.Members[i].TeamlessedAt = time.Now()
 
 		err := db.
 			Model(&t.Members[i]).
