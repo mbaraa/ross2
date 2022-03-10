@@ -18,6 +18,7 @@ import (
 type OrganizerHelperBuilder struct {
 	repo            data.OrganizerCRUDRepo
 	contestRepo     data.ContestCRUDRepo
+	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.UserCRUDRepo
 	teamMgr         *TeamHelper
 	notificationMgr *NotificationHelper
@@ -34,6 +35,11 @@ func (b *OrganizerHelperBuilder) OrganizerRepo(o data.OrganizerCRUDRepo) *Organi
 
 func (b *OrganizerHelperBuilder) ContestRepo(c data.ContestCRUDRepo) *OrganizerHelperBuilder {
 	b.contestRepo = c
+	return b
+}
+
+func (b *OrganizerHelperBuilder) OrganizeContestRepo(c data.OrganizeContestCRUDRepo) *OrganizerHelperBuilder {
+	b.ocRepo = c
 	return b
 }
 
@@ -61,6 +67,9 @@ func (b *OrganizerHelperBuilder) verify() bool {
 	if b.contestRepo == nil {
 		sb.WriteString("Organizer Helper Builder: missing contest repo!")
 	}
+	if b.ocRepo == nil {
+		sb.WriteString("Organizer Helper Builder: missing organize contest repo!")
+	}
 	if b.userRepo == nil {
 		sb.WriteString("Organizer Helper Builder: missing user repo!")
 	}
@@ -87,6 +96,7 @@ func (b *OrganizerHelperBuilder) GetOrganizerManager() *OrganizerHelper {
 type OrganizerHelper struct {
 	repo            data.OrganizerCRUDRepo
 	contestRepo     data.ContestCRUDRepo
+	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.UserCRUDRepo
 	teamMgr         *TeamHelper
 	notificationMgr *NotificationHelper
@@ -97,6 +107,7 @@ func NewOrganizerHelper(b *OrganizerHelperBuilder) *OrganizerHelper {
 	return &OrganizerHelper{
 		repo:            b.repo,
 		contestRepo:     b.contestRepo,
+		ocRepo:          b.ocRepo,
 		userRepo:        b.userRepo,
 		teamMgr:         b.teamMgr,
 		notificationMgr: b.notificationMgr,
@@ -163,12 +174,7 @@ func (o *OrganizerHelper) CreateContest(contest models.Contest, org models.Organ
 		OrganizerRoles: enums.RoleDirector,
 	}
 
-	return o.repo.
-		GetDB().
-		Model(&orgContest).
-		Where("contest_id = ? and organizer_id = ?", contest.ID, org.ID).
-		Updates(&orgContest).
-		Error
+	return o.ocRepo.Update(&orgContest)
 }
 
 // DeleteContest deletes contest, much wow!
@@ -190,13 +196,10 @@ func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUs
 
 	if orgExists {
 		newOrg.ID = org.ID
-		oc := models.OrganizeContest{}
-
-		err = o.repo.
-			GetDB().
-			Model(new(models.OrganizeContest)).
-			First(&oc, "contest_id = ? and organizer_id = ?", contest.ID, newOrg.ID).
-			Error
+		_, err := o.ocRepo.Get(models.OrganizeContest{
+			ContestID:   contest.ID,
+			OrganizerID: newOrg.ID,
+		})
 
 		if err == nil {
 			return errors.New("this user is already an organizer on this contest")
@@ -221,45 +224,35 @@ func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUs
 		if err != nil {
 			return err
 		}
-		return o.repo.
-			GetDB().
-			Model(new(models.OrganizeContest)).
-			Where("contest_id = ? and organizer_id = ?", contest.ID, newOrg.ID).
-			Updates(models.OrganizeContest{
-				ContestID:      contest.ID,
-				OrganizerID:    newOrg.ID,
-				OrganizerRoles: roles,
-			}).Error
-	}
-
-	return o.repo.
-		GetDB().
-		Create(&models.OrganizeContest{
+		return o.ocRepo.Update(&models.OrganizeContest{
 			ContestID:      contest.ID,
 			OrganizerID:    newOrg.ID,
 			OrganizerRoles: roles,
-		}).Error
+		})
+	}
+
+	return o.ocRepo.Add(&models.OrganizeContest{
+		ContestID:      contest.ID,
+		OrganizerID:    newOrg.ID,
+		OrganizerRoles: roles,
+	})
 }
 
 // UpdateOrganizer updates the given organizer
 func (o *OrganizerHelper) UpdateOrganizer(newOrg, director models.Organizer, baseUser models.User, contest models.Contest, roles enums.OrganizerRole) error {
-	return o.repo.
-		GetDB().
-		Model(new(models.OrganizeContest)).
-		Where("contest_id = ? and organizer_id = ?", contest.ID, newOrg.ID).
-		Updates(models.OrganizeContest{
-			ContestID:      contest.ID,
-			OrganizerID:    newOrg.ID,
-			OrganizerRoles: roles,
-		}).Error
+	return o.ocRepo.Update(&models.OrganizeContest{
+		ContestID:      contest.ID,
+		OrganizerID:    newOrg.ID,
+		OrganizerRoles: roles,
+	})
 }
 
 // DeleteOrganizer deletes the given organizer
 func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer, contest models.Contest) error {
-	return o.repo.
-		GetDB().
-		Delete(new(models.OrganizeContest), "contest_id = ? and organizer_id = ?", contest.ID, org.ID).
-		Error
+	return o.ocRepo.Delete(models.OrganizeContest{
+		ContestID:   contest.ID,
+		OrganizerID: org.ID,
+	})
 }
 
 // GenerateTeams generates teams for the teamless contestants of the given contest
@@ -301,39 +294,13 @@ func (o *OrganizerHelper) GetContest(contest models.Contest) (models.Contest, er
 }
 
 // GetOrganizers returns all organizers that are under the given organizer
-func (o *OrganizerHelper) GetOrganizers(org models.Organizer, contest models.Contest) (orgs []models.Organizer, err error) {
-	// return o.repo.GetAllByOrganizer(org)
-
-	var orgsContests []models.OrganizeContest
-
-	err = o.repo.
-		GetDB().
-		Model(new(models.OrganizeContest)).
-		Where("contest_id = ?", contest.ID).
-		Find(&orgsContests).
-		Error
-
+func (o *OrganizerHelper) GetOrganizers(org models.Organizer, contest models.Contest) ([]models.Organizer, error) {
+	orgs, err := o.ocRepo.GetOrgs(contest)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	for _, orgContest := range orgsContests {
-		fetchedOrg := models.Organizer{}
-		err := o.repo.
-			GetDB().
-			Model(new(models.Organizer)).
-			Where("id = ?", orgContest.OrganizerID).
-			First(&fetchedOrg).
-			Error
-
-		if err != nil {
-			continue
-		}
-
-		orgs = append(orgs, fetchedOrg)
-	}
-
-	return
+	return orgs, nil
 }
 
 func (o *OrganizerHelper) SendSheevNotifications(contest models.Contest) error {
@@ -423,14 +390,10 @@ func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contes
 
 // CheckOrgRole reports whether the given organizer has the given role over the given contest
 func (o *OrganizerHelper) CheckOrgRole(role enums.OrganizerRole, contestID, organizerID uint) bool {
-	oc := models.OrganizeContest{}
-	err := o.repo.
-		GetDB().
-		Model(new(models.OrganizeContest)).
-		Where("contest_id = ? and organizer_id = ?", contestID, organizerID).
-		First(&oc).
-		Error
-
+	oc, err := o.ocRepo.Get(models.OrganizeContest{
+		ContestID:   contestID,
+		OrganizerID: organizerID,
+	})
 	if err != nil {
 		return false
 	}
@@ -439,12 +402,10 @@ func (o *OrganizerHelper) CheckOrgRole(role enums.OrganizerRole, contestID, orga
 }
 
 func (o *OrganizerHelper) GetOrgRoles(orgID, contestID uint) (roles enums.OrganizerRole, rolesNames []string, err error) {
-	oc := models.OrganizeContest{}
-	err = o.repo.
-		GetDB().
-		Model(new(models.OrganizeContest)).
-		First(&oc, "contest_id = ? and organizer_id = ?", contestID, orgID).
-		Error
+	oc, err := o.ocRepo.Get(models.OrganizeContest{
+		ContestID:   contestID,
+		OrganizerID: orgID,
+	})
 	if err != nil {
 		return
 	}

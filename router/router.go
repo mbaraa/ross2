@@ -23,6 +23,7 @@ type Builder struct {
 	notificationRepo data.NotificationCRUDRepo
 	userRepo         data.UserCRUDRepo
 	adminRepo        data.AdminCRUDRepo
+	ocRepo           data.OrganizeContestCRUDRepo
 }
 
 func NewRouterBuilder() *Builder {
@@ -74,6 +75,11 @@ func (b *Builder) AdminRepo(a data.AdminCRUDRepo) *Builder {
 	return b
 }
 
+func (b *Builder) OrganizeContestRepo(c data.OrganizeContestCRUDRepo) *Builder {
+	b.ocRepo = c
+	return b
+}
+
 func (b *Builder) verify() bool {
 	sb := new(strings.Builder)
 
@@ -103,6 +109,9 @@ func (b *Builder) verify() bool {
 	}
 	if b.adminRepo == nil {
 		sb.WriteString("Router Builder: missing admin repo!")
+	}
+	if b.ocRepo == nil {
+		sb.WriteString("Router Builder: missing organize contest repo!")
 	}
 
 	if sb.Len() != 0 {
@@ -173,6 +182,7 @@ func NewRouter(b *Builder) *Router {
 					UserRepo(b.userRepo).
 					TeamMgr(teamManager).
 					NotificationMgr(notificationManager).
+					OrganizeContestRepo(b.ocRepo).
 					GetOrganizerManager()
 
 		joinReqManager    = helpers.NewJoinRequestHelper(b.joinReqRepo, b.notificationRepo, b.contestRepo, teamManager)

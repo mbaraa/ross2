@@ -20,6 +20,7 @@ func main() {
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
 		userRepo         = db.NewUserDB(mysqlDB)
 		adminRepo        = db.NewAdminDB(mysqlDB)
+		ocRepo           = db.NewOrganizeOrganizeContestDB(mysqlDB)
 	)
 	db.GetDBManagerInstance().InitTables()
 
@@ -35,6 +36,7 @@ func main() {
 		NotificationRepo(notificationRepo).
 		UserRepo(userRepo).
 		AdminRepo(adminRepo).
+		OrganizeContestRepo(ocRepo).
 		GetRouter()
 
 	if r != nil {
