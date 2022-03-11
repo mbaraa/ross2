@@ -14,17 +14,6 @@ function App() {
   const router = useHistory();
   const [user, setUser] = React.useState<User>(new User());
 
-  React.useEffect(() => {
-    (async () => {
-      const u = await MicrosoftLogin.loginWithToken();
-      setUser(u);
-      if (u === null || u.id === 0) {
-        router.push("/profile");
-        return;
-      }
-    })();
-  }, []);
-
   return (
     <>
       <Header />
