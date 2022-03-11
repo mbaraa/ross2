@@ -13,7 +13,12 @@ import Admin from "./pages/Admin";
 function App() {
   const router = useHistory();
   const [user, setUser] = React.useState<User>(new User());
-
+    React.useEffect(() => {
+      (async () => {
+        const u = await MicrosoftLogin.loginWithToken();
+        setUser(u);
+      })();                                                                                                                                                                                                                                                             
+    }, []);
   return (
     <>
       <Header />
