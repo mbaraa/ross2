@@ -67,6 +67,7 @@ func (c *ContestAPI) handleGetSingleContest(res http.ResponseWriter, req *http.R
 	}
 
 	if contest.TeamsHidden {
+		contest.TeamlessContestants = nil
 		contest.Teams = nil
 	}
 
