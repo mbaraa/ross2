@@ -536,7 +536,7 @@ func (o *OrganizerAPI) handleGenerateTeamsPosts(ctx context.HandlerContext) {
 
 	var postsGen *postsgen.TeamPostsGenerator
 	if reqBody.BaseImage == "" {
-		postsGen, err = postsgen.ThreeMembersPostSamplePostBuilder.
+		postsGen, err = postsgen.GetThreeMembersPostSamplePostBuilder().
 			Teams(reqBody.Contest.Teams).
 			GetTeamsPostsGenerator()
 	} else {
