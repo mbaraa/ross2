@@ -164,7 +164,19 @@ const Contest = ({ user }: Props): ReactElement => {
                 <Tab label={<TabLabel text="Generate Teams" />} value={2} />
               )}
               {(isDirector || isCoreOrg) && (
-                <Tab label={<TabLabel text="Manage Teams" />} value={3} />
+                <Tab
+                  label={<TabLabel text="Manage Teams" />}
+                  value={3}
+                  onClick={() => {
+                    (async () => {
+                      setContest(
+                        await OrganizerRequests.getContest(
+                          parseInt(id as string)
+                        )
+                      );
+                    })();
+                  }}
+                />
               )}
               {isDirector && (
                 <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
