@@ -256,7 +256,7 @@ const Contest = ({ user }: Props): ReactElement => {
     );
   }
 
-  return <div>Lodding...</div>;
+  return <Title content="Loading..." className="" />;
 };
 
 export default Contest;

@@ -1,24 +1,20 @@
 export function getLocaleTime(time: number): string {
-  const over = new Date().getTime() > new Date(time).getTime();
-
-  return over
-    ? "OVER!"
-    : new Date(time).toLocaleTimeString("en-US", {
-        hour12: true,
-        hour: "2-digit",
-        minute: "2-digit",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        weekday: "short",
-      });
+  return new Date(time).toLocaleTimeString("en-US", {
+    hour12: true,
+    hour: "2-digit",
+    minute: "2-digit",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    weekday: "short",
+  });
 }
 
 export function formatDuration(minutes: number): string {
   const hours = (minutes / 60) % 24;
   const minutes1 = minutes % 60;
 
-  return `${hours} hours${(minutes1 !== 0? ` & ${minutes1} minutes`: "")}`;
+  return `${hours} hours${minutes1 !== 0 ? ` & ${minutes1} minutes` : ""}`;
 }
 
 export async function readFile(
