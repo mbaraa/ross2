@@ -40,6 +40,7 @@ const TimerCountdown = ({ endTimestamp }: Props): React.ReactElement => {
         time.minutes = "0";
         time.seconds = "0";
         clearInterval(timer);
+        setTime({ ...time });
         return;
       }
 
