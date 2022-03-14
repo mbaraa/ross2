@@ -23,7 +23,9 @@ const OrganizersGrid = ({ user, contest }: Props): React.ReactElement => {
   }, [user]);
 
   const [newOrg, setNewOrg] = React.useState(false);
-  const [currentOrg, setCurrentOrg] = React.useState<Organizer>(new Organizer());
+  const [currentOrg, setCurrentOrg] = React.useState<Organizer>(
+    new Organizer()
+  );
 
   return (
     <>
@@ -64,7 +66,11 @@ const OrganizersGrid = ({ user, contest }: Props): React.ReactElement => {
               }}
               className="cursor-pointer"
             >
-              <OrganizerCard key={Math.random()} organizer={org} contestID={contest.id} />
+              <OrganizerCard
+                key={Math.random()}
+                organizer={org}
+                contestID={contest.id}
+              />
             </div>
           ))}
       </div>

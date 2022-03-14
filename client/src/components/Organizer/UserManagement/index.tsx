@@ -4,6 +4,7 @@ import { BsList } from "react-icons/bs";
 import Contest from "../../../models/Contest";
 import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 import AttentanceList from "../AttendanceList";
+import UsersChart from "../UsersChart";
 
 interface Props {
   contest: Contest;
@@ -64,10 +65,13 @@ const UserManagerment = ({
               </label>
             </Button>
           </div>
+
+          {/* charts */}
+          <UsersChart contest={contest} />
         </div>
       )}
       {/* attendance */}
-      {(isReceptionist) && (
+      {isReceptionist && (
         <div>
           <AttentanceList contest={contest} />
         </div>

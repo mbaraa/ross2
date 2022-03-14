@@ -344,7 +344,8 @@ func (o *OrganizerHelper) GetNonOrgUsers() ([]models.User, error) {
 }
 
 func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Organizer) (parts []models.User, err error) {
-	if !o.CheckOrgRole(enums.RoleReceptionist, contest.ID, org.ID) {
+	isResp := o.CheckOrgRole(enums.RoleReceptionist, contest.ID, org.ID)
+	if !o.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) && !isResp {
 		return nil, errors.New("you can't do that :)")
 	}
 
@@ -354,17 +355,19 @@ func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Org
 	}
 
 	for _, _org := range contest.Organizers {
-		if _org.User.AttendedContestID != contest.ID {
-			_org.Contests = nil
-			parts = append(parts, _org.User)
+		if _org.User.AttendedContestID != contest.ID && isResp {
+			continue
 		}
+		_org.Contests = nil
+		parts = append(parts, _org.User)
 	}
 
 	for _, team := range contest.Teams {
 		for _, member := range team.Members {
-			if member.User.AttendedContestID != contest.ID {
-				parts = append(parts, member.User)
+			if member.User.AttendedContestID != contest.ID && isResp {
+				continue
 			}
+			parts = append(parts, member.User)
 		}
 	}
 
