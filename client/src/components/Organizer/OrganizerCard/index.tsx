@@ -6,14 +6,16 @@ import OrganizerRequests from "../../../utils/requests/OrganizerRequests";
 
 interface Props {
   organizer: Organizer;
-  contestID: number
+  contestID: number;
 }
 
 const OrganizerCard = ({ organizer, contestID }: Props): React.ReactElement => {
   const deleteOrganizer = () => {
     (async () => {
       if (window.confirm("are you sure you want to delete this organizer?")) {
-        await OrganizerRequests.deleteOrganizer(organizer, {id: contestID} as Contest);
+        await OrganizerRequests.deleteOrganizer(organizer, {
+          id: contestID,
+        } as Contest);
         window.location.reload();
       }
     })();
@@ -22,12 +24,15 @@ const OrganizerCard = ({ organizer, contestID }: Props): React.ReactElement => {
   const [rolesNames, setRolesName] = React.useState([""]);
   React.useEffect(() => {
     (async () => {
-      setRolesName((await OrganizerRequests.getOrgRoles(organizer?.id, contestID)).roles_names);
+      setRolesName(
+        (await OrganizerRequests.getOrgRoles(organizer?.id, contestID))
+          .roles_names
+      );
     })();
   }, [organizer]);
 
   return (
-    <div className="p-[25px] w-[300px] h-auto rounded border-[1px] border-ross2 mr-[10px] last:mr-0 mb-[10px]">
+    <div className="p-[25px] w-[300px] h-auto rounded border-[1px] border-ross2 mr-[10px] last:mr-0 mb-[10px] font-Ropa">
       <label className="text-ross2">
         <b>Name: </b>
         {organizer.user.name}
