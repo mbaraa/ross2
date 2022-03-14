@@ -16,21 +16,25 @@ const OrganizerCard = ({ organizer }: Props): React.ReactElement => {
         {organizer.user.name}
       </label>
       <hr className="border-ross2 pb-[10px] mt-[10px]" />
-      <div className="font-Ropa text-[#4267B2]">
-        <MdFacebook className="inline-block" />{" "}
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href={organizer.user.contact_info?.facebook_url}
-        >
-          {" "}
-          Facebook URL
-        </a>
-      </div>
-      <div className="font-Ropa text-[#7B83EB]">
-        <SiMicrosoftteams className="inline-block" /> <b>MS Teams Account: </b>{" "}
-        {organizer.user.contact_info?.msteams_email}
-      </div>
+      {organizer.user.contact_info.facebook_url !== "https://" && (
+        <div className="font-Ropa text-[#4267B2]">
+          <MdFacebook className="inline-block" />{" "}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href={organizer.user.contact_info?.facebook_url}
+          >
+            {" "}
+            Facebook URL
+          </a>
+        </div>
+      )}
+      {organizer.user.contact_info.msteams_email.length !== 0 && (
+        <div className="font-Ropa text-[#7B83EB]">
+          <SiMicrosoftteams className="inline-block" />{" "}
+          <b>MS Teams Account: </b> {organizer.user.contact_info?.msteams_email}
+        </div>
+      )}
     </div>
   );
 };
