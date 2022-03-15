@@ -108,6 +108,22 @@ class OrganizerRequests {
     return zipFile;
   }
 
+  public static async getTeamsCSV(contest: Contest): Promise<string> {
+    let parts = "";
+    await RequestsManager.makeAuthPostRequest(
+      "get-teams-csv",
+      UserType.Organizer,
+      contest
+    )
+      .then((resp) => resp.text())
+      .then((resp) => {
+        parts = resp as string;
+        return parts;
+      });
+
+    return parts;
+  }
+
   public static async getParticipants(contest: Contest): Promise<string> {
     let parts = "";
     await RequestsManager.makeAuthPostRequest(
@@ -151,13 +167,17 @@ class OrganizerRequests {
     ).catch((err) => window.alert(err));
   }
 
-  public static async saveTeams(teams: Team[], teamless: Contestant[], contest: Contest): Promise<void> {
+  public static async saveTeams(
+    teams: Team[],
+    teamless: Contestant[],
+    contest: Contest
+  ): Promise<void> {
     await RequestsManager.makeAuthPostRequest(
       "save-teams",
       UserType.Organizer,
       {
         contest: contest,
-        teams: teams, 
+        teams: teams,
         teamless: teamless,
       }
     );
@@ -240,13 +260,15 @@ class OrganizerRequests {
     );
   }
 
-  public static async getSubOrganizers(contest: Contest): Promise<Array<Organizer>> {
+  public static async getSubOrganizers(
+    contest: Contest
+  ): Promise<Array<Organizer>> {
     let orgs = new Array<Organizer>();
 
     await RequestsManager.makeAuthPostRequest(
       "get-sub-organizers",
       UserType.Organizer,
-        contest,
+      contest
     )
       .then((resp) => {
         orgs = resp.json();

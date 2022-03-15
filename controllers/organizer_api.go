@@ -60,6 +60,7 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /get-contest/":              o.handleGetContest,
 		"POST /send-sheev-notifications/": o.handleSendSheevNotifications,
 		"POST /get-participants-csv/":     o.handleGetParticipantsCSV,
+		"POST /get-teams-csv/":            o.handleGetTeamsCSV,
 		"POST /generate-teams-posts/":     o.handleGenerateTeamsPosts,
 		"GET /get-all-users/":             o.handleGetAllUsers,
 		"POST /check-role/":               o.handleCheckRole,
@@ -494,6 +495,33 @@ func (o *OrganizerAPI) handleGetParticipantsCSV(ctx context.HandlerContext) {
 	}
 
 	contsCSV, err := o.orgMgr.GetParticipantsCSV(contest)
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = ctx.Res.Write([]byte(contsCSV))
+}
+
+// POST /organizer/get-teams-csv/
+func (o *OrganizerAPI) handleGetTeamsCSV(ctx context.HandlerContext) {
+	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var contest models.Contest
+	if ctx.ReadJSON(&contest) != nil {
+		return
+	}
+
+	if !o.orgMgr.CheckOrgRole(enums.RoleDirector, contest.ID, org.ID) {
+		ctx.Res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	contsCSV, err := o.orgMgr.GetTeamsCSV(contest)
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return

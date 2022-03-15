@@ -29,7 +29,18 @@ const UserManagerment = ({
       const f = document.createElement("a");
       const blob = new Blob(["\ufeff", parts]);
       f.href = URL.createObjectURL(blob);
-      f.download = `${contest.name} participants.csv`;
+      f.download = `${contest.name} Tarticipants.csv`;
+      f.click();
+    })();
+  };
+
+  const downloadTeamsCSVHandler = () => {
+    (async () => {
+      const parts = await OrganizerRequests.getTeamsCSV(contest);
+      const f = document.createElement("a");
+      const blob = new Blob(["\ufeff", parts]);
+      f.href = URL.createObjectURL(blob);
+      f.download = `${contest.name} Teams.csv`;
       f.click();
     })();
   };
@@ -38,7 +49,7 @@ const UserManagerment = ({
     <>
       {/* csv & notifications */}
       {isDirector && (
-        <div className="grid grid-cols-2 pb-[20px]">
+        <div className="grid grid-cols-3 pb-[20px]">
           <div>
             <Button
               startIcon={<BsList size={12} />}
@@ -49,6 +60,19 @@ const UserManagerment = ({
             >
               <label className="normal-case font-Ropa cursor-pointer">
                 Download List of Participants' as CSV
+              </label>
+            </Button>
+          </div>
+          <div>
+            <Button
+              startIcon={<BsList size={12} />}
+              color="success"
+              variant="outlined"
+              size="large"
+              onClick={downloadTeamsCSVHandler}
+            >
+              <label className="normal-case font-Ropa cursor-pointer">
+                Export Teams to CSV
               </label>
             </Button>
           </div>

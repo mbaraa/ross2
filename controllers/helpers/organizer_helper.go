@@ -421,3 +421,42 @@ func (o *OrganizerHelper) GetOrgRoles(orgID, contestID uint) (roles enums.Organi
 
 	return
 }
+
+func (o *OrganizerHelper) GetTeamsCSV(contest models.Contest) (string, error) {
+	cont, err := o.contestRepo.Get(contest)
+	if err != nil {
+		return "", err
+	}
+
+	csv := new(strings.Builder)
+
+	csv.WriteString("Team Name, ")
+
+	for i := 1; i <= int(cont.ParticipationConditions.MaxTeamMembers); i++ {
+		last := ','
+		if i == int(cont.ParticipationConditions.MaxTeamMembers) {
+			last = '\000'
+		}
+		csv.WriteString(fmt.Sprintf("Member #%d Name, Member #%d Uni ID%c ", i, i, last))
+	}
+	csv.WriteString(fmt.Sprintln())
+
+	for _, team := range cont.Teams {
+		teamRow := new(strings.Builder)
+		teamRow.WriteString(team.Name + ", ")
+
+		for i, member := range team.Members {
+			last := ','
+			if i == len(team.Members)-1 {
+				last = '\000'
+			}
+			teamRow.WriteString(fmt.Sprintf("%s, %s%c ", member.User.Name, strings.Split(member.User.Email, "@")[0], last))
+		}
+
+		if len(team.Members) > 0 {
+			csv.WriteString(fmt.Sprintln(teamRow.String()))
+		}
+	}
+
+	return csv.String(), nil
+}
