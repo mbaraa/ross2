@@ -356,6 +356,8 @@ func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Org
 
 	for _, _org := range contest.Organizers {
 		if _org.User.AttendedContestID != contest.ID && isResp {
+			_org.Contests = nil
+			parts = append(parts, _org.User)
 			continue
 		}
 		_org.Contests = nil
@@ -365,6 +367,7 @@ func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Org
 	for _, team := range contest.Teams {
 		for _, member := range team.Members {
 			if member.User.AttendedContestID != contest.ID && isResp {
+				parts = append(parts, member.User)
 				continue
 			}
 			parts = append(parts, member.User)
