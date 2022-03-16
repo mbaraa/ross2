@@ -21,7 +21,7 @@ const Login = (): React.ReactElement => {
         redirectUri={config.msalConfig.auth.redirectUri}
         buttonTheme="light_short"
         tenantUrl={config.msalConfig.auth.authority}
-        prompt="consent"
+        prompt="select_account"
       />
     </div>
   );
