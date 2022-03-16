@@ -50,7 +50,7 @@ const UserManagerment = ({
       {/* csv & notifications */}
       {isDirector && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 pb-[20px]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 pb-[20px]">
             <div>
               <Button
                 startIcon={<BsList size={12} />}
