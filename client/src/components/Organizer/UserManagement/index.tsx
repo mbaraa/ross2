@@ -49,50 +49,51 @@ const UserManagerment = ({
     <>
       {/* csv & notifications */}
       {isDirector && (
-        <div className="grid grid-cols-3 pb-[20px]">
-          <div>
-            <Button
-              startIcon={<BsList size={12} />}
-              color="success"
-              variant="outlined"
-              size="large"
-              onClick={downloadCSVHandler}
-            >
-              <label className="normal-case font-Ropa cursor-pointer">
-                Download List of Participants' as CSV
-              </label>
-            </Button>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 pb-[20px]">
+            <div>
+              <Button
+                startIcon={<BsList size={12} />}
+                color="success"
+                variant="outlined"
+                size="large"
+                onClick={downloadCSVHandler}
+              >
+                <label className="normal-case font-Ropa cursor-pointer">
+                  Export Attendance to CSV
+                </label>
+              </Button>
+            </div>
+            <div>
+              <Button
+                startIcon={<BsList size={12} />}
+                color="success"
+                variant="outlined"
+                size="large"
+                onClick={downloadTeamsCSVHandler}
+              >
+                <label className="normal-case font-Ropa cursor-pointer">
+                  Export Teams to CSV
+                </label>
+              </Button>
+            </div>
+            <div>
+              <Button
+                startIcon={<BsList size={12} />}
+                color="info"
+                variant="outlined"
+                size="large"
+                onClick={sendFormNotificationHandler}
+              >
+                <label className="normal-case font-Ropa cursor-pointer">
+                  Send Socity Service Form Notifications
+                </label>
+              </Button>
+            </div>
           </div>
-          <div>
-            <Button
-              startIcon={<BsList size={12} />}
-              color="success"
-              variant="outlined"
-              size="large"
-              onClick={downloadTeamsCSVHandler}
-            >
-              <label className="normal-case font-Ropa cursor-pointer">
-                Export Teams to CSV
-              </label>
-            </Button>
-          </div>
-          <div>
-            <Button
-              startIcon={<BsList size={12} />}
-              color="info"
-              variant="outlined"
-              size="large"
-              onClick={sendFormNotificationHandler}
-            >
-              <label className="normal-case font-Ropa cursor-pointer">
-                Send Socity Service Form Notifications
-              </label>
-            </Button>
-          </div>
-
           {/* charts */}
           <UsersChart contest={contest} />
-        </div>
+        </>
       )}
       {/* attendance */}
       {isReceptionist && (

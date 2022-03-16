@@ -31,9 +31,22 @@ const UsersChart = ({ contest }: Props): React.ReactElement => {
     subLabel: string;
   }
 
+  const checkSingleType = (u: User, userType: UserType): boolean => {
+    for (let tp = UserType.Contestant; tp <= UserType.Admin; tp <<= 1) {
+      if (
+        (u.user_type_base & tp) !== 0 &&
+        userType !== tp &&
+        userType === UserType.Contestant
+      ) {
+        return false;
+      }
+    }
+    return (u.user_type_base & userType) !== 0;
+  };
+
   const getnthYear = (n: number, userType: UserType): User[] => {
     return participants.filter(
-      (u) => defineUserYear(u) === n && checkUserType(u, userType)
+      (u) => defineUserYear(u) === n && checkSingleType(u, userType)
     );
   };
 
@@ -121,10 +134,10 @@ const UsersChart = ({ contest }: Props): React.ReactElement => {
 
   return (
     <>
-      <div className="grid grid-cols-1 2xl:grid-cols-2">
+      <div className="grid grid-cols-1 md:grid-cols-2">
         {getParts(UserType.Contestant).length > 0 && (
           <div>
-            <Title content="Contestants" className="w-full" />
+            <Title content="Contestants" className="w-full " />
             <RadialChart
               height={350}
               width={350}
