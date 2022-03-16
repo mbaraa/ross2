@@ -35,7 +35,7 @@ const Contests = ({ user }: Props) => {
             No contests are available at this time
           </h1>
         )}
-        {user !== null && checkUserType(user, UserType.Organizer) && (
+        {user !== null && checkUserType(user, UserType.Director) && (
           <div className="absolute items-right pt-[5px] right-[52px]">
             <Link to="/contests/new">
               <Button
