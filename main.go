@@ -20,7 +20,7 @@ func main() {
 		notificationRepo = db.NewNotificationDB(mysqlDB)
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
 		userRepo         = db.NewUserDB(mysqlDB)
-		adminRepo        = db.NewAdminDB(mysqlDB)
+		adminRepo        = db.NewAdminDB[models.Admin](mysqlDB)
 		ocRepo           = db.NewOrganizeOrganizeContestDB(mysqlDB)
 	)
 	db.GetDBManagerInstance().InitTables()

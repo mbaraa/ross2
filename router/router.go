@@ -23,7 +23,7 @@ type Builder struct {
 	joinReqRepo      data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
 	userRepo         data.UserCRUDRepo
-	adminRepo        data.AdminCRUDRepo
+	adminRepo        data.CRUDRepo[models.Admin]
 	ocRepo           data.OrganizeContestCRUDRepo
 }
 
@@ -71,7 +71,7 @@ func (b *Builder) UserRepo(u data.UserCRUDRepo) *Builder {
 	return b
 }
 
-func (b *Builder) AdminRepo(a data.AdminCRUDRepo) *Builder {
+func (b *Builder) AdminRepo(a data.CRUDRepo[models.Admin]) *Builder {
 	b.adminRepo = a
 	return b
 }

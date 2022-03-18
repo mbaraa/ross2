@@ -1,22 +1,28 @@
 package db
 
 import (
+	"errors"
+
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/models/enums"
 	"gorm.io/gorm"
 )
 
-type AdminDB struct {
+type AdminDB[T models.Admin] struct {
 	db *gorm.DB
 }
 
-func NewAdminDB(db *gorm.DB) *AdminDB {
-	return &AdminDB{db}
+func NewAdminDB[T models.Admin](db *gorm.DB) *AdminDB[T] {
+	return &AdminDB[T]{db}
+}
+
+func (a *AdminDB[T]) GetDB() *gorm.DB {
+	return a.db
 }
 
 // CREATOR REPO
 
-func (a *AdminDB) Add(admin *models.Admin) error {
+func (a *AdminDB[T]) Add(admin *models.Admin) error {
 	var err error
 	admin.User, err = a.getUser(*admin)
 	if err != nil {
@@ -38,23 +44,39 @@ func (a *AdminDB) Add(admin *models.Admin) error {
 
 // GETTER REPO
 
-func (a *AdminDB) Get(admin models.Admin) (fetchedAdmin models.Admin, err error) {
+func (a *AdminDB[T]) Get(id uint) (fetchedAdmin models.Admin, err error) {
 	err = a.db.
 		Model(new(models.Admin)).
-		First(&fetchedAdmin, "user_id = ?", admin.User.ID).
+		First(&fetchedAdmin, "user_id = ?", id).
 		Error
 
 	err = a.db.
 		Model(new(models.User)).
-		First(&fetchedAdmin.User, "id = ?", admin.User.ID).
+		First(&fetchedAdmin.User, "id = ?", id).
 		Error
 
 	return
 }
 
+func (a *AdminDB[T]) Exists(id uint) bool {
+	return false
+}
+
+func (a *AdminDB[T]) GetByConds(conds ...any) ([]models.Admin, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (a *AdminDB[T]) GetAll() ([]models.Admin, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (a *AdminDB[T]) Count() (int64, error) {
+	return 0, errors.New("not implemented")
+}
+
 // UPDATER REPO
 
-func (a *AdminDB) Update(admin *models.Admin) error {
+func (a *AdminDB[T]) Update(admin *models.Admin, conds ...any) error {
 	return a.db.
 		Model(new(models.Admin)).
 		Where("user_id = ?", admin.User.ID).
@@ -62,9 +84,13 @@ func (a *AdminDB) Update(admin *models.Admin) error {
 		Error
 }
 
+func (a *AdminDB[T]) UpdateAll(admins []*models.Admin, conds ...any) error {
+	return errors.New("not implemented")
+}
+
 // DELETER REPO
 
-func (a *AdminDB) Delete(admin models.Admin) error {
+func (a *AdminDB[T]) Delete(admin models.Admin, conds ...any) error {
 	var err error
 	admin.User, err = a.getUser(admin)
 	if err != nil {
@@ -87,7 +113,15 @@ func (a *AdminDB) Delete(admin models.Admin) error {
 		Error
 }
 
-func (a *AdminDB) getUser(admin models.Admin) (models.User, error) {
+func (a *AdminDB[T]) DeleteAll(conds ...any) error {
+	return errors.New("not implemented")
+}
+
+//////////////
+// helpers
+/////////////
+
+func (a *AdminDB[T]) getUser(admin models.Admin) (models.User, error) {
 	// find user with email then add it as admin
 	var user models.User
 	err := a.db.
@@ -102,7 +136,7 @@ func (a *AdminDB) getUser(admin models.Admin) (models.User, error) {
 	return user, nil
 }
 
-func (a *AdminDB) updateUser(user *models.User) error {
+func (a *AdminDB[T]) updateUser(user *models.User) error {
 	return a.db.
 		Model(new(models.User)).
 		Where("id = ?", user.ID).

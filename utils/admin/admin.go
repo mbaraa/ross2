@@ -7,7 +7,7 @@ import (
 	"github.com/mbaraa/ross2/models"
 )
 
-func CreateAdmin(repo data.AdminCRUDRepo) {
+func CreateAdmin(repo data.CRUDRepo[models.Admin]) {
 	args := os.Args
 	if len(args) >= 4 {
 		if args[1] == "admin" {

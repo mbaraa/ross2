@@ -10,19 +10,19 @@ import (
 
 // AdminHelper well it's written on the box :)
 type AdminHelper struct {
-	repo     data.AdminCRUDRepo
+	repo     data.CRUDRepo[models.Admin]
 	orgRepo  data.OrganizerCRUDRepo
 	userRepo data.UserCRUDRepo
 }
 
 // NewAdminHelper returns a new AdminHelper instance
-func NewAdminHelper(repo data.AdminCRUDRepo, orgRepo data.OrganizerCRUDRepo, userRepo data.UserCRUDRepo) *AdminHelper {
+func NewAdminHelper(repo data.CRUDRepo[models.Admin], orgRepo data.OrganizerCRUDRepo, userRepo data.UserCRUDRepo) *AdminHelper {
 	return &AdminHelper{repo, orgRepo, userRepo}
 }
 
 // GetProfile returns contestant's for the given user
 func (a *AdminHelper) GetProfile(user models.User) (models.Admin, error) {
-	return a.repo.Get(models.Admin{User: user})
+	return a.repo.Get(user.ID)
 }
 
 // AddDirector adds a director, much wow
