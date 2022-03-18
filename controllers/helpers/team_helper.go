@@ -12,11 +12,11 @@ import (
 // TeamHelper manages teams and stuff
 type TeamHelper struct {
 	repo     data.TeamCRUDRepo
-	contRepo data.ContestantCRUDRepo
+	contRepo data.CRUDRepo[models.Contestant]
 }
 
 // NewTeamHelper returns a new TeamHelper instance
-func NewTeamHelper(teamRepo data.TeamCRUDRepo, contRepo data.ContestantCRUDRepo) *TeamHelper {
+func NewTeamHelper(teamRepo data.TeamCRUDRepo, contRepo data.CRUDRepo[models.Contestant]) *TeamHelper {
 	return &TeamHelper{
 		repo:     teamRepo,
 		contRepo: contRepo,
@@ -52,7 +52,7 @@ func (t *TeamHelper) CreateTeams(teams []*models.Team) error {
 
 // AddContestantToTeam adds the given contestant to the given team
 func (t *TeamHelper) AddContestantToTeam(contID, teamID uint) (team models.Team, err error) {
-	cont, err := t.contRepo.Get(models.Contestant{User: models.User{ID: contID}})
+	cont, err := t.contRepo.Get(contID)
 	if err != nil {
 		return
 	}

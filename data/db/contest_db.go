@@ -13,15 +13,13 @@ import (
 type ContestDB[T models.Contest, T2 any] struct {
 	db       *gorm.DB
 	teamRepo data.TeamGetterRepo
-	tlRepo   data.TeamlessCRUDRepo
 }
 
 // NewContestDB returns a new ContestDB instance
-func NewContestDB[T models.Contest, T2 any](db *gorm.DB, teamRepo data.TeamGetterRepo, tl data.TeamlessCRUDRepo) *ContestDB[T, T2] {
+func NewContestDB[T models.Contest, T2 any](db *gorm.DB, teamRepo data.TeamGetterRepo) *ContestDB[T, T2] {
 	return &ContestDB[T, T2]{
 		db:       db,
 		teamRepo: teamRepo,
-		tlRepo:   tl,
 	}
 }
 
@@ -73,7 +71,10 @@ func (c *ContestDB[T, T2]) Get(id uint) (fetchedContest models.Contest, err erro
 		return
 	}
 
-	fetchedContest.TeamlessContestants, err = c.tlRepo.GetAllTeamLess(fetchedContest)
+	err = c.db.
+		Model(new(models.Contestant)).
+		Find(&fetchedContest.TeamlessContestants, "teamless_contest_id = ?", fetchedContest.ID).
+		Error
 
 	return
 }

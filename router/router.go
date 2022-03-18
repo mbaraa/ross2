@@ -16,7 +16,7 @@ import (
 
 type Builder struct {
 	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
-	contestantRepo   data.ContestantCRUDRepo
+	contestantRepo   data.CRUDRepo[models.Contestant]
 	sessionRepo      data.SessionCRUDRepo
 	teamRepo         data.TeamCRUDRepo
 	organizerRepo    data.OrganizerCRUDRepo
@@ -36,7 +36,7 @@ func (b *Builder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *Bu
 	return b
 }
 
-func (b *Builder) ContestantRepo(c data.ContestantCRUDRepo) *Builder {
+func (b *Builder) ContestantRepo(c data.CRUDRepo[models.Contestant]) *Builder {
 	b.contestantRepo = c
 	return b
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/utils/strutils"
 	"gorm.io/gorm"
@@ -12,13 +11,12 @@ import (
 
 // TeamDB represents a CRUD db repo for teams
 type TeamDB struct {
-	db       *gorm.DB
-	contRepo data.ContestantUpdaterRepo
+	db *gorm.DB
 }
 
 // NewTeamDB returns a new TeamDB instance
-func NewTeamDB(db *gorm.DB, contRepo data.ContestantUpdaterRepo) *TeamDB {
-	return &TeamDB{db: db, contRepo: contRepo}
+func NewTeamDB(db *gorm.DB) *TeamDB {
+	return &TeamDB{db: db}
 }
 
 // CREATOR REPO

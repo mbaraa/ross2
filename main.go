@@ -12,9 +12,9 @@ func main() {
 		mysqlDB = db.
 			GetDBManagerInstance().
 			GetMySQLConn()
-		contestantRepo   = db.NewContestantDB(mysqlDB)
-		teamRepo         = db.NewTeamDB(mysqlDB, contestantRepo)
-		contestRepo      = db.NewContestDB[models.Contest, any](mysqlDB, teamRepo, contestantRepo)
+		contestantRepo   = db.NewContestantDB[models.Contestant](mysqlDB)
+		teamRepo         = db.NewTeamDB(mysqlDB)
+		contestRepo      = db.NewContestDB[models.Contest, any](mysqlDB, teamRepo)
 		organizerRepo    = db.NewOrganizerDB(mysqlDB)
 		sessionRepo      = db.NewSessionDB(mysqlDB)
 		notificationRepo = db.NewNotificationDB(mysqlDB)

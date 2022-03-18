@@ -15,7 +15,7 @@ import (
 
 type ContestantHelperBuilder struct {
 	userRepo         data.UserCRUDRepo
-	contestantRepo   data.ContestantCRUDRepo
+	contestantRepo   data.CRUDRepo[models.Contestant]
 	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
 	notificationRepo data.NotificationCRUDRepo
 	teamMgr          *TeamHelper
@@ -31,7 +31,7 @@ func (b *ContestantHelperBuilder) UserRepo(u data.UserCRUDRepo) *ContestantHelpe
 	return b
 }
 
-func (b *ContestantHelperBuilder) ContestantRepo(c data.ContestantCRUDRepo) *ContestantHelperBuilder {
+func (b *ContestantHelperBuilder) ContestantRepo(c data.CRUDRepo[models.Contestant]) *ContestantHelperBuilder {
 	b.contestantRepo = c
 	return b
 }
@@ -92,7 +92,7 @@ func (b *ContestantHelperBuilder) GetContestantManager() *ContestantHelper {
 
 // ContestantHelper holds contestants underlying operations
 type ContestantHelper struct {
-	repo             data.ContestantCRUDRepo
+	repo             data.CRUDRepo[models.Contestant]
 	userRepo         data.UserUpdaterRepo
 	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
 	teamMgr          *TeamHelper
@@ -137,7 +137,7 @@ func (c *ContestantHelper) Register(cont models.Contestant) error {
 
 // GetProfile returns contestant's for the given user
 func (c *ContestantHelper) GetProfile(user models.User) (models.Contestant, error) {
-	return c.repo.Get(models.Contestant{User: user})
+	return c.repo.Get(user.ID)
 }
 
 // CreateTeam creates a team and adds the given contestant to it as its leader

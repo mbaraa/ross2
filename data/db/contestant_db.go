@@ -2,25 +2,28 @@ package db
 
 import (
 	"errors"
-	"time"
 
 	"github.com/mbaraa/ross2/models"
 	"gorm.io/gorm"
 )
 
 // ContestantDB represents a CRUD db repo for contestants
-type ContestantDB struct {
+type ContestantDB[T models.Contestant] struct {
 	db *gorm.DB
 }
 
 // NewContestantDB returns a new ContestantDB instance
-func NewContestantDB(db *gorm.DB) *ContestantDB {
-	return &ContestantDB{db: db}
+func NewContestantDB[T models.Contestant](db *gorm.DB) *ContestantDB[T] {
+	return &ContestantDB[T]{db: db}
+}
+
+func (c *ContestantDB[T]) GetDB() *gorm.DB {
+	return c.db
 }
 
 // CREATOR REPO
 
-func (c *ContestantDB) Add(contestant *models.Contestant) error {
+func (c *ContestantDB[T]) Add(contestant *models.Contestant) error {
 	return c.db.
 		Create(contestant).
 		Error
@@ -28,32 +31,29 @@ func (c *ContestantDB) Add(contestant *models.Contestant) error {
 
 // GETTER REPO
 
-func (c *ContestantDB) Exists(contestant models.Contestant) (bool, error) {
-	res := c.db.First(&contestant)
-	return !errors.Is(res.Error, gorm.ErrRecordNotFound), res.Error
+func (c *ContestantDB[T]) Exists(userID uint) bool {
+	_, err := c.Get(userID)
+	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-// TODO
-// generalize the get methods :_
-
-func (c *ContestantDB) Get(contestant models.Contestant) (fetchedContestant models.Contestant, err error) {
+func (c *ContestantDB[T]) Get(userID uint) (fetchedContestant models.Contestant, err error) {
 	err = c.db.
 		Model(new(models.Contestant)).
-		First(&fetchedContestant, "user_id = ?", contestant.User.ID).
+		First(&fetchedContestant, "user_id = ?", userID).
 		Error
 
-	//if err != nil {
-	//	return models.Contestant{}, err
-	//}
-
 	err = c.db.
-		First(&fetchedContestant.User, "id = ?", contestant.User.ID).
+		First(&fetchedContestant.User, "id = ?", userID).
 		Error
 
 	return
 }
 
-func (c *ContestantDB) GetAll() ([]models.Contestant, error) {
+func (c *ContestantDB[T]) GetByConds(conds ...any) ([]models.Contestant, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (c *ContestantDB[T]) GetAll() ([]models.Contestant, error) {
 	var (
 		count       int64
 		err         error
@@ -65,7 +65,7 @@ func (c *ContestantDB) GetAll() ([]models.Contestant, error) {
 	return contestants, err
 }
 
-func (c *ContestantDB) Count() (int64, error) {
+func (c *ContestantDB[T]) Count() (int64, error) {
 	var count int64
 	err := c.db.
 		Model(new(models.Contestant)).
@@ -77,7 +77,7 @@ func (c *ContestantDB) Count() (int64, error) {
 
 // UPDATER REPO
 
-func (c *ContestantDB) Update(cont *models.Contestant) error {
+func (c *ContestantDB[T]) Update(cont *models.Contestant, conds ...any) error {
 	return c.db.
 		Model(new(models.Contestant)).
 		Where("user_id = ?", cont.User.ID).
@@ -85,46 +85,23 @@ func (c *ContestantDB) Update(cont *models.Contestant) error {
 		Error
 }
 
+func (c *ContestantDB[T]) UpdateAll(conts []*models.Contestant, conds ...any) error {
+	return errors.New("not implemented")
+}
+
 // DELETER REPO
 
-func (c *ContestantDB) Delete(contestant models.Contestant) error {
+func (c *ContestantDB[T]) Delete(contestant models.Contestant, conds ...any) error {
 	return c.db.
 		Where("user_id = ?", contestant.User.ID).
 		Delete(&contestant).
 		Error
 }
 
-func (c *ContestantDB) DeleteAll() error {
+func (c *ContestantDB[T]) DeleteAll(conds ...any) error {
 	return c.db.
 		Where("true").
 		Delete(new(models.Contestant)).
 		Error
 }
 
-// TEAMLESS REPO
-
-func (c *ContestantDB) AddTeamLess(contestant models.Contestant, contest models.Contest) error {
-	contestant.TeamlessedAt = time.Now()
-	contestant.TeamlessContestID = contest.ID
-
-	return c.Update(&contestant)
-}
-
-func (c *ContestantDB) GetAllTeamLess(contest models.Contest) ([]models.Contestant, error) {
-	tls := make([]models.Contestant, 0)
-
-	err := c.db.
-		Model(new(models.Contestant)).
-		Find(&tls, "teamless_contest_id = ?", contest.ID).
-		Error
-
-	return tls, err
-}
-
-func (c *ContestantDB) RegisterInTeam(contestant models.Contestant, team models.Team) error {
-	contestant.TeamlessContestID = 0
-	contestant.TeamlessedAt = time.Time{}
-	contestant.TeamID = team.ID
-
-	return c.Update(&contestant)
-}
