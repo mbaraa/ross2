@@ -104,7 +104,7 @@ func (t *TeamDB[T, T2]) GetByConds(conds ...any) (teams []models.Team, err error
 
 	err = t.db.
 		Model(new(models.Team)).
-		Where(conds[0], conds...).
+		Where(conds[0], conds[1:]).
 		Find(&teams).
 		Error
 	return

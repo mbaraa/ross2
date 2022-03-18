@@ -11,12 +11,12 @@ import (
 // AdminHelper well it's written on the box :)
 type AdminHelper struct {
 	repo     data.CRUDRepo[models.Admin]
-	orgRepo  data.OrganizerCRUDRepo
+	orgRepo  data.CRUDRepo[models.Organizer]
 	userRepo data.UserCRUDRepo
 }
 
 // NewAdminHelper returns a new AdminHelper instance
-func NewAdminHelper(repo data.CRUDRepo[models.Admin], orgRepo data.OrganizerCRUDRepo, userRepo data.UserCRUDRepo) *AdminHelper {
+func NewAdminHelper(repo data.CRUDRepo[models.Admin], orgRepo data.CRUDRepo[models.Organizer], userRepo data.UserCRUDRepo) *AdminHelper {
 	return &AdminHelper{repo, orgRepo, userRepo}
 }
 

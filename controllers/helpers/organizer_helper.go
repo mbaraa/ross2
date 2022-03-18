@@ -16,7 +16,7 @@ import (
 )
 
 type OrganizerHelperBuilder struct {
-	repo            data.OrganizerCRUDRepo
+	repo            data.CRUDRepo[models.Organizer]
 	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
 	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.UserCRUDRepo
@@ -28,7 +28,7 @@ func NewOrganizerHelperBuilder() *OrganizerHelperBuilder {
 	return new(OrganizerHelperBuilder)
 }
 
-func (b *OrganizerHelperBuilder) OrganizerRepo(o data.OrganizerCRUDRepo) *OrganizerHelperBuilder {
+func (b *OrganizerHelperBuilder) OrganizerRepo(o data.CRUDRepo[models.Organizer]) *OrganizerHelperBuilder {
 	b.repo = o
 	return b
 }
@@ -94,7 +94,7 @@ func (b *OrganizerHelperBuilder) GetOrganizerManager() *OrganizerHelper {
 
 // OrganizerHelper well hmm
 type OrganizerHelper struct {
-	repo            data.OrganizerCRUDRepo
+	repo            data.CRUDRepo[models.Organizer]
 	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
 	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.UserCRUDRepo
@@ -116,7 +116,7 @@ func NewOrganizerHelper(b *OrganizerHelperBuilder) *OrganizerHelper {
 
 // GetProfile returns organizer's profile for the given user
 func (o *OrganizerHelper) GetProfile(user models.User) (models.Organizer, error) {
-	return o.repo.Get(models.Organizer{User: user})
+	return o.repo.Get(user.ID)
 }
 
 // GetUserProfileUsingEmail returns user's profile for the given user email
@@ -135,7 +135,7 @@ func (o *OrganizerHelper) FinishProfile(org models.Organizer) error {
 		return err
 	}
 
-	return o.repo.Update(org)
+	return o.repo.Update(&org)
 }
 
 func (o *OrganizerHelper) verifyProfile(ci models.ContactInfo) bool {
@@ -191,11 +191,11 @@ func (o *OrganizerHelper) UpdateContest(contest models.Contest) error {
 
 // AddOrganizer adds the given organizer
 func (o *OrganizerHelper) AddOrganizer(newOrg, director models.Organizer, baseUser models.User, contest models.Contest, roles enums.OrganizerRole) error {
-	org, err := o.repo.GetByEmail(newOrg.User.Email)
+	org, err := o.repo.GetByConds("email = ?", newOrg.User.Email)
 	orgExists := err == nil
 
 	if orgExists {
-		newOrg.ID = org.ID
+		newOrg.ID = org[0].ID
 		_, err := o.ocRepo.Get(models.OrganizeContest{
 			ContestID:   contest.ID,
 			OrganizerID: newOrg.ID,
