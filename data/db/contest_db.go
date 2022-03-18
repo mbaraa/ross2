@@ -10,28 +10,28 @@ import (
 )
 
 // ContestDB represents a CRUD db repo for contests
-type ContestDB struct {
+type ContestDB[T models.Contest, T2 any] struct {
 	db       *gorm.DB
 	teamRepo data.TeamGetterRepo
 	tlRepo   data.TeamlessCRUDRepo
 }
 
 // NewContestDB returns a new ContestDB instance
-func NewContestDB(db *gorm.DB, teamRepo data.TeamGetterRepo, tl data.TeamlessCRUDRepo) *ContestDB {
-	return &ContestDB{
+func NewContestDB[T models.Contest, T2 any](db *gorm.DB, teamRepo data.TeamGetterRepo, tl data.TeamlessCRUDRepo) *ContestDB[T, T2] {
+	return &ContestDB[T, T2]{
 		db:       db,
 		teamRepo: teamRepo,
 		tlRepo:   tl,
 	}
 }
 
-func (c *ContestDB) GetDB() *gorm.DB {
+func (c *ContestDB[T, T2]) GetDB() *gorm.DB {
 	return c.db
 }
 
 // CREATOR REPO
 
-func (c *ContestDB) Add(contest *models.Contest) error {
+func (c *ContestDB[T, T2]) Add(contest *models.Contest) error {
 	return c.db.
 		Create(&contest).
 		Error
@@ -39,20 +39,20 @@ func (c *ContestDB) Add(contest *models.Contest) error {
 
 // GETTER REPO
 
-func (c *ContestDB) Exists(contest models.Contest) (bool, error) {
-	res := c.db.First(&contest)
-	return !errors.Is(res.Error, gorm.ErrRecordNotFound), res.Error
+func (c *ContestDB[T, T2]) Exists(id uint) bool {
+	res := c.db.First(&models.Contest{ID: id})
+	return !errors.Is(res.Error, gorm.ErrRecordNotFound)
 }
 
-func (c *ContestDB) Get(contest models.Contest) (fetchedContest models.Contest, err error) {
+func (c *ContestDB[T, T2]) Get(id uint) (fetchedContest models.Contest, err error) {
 	err = c.db.
-		First(&fetchedContest, "id = ?", contest.ID).
+		First(&fetchedContest, "id = ?", id).
 		Error
 	if err != nil {
 		return
 	}
 
-	fetchedContest.Teams, err = c.teamRepo.GetAllByContest(contest)
+	fetchedContest.Teams, err = c.teamRepo.GetAllByContest(fetchedContest)
 	if err != nil {
 		return
 	}
@@ -73,17 +73,21 @@ func (c *ContestDB) Get(contest models.Contest) (fetchedContest models.Contest, 
 		return
 	}
 
-	fetchedContest.TeamlessContestants, err = c.tlRepo.GetAllTeamLess(contest)
+	fetchedContest.TeamlessContestants, err = c.tlRepo.GetAllTeamLess(fetchedContest)
 
 	return
 }
 
-func (c *ContestDB) GetAll() (contests []models.Contest, err error) {
+func (c *ContestDB[T, T2]) GetByConds(conds ...any) ([]models.Contest, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (c *ContestDB[T, T2]) GetAll() (contests []models.Contest, err error) {
 	err = c.db.Find(&contests).Error
 	return
 }
 
-func (c *ContestDB) GetAllByOrganizer(org models.Organizer) (contests []models.Contest, err error) {
+func (c *ContestDB[T, T2]) GetByAssociation(org any) (contests []models.Contest, err error) {
 	err = c.db.
 		Model(&org).
 		Association("Contests").
@@ -92,7 +96,7 @@ func (c *ContestDB) GetAllByOrganizer(org models.Organizer) (contests []models.C
 	return
 }
 
-func (c *ContestDB) Count() (int64, error) {
+func (c *ContestDB[T, T2]) Count() (int64, error) {
 	var count int64
 	err := c.db.
 		Model(new(models.Contest)).
@@ -106,7 +110,11 @@ func (c *ContestDB) Count() (int64, error) {
 
 // UPDATER REPO
 
-func (c *ContestDB) Update(contest models.Contest) error {
+func (c *ContestDB[T, T2]) Update(contest *models.Contest, conds ...any) error {
+	if conds != nil {
+		return errors.New("can't use conditions now")
+	}
+
 	err := c.db.
 		Model(new(models.Contest)).
 		Where("id = ?", contest.ID).
@@ -123,9 +131,17 @@ func (c *ContestDB) Update(contest models.Contest) error {
 		Error // error handling goes brr
 }
 
+func (c *ContestDB[T, T2]) UpdateAll(contests []*models.Contest, conds ...any) error {
+	return errors.New("not implemented")
+}
+
 // DELETER REPO
 
-func (c *ContestDB) Delete(contest models.Contest) error {
+func (c *ContestDB[T, T2]) Delete(contest models.Contest, conds ...any) error {
+	if conds != nil {
+		return errors.New("can't use conditions now")
+	}
+
 	err := c.db.
 		Model(new(models.Contest)).
 		Where("id = ?", contest.ID).
@@ -142,7 +158,7 @@ func (c *ContestDB) Delete(contest models.Contest) error {
 		Error // error handling goes brr
 }
 
-func (c *ContestDB) DeleteAll() error {
+func (c *ContestDB[T, T2]) DeleteAll(conds ...any) error {
 	err := c.db.
 		Where("true").
 		Delete(new(models.Contest)).

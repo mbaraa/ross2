@@ -14,13 +14,13 @@ import (
 type JoinRequestHelper struct {
 	repo             data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
-	contestRepo      data.ContestGetterRepo
+	contestRepo      data.GetterRepo[models.Contest]
 	teamManager      *TeamHelper
 }
 
 // NewJoinRequestHelper returns a new JoinRequestHelper instance
 func NewJoinRequestHelper(repo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo,
-	contestRepo data.ContestGetterRepo, teamManager *TeamHelper) *JoinRequestHelper {
+	contestRepo data.GetterRepo[models.Contest], teamManager *TeamHelper) *JoinRequestHelper {
 	return &JoinRequestHelper{
 		repo:             repo,
 		notificationRepo: nRepo,
@@ -46,7 +46,7 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 			return err
 		}
 
-		contest, _ := j.contestRepo.Get(models.Contest{ID: jr.RequestedContestID})
+		contest, _ := j.contestRepo.Get(jr.RequestedContestID)
 
 		if len(jr.RequestedTeam.Members) >= int(contest.ParticipationConditions.MaxTeamMembers) {
 			return errors.New("this team is full")
@@ -85,7 +85,7 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 }
 
 func (j *JoinRequestHelper) checkRequestedTeam(jr models.JoinRequest, cont models.Contestant) error {
-	contest, err := j.contestRepo.Get(models.Contest{ID: jr.RequestedContestID})
+	contest, err := j.contestRepo.Get(jr.RequestedContestID)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (j *JoinRequestHelper) checkRequestedTeam(jr models.JoinRequest, cont model
 func (j *JoinRequestHelper) AcceptJoinRequest(noti models.Notification) error {
 	requesterID, teamID, contestID := j.juiceNotification(noti.Content)
 
-	contest, err := j.contestRepo.Get(models.Contest{ID: contestID})
+	contest, err := j.contestRepo.Get(contestID)
 	if err != nil {
 		return err
 	}

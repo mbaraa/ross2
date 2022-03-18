@@ -11,10 +11,11 @@ import (
 	"github.com/mbaraa/ross2/controllers/auth"
 	"github.com/mbaraa/ross2/controllers/helpers"
 	"github.com/mbaraa/ross2/data"
+	"github.com/mbaraa/ross2/models"
 )
 
 type Builder struct {
-	contestRepo      data.ContestCRUDRepo
+	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
 	contestantRepo   data.ContestantCRUDRepo
 	sessionRepo      data.SessionCRUDRepo
 	teamRepo         data.TeamCRUDRepo
@@ -30,7 +31,7 @@ func NewRouterBuilder() *Builder {
 	return new(Builder)
 }
 
-func (b *Builder) ContestRepo(c data.ContestCRUDRepo) *Builder {
+func (b *Builder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *Builder {
 	b.contestRepo = c
 	return b
 }

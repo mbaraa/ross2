@@ -12,10 +12,10 @@ import (
 
 type ContestAPI struct {
 	endPoints map[string]http.HandlerFunc
-	cRepo     data.ContestGetterRepo
+	cRepo     data.GetterRepo[models.Contest]
 }
 
-func NewContestAPI(repo data.ContestGetterRepo) *ContestAPI {
+func NewContestAPI(repo data.GetterRepo[models.Contest]) *ContestAPI {
 	return (&ContestAPI{cRepo: repo}).initEndPoints()
 }
 
@@ -58,9 +58,7 @@ func (c *ContestAPI) handleGetAllContests(res http.ResponseWriter, req *http.Req
 
 // GET /contest/single/{contestID}
 func (c *ContestAPI) handleGetSingleContest(res http.ResponseWriter, req *http.Request) {
-	contest, err := c.cRepo.Get(models.Contest{
-		ID: getContestID(req.URL.Path),
-	})
+	contest, err := c.cRepo.Get(getContestID(req.URL.Path))
 	if err != nil {
 		res.WriteHeader(http.StatusNotFound)
 		return

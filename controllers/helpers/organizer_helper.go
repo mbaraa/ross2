@@ -17,7 +17,7 @@ import (
 
 type OrganizerHelperBuilder struct {
 	repo            data.OrganizerCRUDRepo
-	contestRepo     data.ContestCRUDRepo
+	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
 	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.UserCRUDRepo
 	teamMgr         *TeamHelper
@@ -33,7 +33,7 @@ func (b *OrganizerHelperBuilder) OrganizerRepo(o data.OrganizerCRUDRepo) *Organi
 	return b
 }
 
-func (b *OrganizerHelperBuilder) ContestRepo(c data.ContestCRUDRepo) *OrganizerHelperBuilder {
+func (b *OrganizerHelperBuilder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *OrganizerHelperBuilder {
 	b.contestRepo = c
 	return b
 }
@@ -95,7 +95,7 @@ func (b *OrganizerHelperBuilder) GetOrganizerManager() *OrganizerHelper {
 // OrganizerHelper well hmm
 type OrganizerHelper struct {
 	repo            data.OrganizerCRUDRepo
-	contestRepo     data.ContestCRUDRepo
+	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
 	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.UserCRUDRepo
 	teamMgr         *TeamHelper
@@ -186,7 +186,7 @@ func (o *OrganizerHelper) DeleteContest(contest models.Contest) error {
 func (o *OrganizerHelper) UpdateContest(contest models.Contest) error {
 	contest.StartsAt2 = time.UnixMilli(contest.StartsAt)
 	contest.RegistrationEnds2 = time.UnixMilli(contest.RegistrationEnds)
-	return o.contestRepo.Update(contest)
+	return o.contestRepo.Update(&contest)
 }
 
 // AddOrganizer adds the given organizer
@@ -258,7 +258,7 @@ func (o *OrganizerHelper) DeleteOrganizer(org models.Organizer, contest models.C
 // GenerateTeams generates teams for the teamless contestants of the given contest
 func (o *OrganizerHelper) GenerateTeams(contest models.Contest, genType string, names []string) ([]models.Team, []models.Contestant, error) {
 	var err error
-	contest, err = o.contestRepo.Get(contest)
+	contest, err = o.contestRepo.Get(contest.ID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -285,12 +285,12 @@ func (o *OrganizerHelper) CreateUpdateTeams(teams []models.Team, removedConts []
 
 // GetContests returns the contests of the given organizer, and an occurring error
 func (o *OrganizerHelper) GetContests(org models.Organizer) ([]models.Contest, error) {
-	return o.contestRepo.GetAllByOrganizer(org)
+	return o.contestRepo.GetByAssociation(org)
 }
 
 // GetContest well lol
 func (o *OrganizerHelper) GetContest(contest models.Contest) (models.Contest, error) {
-	return o.contestRepo.Get(contest)
+	return o.contestRepo.Get(contest.ID)
 }
 
 // GetOrganizers returns all organizers that are under the given organizer
@@ -305,7 +305,7 @@ func (o *OrganizerHelper) GetOrganizers(org models.Organizer, contest models.Con
 
 func (o *OrganizerHelper) SendSheevNotifications(contest models.Contest) error {
 	var err error
-	contest, err = o.contestRepo.Get(contest) // lazy loading :)
+	contest, err = o.contestRepo.Get(contest.ID) // lazy loading :)
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func (o *OrganizerHelper) SendSheevNotifications(contest models.Contest) error {
 
 // GetParticipantsCSV returns a string with the participated contestants and organizers
 func (o *OrganizerHelper) GetParticipantsCSV(contest models.Contest) (string, error) {
-	contest, err := o.contestRepo.Get(contest)
+	contest, err := o.contestRepo.Get(contest.ID)
 	return partsexport.GetParticipants(contest), err
 }
 
@@ -349,7 +349,7 @@ func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Org
 		return nil, errors.New("you can't do that :)")
 	}
 
-	contest, err = o.contestRepo.Get(contest)
+	contest, err = o.contestRepo.Get(contest.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -383,7 +383,7 @@ func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contes
 		return
 	}
 
-	contest, err = o.contestRepo.Get(contest)
+	contest, err = o.contestRepo.Get(contest.ID)
 	if err != nil {
 		return
 	}
@@ -423,7 +423,7 @@ func (o *OrganizerHelper) GetOrgRoles(orgID, contestID uint) (roles enums.Organi
 }
 
 func (o *OrganizerHelper) GetTeamsCSV(contest models.Contest) (string, error) {
-	cont, err := o.contestRepo.Get(contest)
+	cont, err := o.contestRepo.Get(contest.ID)
 	if err != nil {
 		return "", err
 	}

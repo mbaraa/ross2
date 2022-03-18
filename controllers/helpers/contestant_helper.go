@@ -16,7 +16,7 @@ import (
 type ContestantHelperBuilder struct {
 	userRepo         data.UserCRUDRepo
 	contestantRepo   data.ContestantCRUDRepo
-	contestRepo      data.ContestCRUDRepo
+	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
 	notificationRepo data.NotificationCRUDRepo
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
@@ -36,7 +36,7 @@ func (b *ContestantHelperBuilder) ContestantRepo(c data.ContestantCRUDRepo) *Con
 	return b
 }
 
-func (b *ContestantHelperBuilder) ContestRepo(c data.ContestCRUDRepo) *ContestantHelperBuilder {
+func (b *ContestantHelperBuilder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *ContestantHelperBuilder {
 	b.contestRepo = c
 	return b
 }
@@ -94,7 +94,7 @@ func (b *ContestantHelperBuilder) GetContestantManager() *ContestantHelper {
 type ContestantHelper struct {
 	repo             data.ContestantCRUDRepo
 	userRepo         data.UserUpdaterRepo
-	contestRepo      data.ContestCRUDRepo
+	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
 	notificationRepo data.NotificationCRUDRepo
@@ -190,7 +190,7 @@ func (c *ContestantHelper) RegisterAsTeamless(contestant models.Contestant, cont
 	}
 
 	contest.TeamlessContestants = append(contest.TeamlessContestants, contestant)
-	return c.contestRepo.Update(contest)
+	return c.contestRepo.Update(&contest)
 }
 
 // CheckJoinedTeam reports whether the given contestant is in the given team, or any team at all
@@ -235,7 +235,7 @@ func (c *ContestantHelper) RegisterInContest(contest models.Contest, contestant 
 		return errors.New("only the team's creator can join contests")
 	}
 
-	contest, err = c.contestRepo.Get(contest)
+	contest, err = c.contestRepo.Get(contest.ID)
 	if err != nil {
 		return err
 	}
