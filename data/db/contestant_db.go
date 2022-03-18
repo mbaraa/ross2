@@ -29,6 +29,10 @@ func (c *ContestantDB[T]) Add(contestant *models.Contestant) error {
 		Error
 }
 
+func (c *ContestantDB[T]) AddMany(conts []*models.Contestant) error {
+	return errors.New("not implemented")
+}
+
 // GETTER REPO
 
 func (c *ContestantDB[T]) Exists(userID uint) bool {

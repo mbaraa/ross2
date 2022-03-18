@@ -205,7 +205,7 @@ func (c *ContestantHelper) GetTeam(contestant models.Contestant) (models.Team, e
 
 // CheckJoinedContest reports whether the contestant is in the given contest or not
 func (c *ContestantHelper) CheckJoinedContest(contest models.Contest, contestant models.Contestant) error {
-	teams, err := c.teamMgr.repo.GetAllByContest(contest)
+	teams, err := c.teamMgr.repo.GetByAssociation(contest)
 	if err != nil {
 		return err
 	}

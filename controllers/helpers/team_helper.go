@@ -11,12 +11,12 @@ import (
 
 // TeamHelper manages teams and stuff
 type TeamHelper struct {
-	repo     data.TeamCRUDRepo
+	repo     data.Many2ManyCRUDRepo[models.Team, any]
 	contRepo data.CRUDRepo[models.Contestant]
 }
 
 // NewTeamHelper returns a new TeamHelper instance
-func NewTeamHelper(teamRepo data.TeamCRUDRepo, contRepo data.CRUDRepo[models.Contestant]) *TeamHelper {
+func NewTeamHelper(teamRepo data.Many2ManyCRUDRepo[models.Team, any], contRepo data.CRUDRepo[models.Contestant]) *TeamHelper {
 	return &TeamHelper{
 		repo:     teamRepo,
 		contRepo: contRepo,
@@ -57,7 +57,7 @@ func (t *TeamHelper) AddContestantToTeam(contID, teamID uint) (team models.Team,
 		return
 	}
 
-	team, err = t.repo.Get(models.Team{ID: teamID}) // just to be safe :), Update could remove all team's members :)
+	team, err = t.repo.Get(teamID) // just to be safe :), Update could remove all team's members :)
 	if err != nil {
 		return
 	}
@@ -76,14 +76,14 @@ func (t *TeamHelper) AddContestantToTeam(contID, teamID uint) (team models.Team,
 		return
 	}
 
-	return team, t.repo.Update(team)
+	return team, t.repo.Update(&team)
 }
 
 // UpdateTeam updates the given team after checking that the given organizer is a director on one of the contest that the team is in
 func (t *TeamHelper) UpdateTeam(team models.Team, org models.Organizer) error {
 	for _, contest := range org.Contests {
 		if contest.ID == team.Contests[0].ID { // the team will be stripped from all the other contests :)
-			return t.repo.Update(team)
+			return t.repo.Update(&team)
 		}
 	}
 	return nil
@@ -140,7 +140,7 @@ func (t *TeamHelper) CreateUpdateTeams(teams []models.Team, removedContestants [
 		}
 
 		team.Contests = []models.Contest{contest}
-		err := t.repo.Update(team)
+		err := t.repo.Update(&team)
 		if err != nil {
 			return err
 		}
@@ -157,12 +157,13 @@ func (t *TeamHelper) CreateUpdateTeams(teams []models.Team, removedContestants [
 
 // GetTeam returns a team using the given id
 func (t *TeamHelper) GetTeam(id uint) (models.Team, error) {
-	return t.repo.Get(models.Team{ID: id})
+	return t.repo.Get(id)
 }
 
 // GetTeamByJoinID returns a team using the given join id
 func (t *TeamHelper) GetTeamByJoinID(joinID string) (models.Team, error) {
-	return t.repo.GetByJoinID(joinID)
+	teams, err := t.repo.GetByConds("join_id = ?", joinID)
+	return teams[0], err
 }
 
 // LeaveTeam removes the given contestant from their team in a super safe way
@@ -180,7 +181,7 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 					break
 				}
 			}
-			err = t.repo.Update(team)
+			err = t.repo.Update(&team)
 		} else {
 			err = t.DeleteTeam(team)
 		}
@@ -197,7 +198,7 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 		}
 	}
 
-	err = t.repo.Update(team)
+	err = t.repo.Update(&team)
 	if err != nil {
 		return err
 	}

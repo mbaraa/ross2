@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/mbaraa/ross2/data"
-
 	"github.com/mbaraa/ross2/models"
 	"gorm.io/gorm"
 )
@@ -12,11 +11,11 @@ import (
 // ContestDB represents a CRUD db repo for contests
 type ContestDB[T models.Contest, T2 any] struct {
 	db       *gorm.DB
-	teamRepo data.TeamGetterRepo
+	teamRepo data.Many2ManyCRUDRepo[models.Team, any]
 }
 
 // NewContestDB returns a new ContestDB instance
-func NewContestDB[T models.Contest, T2 any](db *gorm.DB, teamRepo data.TeamGetterRepo) *ContestDB[T, T2] {
+func NewContestDB[T models.Contest, T2 any](db *gorm.DB, teamRepo data.Many2ManyCRUDRepo[models.Team, any]) *ContestDB[T, T2] {
 	return &ContestDB[T, T2]{
 		db:       db,
 		teamRepo: teamRepo,
@@ -35,6 +34,10 @@ func (c *ContestDB[T, T2]) Add(contest *models.Contest) error {
 		Error
 }
 
+func (c *ContestDB[T, T2]) AddMany(contests []*models.Contest) error {
+	return errors.New("not implemented")
+}
+
 // GETTER REPO
 
 func (c *ContestDB[T, T2]) Exists(id uint) bool {
@@ -50,7 +53,7 @@ func (c *ContestDB[T, T2]) Get(id uint) (fetchedContest models.Contest, err erro
 		return
 	}
 
-	fetchedContest.Teams, err = c.teamRepo.GetAllByContest(fetchedContest)
+	fetchedContest.Teams, err = c.teamRepo.GetByAssociation(fetchedContest)
 	if err != nil {
 		return
 	}

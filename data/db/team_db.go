@@ -10,24 +10,28 @@ import (
 )
 
 // TeamDB represents a CRUD db repo for teams
-type TeamDB struct {
+type TeamDB[T models.Team, T2 any] struct {
 	db *gorm.DB
 }
 
 // NewTeamDB returns a new TeamDB instance
-func NewTeamDB(db *gorm.DB) *TeamDB {
-	return &TeamDB{db: db}
+func NewTeamDB[T models.Team, T2 any](db *gorm.DB) *TeamDB[T, T2] {
+	return &TeamDB[T, T2]{db: db}
+}
+
+func (t *TeamDB[T, T2]) GetDB() *gorm.DB {
+	return t.db
 }
 
 // CREATOR REPO
 
-func (t *TeamDB) Add(team *models.Team) error {
+func (t *TeamDB[T, T2]) Add(team *models.Team) error {
 	return t.createTeam(team)
 }
 
 // AddMany creates multiple teams, this method is only used when a contest's director
 // generates teams for the teamless contestants.
-func (t *TeamDB) AddMany(teams []*models.Team) error {
+func (t *TeamDB[T, T2]) AddMany(teams []*models.Team) error {
 	for _, team := range teams {
 		_ = t.Add(team)
 	}
@@ -35,7 +39,7 @@ func (t *TeamDB) AddMany(teams []*models.Team) error {
 }
 
 // createTeam finds a suitable joining id for the team in a very stupid way
-func (t *TeamDB) createTeam(team *models.Team) error {
+func (t *TeamDB[T, T2]) createTeam(team *models.Team) error {
 	if strutils.IsBadWord(team.Name) {
 		return errors.New("team name can't contain bad words 🙂")
 	}
@@ -59,13 +63,13 @@ func (t *TeamDB) createTeam(team *models.Team) error {
 
 // GETTER REPO
 
-func (t *TeamDB) Exists(team models.Team) (bool, error) {
-	res := t.db.First(&team)
-	return !errors.Is(res.Error, gorm.ErrRecordNotFound), res.Error
+func (t *TeamDB[T, T2]) Exists(id uint) bool {
+	_, err := t.Get(id)
+	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-func (t *TeamDB) Get(team models.Team) (fetchedTeam models.Team, err error) {
-	err = t.db.First(&fetchedTeam, "id = ?", team.ID).Error
+func (t *TeamDB[T, T2]) Get(id uint) (fetchedTeam models.Team, err error) {
+	err = t.db.First(&fetchedTeam, "id = ?", id).Error
 	if err != nil {
 		return
 	}
@@ -82,14 +86,7 @@ func (t *TeamDB) Get(team models.Team) (fetchedTeam models.Team, err error) {
 	return
 }
 
-func (t *TeamDB) GetAll() (teams []models.Team, err error) {
-	err = t.db.
-		Find(&teams).
-		Error
-	return
-}
-
-func (t *TeamDB) GetAllByContest(contest models.Contest) ([]models.Team, error) {
+func (t *TeamDB[T, T2]) GetByAssociation(contest any) ([]models.Team, error) {
 	teams := make([]models.Team, 0)
 
 	err := t.db.
@@ -100,16 +97,24 @@ func (t *TeamDB) GetAllByContest(contest models.Contest) ([]models.Team, error) 
 	return teams, err
 }
 
-func (t *TeamDB) GetByJoinID(joinID string) (team models.Team, err error) {
+func (t *TeamDB[T, T2]) GetByConds(conds ...any) (teams []models.Team, err error) {
+	if (len(conds) < 2) {
+		return nil, errors.New("conditions should be at least 2, ie condition string and the associated value")
+	}
+
 	err = t.db.
 		Model(new(models.Team)).
-		Where("join_id = ?", joinID).
-		First(&team).
+		Where(conds[0], conds...).
+		Find(&teams).
 		Error
 	return
 }
 
-func (t *TeamDB) Count() (int64, error) {
+func (t *TeamDB[T, T2]) GetAll() (teams []models.Team, err error) {
+	return nil, errors.New("not implemented")
+}
+
+func (t *TeamDB[T, T2]) Count() (int64, error) {
 	var count int64
 	err := t.db.
 		Model(new(models.Team)).
@@ -121,7 +126,7 @@ func (t *TeamDB) Count() (int64, error) {
 
 // UPDATER REPO
 
-func (t *TeamDB) Update(team models.Team) error {
+func (t *TeamDB[T, T2]) Update(team *models.Team, conds ...any) error {
 	return t.db.
 		Model(new(models.Team)).
 		Where("id = ?", team.ID).
@@ -129,16 +134,20 @@ func (t *TeamDB) Update(team models.Team) error {
 		Error
 }
 
+func (t *TeamDB[T, T2]) UpdateAll(teams []*models.Team, conds ...any) error {
+	return errors.New("not implemented")
+}
+
 // DELETER REPO
 
-func (t *TeamDB) Delete(team models.Team) error {
+func (t *TeamDB[T, T2]) Delete(team models.Team, conds ...any) error {
 	return t.db.
 		Where("id = ?", team.ID).
 		Delete(&team).
 		Error
 }
 
-func (t *TeamDB) DeleteAll() error {
+func (t *TeamDB[T, T2]) DeleteAll(conds ...any) error {
 	return t.db.
 		Where("true").
 		Delete(new(models.Team)).

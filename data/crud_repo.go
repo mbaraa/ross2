@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type CreatorRepo [T any] interface {
 	Add(obj *T) error
+	AddMany(objs []*T) error
 }
 
 type GetterRepo[T any] interface {

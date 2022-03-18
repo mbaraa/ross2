@@ -18,7 +18,7 @@ type Builder struct {
 	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
 	contestantRepo   data.CRUDRepo[models.Contestant]
 	sessionRepo      data.SessionCRUDRepo
-	teamRepo         data.TeamCRUDRepo
+	teamRepo         data.Many2ManyCRUDRepo[models.Team, any]
 	organizerRepo    data.OrganizerCRUDRepo
 	joinReqRepo      data.JoinRequestCRDRepo
 	notificationRepo data.NotificationCRUDRepo
@@ -46,7 +46,7 @@ func (b *Builder) SessionRepo(s data.SessionCRUDRepo) *Builder {
 	return b
 }
 
-func (b *Builder) TeamRepo(t data.TeamCRUDRepo) *Builder {
+func (b *Builder) TeamRepo(t data.Many2ManyCRUDRepo[models.Team, any]) *Builder {
 	b.teamRepo = t
 	return b
 }

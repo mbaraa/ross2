@@ -42,6 +42,10 @@ func (a *AdminDB[T]) Add(admin *models.Admin) error {
 		Error
 }
 
+func (a *AdminDB[T]) AddMany(admins []*models.Admin) error {
+	return errors.New("not implemented")
+}
+
 // GETTER REPO
 
 func (a *AdminDB[T]) Get(id uint) (fetchedAdmin models.Admin, err error) {
