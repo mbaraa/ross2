@@ -20,7 +20,7 @@ type Builder struct {
 	sessionRepo      data.CRUDRepo[models.Session]
 	teamRepo         data.Many2ManyCRUDRepo[models.Team, any]
 	organizerRepo    data.CRUDRepo[models.Organizer]
-	joinReqRepo      data.JoinRequestCRDRepo
+	joinReqRepo      data.CRUDRepo[models.JoinRequest]
 	notificationRepo data.CRUDRepo[models.Notification]
 	userRepo         data.UserCRUDRepo
 	adminRepo        data.CRUDRepo[models.Admin]
@@ -56,7 +56,7 @@ func (b *Builder) OrganizerRepo(o data.CRUDRepo[models.Organizer]) *Builder {
 	return b
 }
 
-func (b *Builder) JoinReqRepo(j data.JoinRequestCRDRepo) *Builder {
+func (b *Builder) JoinReqRepo(j data.CRUDRepo[models.JoinRequest]) *Builder {
 	b.joinReqRepo = j
 	return b
 }

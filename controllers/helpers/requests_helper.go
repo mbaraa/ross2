@@ -12,14 +12,14 @@ import (
 
 // JoinRequestHelper manages teams join requests
 type JoinRequestHelper struct {
-	repo             data.JoinRequestCRDRepo
+	repo             data.CRUDRepo[models.JoinRequest]
 	notificationRepo data.CRUDRepo[models.Notification]
 	contestRepo      data.GetterRepo[models.Contest]
 	teamManager      *TeamHelper
 }
 
 // NewJoinRequestHelper returns a new JoinRequestHelper instance
-func NewJoinRequestHelper(repo data.JoinRequestCRDRepo, nRepo data.CRUDRepo[models.Notification],
+func NewJoinRequestHelper(repo data.CRUDRepo[models.JoinRequest], nRepo data.CRUDRepo[models.Notification],
 	contestRepo data.GetterRepo[models.Contest], teamManager *TeamHelper) *JoinRequestHelper {
 	return &JoinRequestHelper{
 		repo:             repo,
@@ -75,7 +75,7 @@ func (j *JoinRequestHelper) RequestJoinTeam(jr models.JoinRequest, cont models.C
 	jr.RequestMessage = reqMsg[4:]
 	jr.RequesterID = cont.User.ID
 
-	err = j.repo.Add(jr)
+	err = j.repo.Add(&jr)
 	if err != nil { // join request didn't go well :(
 		_ = j.notificationRepo.Delete(notification)
 		return err
@@ -162,7 +162,7 @@ func (j *JoinRequestHelper) RejectJoinRequest(noti models.Notification) error {
 		return err
 	}
 
-	jrs, err := j.repo.GetAll(requesterID)
+	jrs, err := j.repo.GetByConds("requester_id = ?", requesterID)
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func (j *JoinRequestHelper) juiceNotification(notiContent string) (uint, uint, u
 // DeleteRequests deletes all join requests done by a contestant
 // used when a contestant is approved to a team, or if a contestant creates a team
 func (j *JoinRequestHelper) DeleteRequests(contID, notiID uint) error {
-	jrs, err := j.repo.GetAll(contID)
+	jrs, err := j.repo.GetByConds("requester_id = ?", contID)
 	if err != nil {
 		return err
 	}
@@ -213,7 +213,7 @@ func (j *JoinRequestHelper) DeleteRequests(contID, notiID uint) error {
 
 // CheckContestantTeamRequests reports whether the given contestant has requested to join the given team
 func (j *JoinRequestHelper) CheckContestantTeamRequests(cont models.Contestant, team models.Team) bool {
-	jrs, err := j.repo.GetAll(cont.User.ID)
+	jrs, err := j.repo.GetByConds("requester_id = ?", cont.User.ID)
 	if err != nil {
 		return false
 	}

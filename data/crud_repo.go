@@ -25,12 +25,16 @@ type DeleterRepo[T any] interface {
 	DeleteAll(conds ...any) error
 }
 
+type GORMDBGetter interface {
+	GetDB() *gorm.DB
+}
+
 type CRUDRepo[T any] interface {
+	GORMDBGetter
 	CreatorRepo[T]
 	GetterRepo[T]
 	UpdaterRepo[T]
 	DeleterRepo[T]
-	GetDB() *gorm.DB
 }
 
 type Many2ManyCRUDRepo[T any, T2 any] interface {
