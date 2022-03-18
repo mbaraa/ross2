@@ -16,7 +16,7 @@ func main() {
 		teamRepo         = db.NewTeamDB[models.Team, any](mysqlDB)
 		contestRepo      = db.NewContestDB[models.Contest, any](mysqlDB, teamRepo)
 		organizerRepo    = db.NewOrganizerDB[models.Organizer](mysqlDB)
-		sessionRepo      = db.NewSessionDB(mysqlDB)
+		sessionRepo      = db.NewSessionDB[models.Session](mysqlDB)
 		notificationRepo = db.NewNotificationDB(mysqlDB)
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
 		userRepo         = db.NewUserDB(mysqlDB)

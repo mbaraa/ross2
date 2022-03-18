@@ -5,6 +5,7 @@ import (
 
 	"github.com/mbaraa/ross2/controllers/context"
 	"github.com/mbaraa/ross2/controllers/helpers"
+	"github.com/mbaraa/ross2/models"
 )
 
 // HandlerFunc is a handler function with an extra parameter(session)
@@ -12,11 +13,11 @@ type HandlerFunc func(ctx context.HandlerContext)
 
 // HandlerAuthenticator is responsible for authenticating handlers
 type HandlerAuthenticator struct {
-	sessMgr *helpers.SessionHelper
+	sessMgr *helpers.SessionHelper[models.Session]
 }
 
 // NewHandlerAuthenticator returns a new HandlerAuthenticator instance
-func NewHandlerAuthenticator(sessionManager *helpers.SessionHelper) *HandlerAuthenticator {
+func NewHandlerAuthenticator(sessionManager *helpers.SessionHelper[models.Session]) *HandlerAuthenticator {
 	return &HandlerAuthenticator{sessMgr: sessionManager}
 }
 

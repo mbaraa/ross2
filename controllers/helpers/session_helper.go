@@ -5,17 +5,17 @@ import (
 	"github.com/mbaraa/ross2/models"
 )
 
-type SessionHelper struct {
-	sessionRepo data.SessionCRUDRepo
+type SessionHelper[T models.Session] struct {
+	sessionRepo data.CRUDRepo[models.Session]
 }
 
-func NewSessionHelper(sessionRepo data.SessionCRUDRepo) *SessionHelper {
-	return &SessionHelper{
+func NewSessionHelper[T models.Session](sessionRepo data.CRUDRepo[models.Session]) *SessionHelper[T] {
+	return &SessionHelper[T]{
 		sessionRepo: sessionRepo,
 	}
 }
 
-func (s *SessionHelper) CreateSession(userID uint) (models.Session, error) {
+func (s *SessionHelper[T]) CreateSession(userID uint) (models.Session, error) {
 	sess := models.Session{
 		UserID: userID,
 	}
@@ -24,14 +24,15 @@ func (s *SessionHelper) CreateSession(userID uint) (models.Session, error) {
 	return sess, err
 }
 
-func (s *SessionHelper) GetSession(token string) (models.Session, error) {
-	return s.sessionRepo.Get(models.Session{ID: token})
+func (s *SessionHelper[T]) GetSession(token string) (models.Session, error) {
+	sess, err := s.sessionRepo.GetByConds("id = ?", token)
+	return sess[0], err
 }
 
-func (s *SessionHelper) DeleteSession(token string) error {
-	return s.sessionRepo.Delete(models.Session{ID: token})
+func (s *SessionHelper[T]) DeleteSession(token string) error {
+	return s.sessionRepo.DeleteAll("token = ?", token)
 }
 
-func (s *SessionHelper) DeleteAllSessions(userID uint) error {
-	return s.sessionRepo.DeleteAllForUser(userID)
+func (s *SessionHelper[T]) DeleteAllSessions(userID uint) error {
+	return s.sessionRepo.DeleteAll("user_id = ?", userID)
 }

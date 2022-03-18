@@ -12,10 +12,10 @@ import (
 type UserHelper struct {
 	repo data.UserCRUDRepo
 	contRepo data.CRUDRepo[models.Contestant]
-	sessMgr  *SessionHelper
+	sessMgr  *SessionHelper[models.Session]
 }
 
-func NewUserHelper(repo data.UserCRUDRepo, contRepo data.CRUDRepo[models.Contestant], sessMgr *SessionHelper) *UserHelper {
+func NewUserHelper(repo data.UserCRUDRepo, contRepo data.CRUDRepo[models.Contestant], sessMgr *SessionHelper[models.Session]) *UserHelper {
 	return &UserHelper{
 		repo: repo,
 		contRepo: contRepo,
