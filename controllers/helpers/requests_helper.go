@@ -13,13 +13,13 @@ import (
 // JoinRequestHelper manages teams join requests
 type JoinRequestHelper struct {
 	repo             data.JoinRequestCRDRepo
-	notificationRepo data.NotificationCRUDRepo
+	notificationRepo data.CRUDRepo[models.Notification]
 	contestRepo      data.GetterRepo[models.Contest]
 	teamManager      *TeamHelper
 }
 
 // NewJoinRequestHelper returns a new JoinRequestHelper instance
-func NewJoinRequestHelper(repo data.JoinRequestCRDRepo, nRepo data.NotificationCRUDRepo,
+func NewJoinRequestHelper(repo data.JoinRequestCRDRepo, nRepo data.CRUDRepo[models.Notification],
 	contestRepo data.GetterRepo[models.Contest], teamManager *TeamHelper) *JoinRequestHelper {
 	return &JoinRequestHelper{
 		repo:             repo,

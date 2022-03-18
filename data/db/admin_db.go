@@ -12,8 +12,8 @@ type AdminDB[T models.Admin] struct {
 	db *gorm.DB
 }
 
-func NewAdminDB[T models.Admin](db *gorm.DB) *AdminDB[T] {
-	return &AdminDB[T]{db}
+func NewAdminDB(db *gorm.DB) *AdminDB[models.Admin] {
+	return &AdminDB[models.Admin]{db}
 }
 
 func (a *AdminDB[T]) GetDB() *gorm.DB {

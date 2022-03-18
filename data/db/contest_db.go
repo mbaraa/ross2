@@ -15,8 +15,8 @@ type ContestDB[T models.Contest, T2 any] struct {
 }
 
 // NewContestDB returns a new ContestDB instance
-func NewContestDB[T models.Contest, T2 any](db *gorm.DB, teamRepo data.Many2ManyCRUDRepo[models.Team, any]) *ContestDB[T, T2] {
-	return &ContestDB[T, T2]{
+func NewContestDB(db *gorm.DB, teamRepo data.Many2ManyCRUDRepo[models.Team, any]) *ContestDB[models.Contest, any] {
+	return &ContestDB[models.Contest, any]{
 		db:       db,
 		teamRepo: teamRepo,
 	}

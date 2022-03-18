@@ -13,8 +13,8 @@ type ContestantDB[T models.Contestant] struct {
 }
 
 // NewContestantDB returns a new ContestantDB instance
-func NewContestantDB[T models.Contestant](db *gorm.DB) *ContestantDB[T] {
-	return &ContestantDB[T]{db: db}
+func NewContestantDB(db *gorm.DB) *ContestantDB[models.Contestant] {
+	return &ContestantDB[models.Contestant]{db: db}
 }
 
 func (c *ContestantDB[T]) GetDB() *gorm.DB {

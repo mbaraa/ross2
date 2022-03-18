@@ -15,8 +15,8 @@ type TeamDB[T models.Team, T2 any] struct {
 }
 
 // NewTeamDB returns a new TeamDB instance
-func NewTeamDB[T models.Team, T2 any](db *gorm.DB) *TeamDB[T, T2] {
-	return &TeamDB[T, T2]{db: db}
+func NewTeamDB(db *gorm.DB) *TeamDB[models.Team, any] {
+	return &TeamDB[models.Team, any]{db: db}
 }
 
 func (t *TeamDB[T, T2]) GetDB() *gorm.DB {

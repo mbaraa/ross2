@@ -14,8 +14,8 @@ type OrganizerDB[T models.Organizer] struct {
 }
 
 // NewOrganizerDB returns a new OrganizerDB instance
-func NewOrganizerDB[T models.Organizer](db *gorm.DB) *OrganizerDB[T] {
-	return &OrganizerDB[T]{db: db}
+func NewOrganizerDB(db *gorm.DB) *OrganizerDB[models.Organizer] {
+	return &OrganizerDB[models.Organizer]{db: db}
 }
 
 func (o *OrganizerDB[T]) GetDB() *gorm.DB {

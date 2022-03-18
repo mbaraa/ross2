@@ -17,7 +17,7 @@ type ContestantHelperBuilder struct {
 	userRepo         data.UserCRUDRepo
 	contestantRepo   data.CRUDRepo[models.Contestant]
 	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
-	notificationRepo data.NotificationCRUDRepo
+	notificationRepo data.CRUDRepo[models.Notification]
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
 }
@@ -41,7 +41,7 @@ func (b *ContestantHelperBuilder) ContestRepo(c data.Many2ManyCRUDRepo[models.Co
 	return b
 }
 
-func (b *ContestantHelperBuilder) NotificationRepo(n data.NotificationCRUDRepo) *ContestantHelperBuilder {
+func (b *ContestantHelperBuilder) NotificationRepo(n data.CRUDRepo[models.Notification]) *ContestantHelperBuilder {
 	b.notificationRepo = n
 	return b
 }
@@ -95,9 +95,9 @@ type ContestantHelper struct {
 	repo             data.CRUDRepo[models.Contestant]
 	userRepo         data.UserUpdaterRepo
 	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
+	notificationRepo data.CRUDRepo[models.Notification]
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
-	notificationRepo data.NotificationCRUDRepo
 }
 
 // NewContestantHelper returns a new ContestantHelper instance

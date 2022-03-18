@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/mbaraa/ross2/data/db"
-	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/router"
 	"github.com/mbaraa/ross2/utils/admin"
 )
@@ -12,15 +11,15 @@ func main() {
 		mysqlDB = db.
 			GetDBManagerInstance().
 			GetMySQLConn()
-		contestantRepo   = db.NewContestantDB[models.Contestant](mysqlDB)
-		teamRepo         = db.NewTeamDB[models.Team, any](mysqlDB)
-		contestRepo      = db.NewContestDB[models.Contest, any](mysqlDB, teamRepo)
-		organizerRepo    = db.NewOrganizerDB[models.Organizer](mysqlDB)
-		sessionRepo      = db.NewSessionDB[models.Session](mysqlDB)
+		contestantRepo   = db.NewContestantDB(mysqlDB)
+		teamRepo         = db.NewTeamDB(mysqlDB)
+		contestRepo      = db.NewContestDB(mysqlDB, teamRepo)
+		organizerRepo    = db.NewOrganizerDB(mysqlDB)
+		sessionRepo      = db.NewSessionDB(mysqlDB)
 		notificationRepo = db.NewNotificationDB(mysqlDB)
 		joinReqRepo      = db.NewJoinRequestDB(mysqlDB)
 		userRepo         = db.NewUserDB(mysqlDB)
-		adminRepo        = db.NewAdminDB[models.Admin](mysqlDB)
+		adminRepo        = db.NewAdminDB(mysqlDB)
 		ocRepo           = db.NewOrganizeOrganizeContestDB(mysqlDB)
 	)
 	db.GetDBManagerInstance().InitTables()

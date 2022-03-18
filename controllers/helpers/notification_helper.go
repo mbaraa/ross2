@@ -11,17 +11,17 @@ import (
 
 // NotificationHelper well it's written on the box :)
 type NotificationHelper struct {
-	repo data.NotificationCRUDRepo
+	repo data.CRUDRepo[models.Notification]
 }
 
 // NewNotificationHelper returns a new NotificationHelper instance
-func NewNotificationHelper(repo data.NotificationCRUDRepo) *NotificationHelper {
+func NewNotificationHelper(repo data.CRUDRepo[models.Notification]) *NotificationHelper {
 	return &NotificationHelper{repo}
 }
 
 // GetNotifications returns user's notifications based on the given session
 func (n *NotificationHelper) GetNotifications(session models.Session) ([]models.Notification, error) {
-	return n.repo.GetAllForUser(session.UserID)
+	return n.repo.GetByConds("user_id = ?", session.UserID)
 }
 
 // CheckNotifications reports whether a user has notifications or not
@@ -32,7 +32,7 @@ func (n *NotificationHelper) CheckNotifications(session models.Session) bool {
 
 // ClearNotifications deletes all notifications for user base on the given session
 func (n *NotificationHelper) ClearNotifications(session models.Session) error {
-	return n.repo.DeleteAllForUser(session.UserID)
+	return n.repo.DeleteAll("user_id = ?", session.UserID)
 }
 
 func (n *NotificationHelper) SendMany(notifications []*models.Notification) error {
