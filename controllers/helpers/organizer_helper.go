@@ -19,7 +19,7 @@ type OrganizerHelperBuilder struct {
 	repo            data.CRUDRepo[models.Organizer]
 	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
 	ocRepo          data.OrganizeContestCRUDRepo
-	userRepo        data.UserCRUDRepo
+	userRepo        data.CRUDRepo[models.User]
 	teamMgr         *TeamHelper
 	notificationMgr *NotificationHelper
 }
@@ -43,7 +43,7 @@ func (b *OrganizerHelperBuilder) OrganizeContestRepo(c data.OrganizeContestCRUDR
 	return b
 }
 
-func (b *OrganizerHelperBuilder) UserRepo(u data.UserCRUDRepo) *OrganizerHelperBuilder {
+func (b *OrganizerHelperBuilder) UserRepo(u data.CRUDRepo[models.User]) *OrganizerHelperBuilder {
 	b.userRepo = u
 	return b
 }
@@ -97,7 +97,7 @@ type OrganizerHelper struct {
 	repo            data.CRUDRepo[models.Organizer]
 	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
 	ocRepo          data.OrganizeContestCRUDRepo
-	userRepo        data.UserCRUDRepo
+	userRepo        data.CRUDRepo[models.User]
 	teamMgr         *TeamHelper
 	notificationMgr *NotificationHelper
 }
@@ -121,7 +121,8 @@ func (o *OrganizerHelper) GetProfile(user models.User) (models.Organizer, error)
 
 // GetUserProfileUsingEmail returns user's profile for the given user email
 func (o *OrganizerHelper) GetUserProfileUsingEmail(userEmail string) (models.User, error) {
-	return o.userRepo.GetByEmail(userEmail)
+	users, err := o.userRepo.GetByConds("email = ?", userEmail)
+	return users[0], err
 }
 
 // FinishProfile sets the organizer's profile after the first sign in after the promotion
@@ -377,21 +378,21 @@ func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Org
 	return
 }
 
-func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contest) (err error) {
-	user, err = o.userRepo.GetByEmail(user.Email)
+func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contest) error {
+	users, err := o.userRepo.GetByConds("email = ?",user.Email)
 	if err != nil {
-		return
+		return err
 	}
 
 	contest, err = o.contestRepo.Get(contest.ID)
 	if err != nil {
-		return
+		return err
 	}
 
-	user.AttendedContestID = contest.ID
-	user.AttendedAt = time.Now()
+	users[0].AttendedContestID = contest.ID
+	users[0].AttendedAt = time.Now()
 
-	return o.userRepo.Update(&user)
+	return o.userRepo.Update(&users[0])
 }
 
 // CheckOrgRole reports whether the given organizer has the given role over the given contest

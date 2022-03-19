@@ -12,11 +12,11 @@ import (
 type AdminHelper struct {
 	repo     data.CRUDRepo[models.Admin]
 	orgRepo  data.CRUDRepo[models.Organizer]
-	userRepo data.UserCRUDRepo
+	userRepo data.CRUDRepo[models.User]
 }
 
 // NewAdminHelper returns a new AdminHelper instance
-func NewAdminHelper(repo data.CRUDRepo[models.Admin], orgRepo data.CRUDRepo[models.Organizer], userRepo data.UserCRUDRepo) *AdminHelper {
+func NewAdminHelper(repo data.CRUDRepo[models.Admin], orgRepo data.CRUDRepo[models.Organizer], userRepo data.CRUDRepo[models.User]) *AdminHelper {
 	return &AdminHelper{repo, orgRepo, userRepo}
 }
 
@@ -79,5 +79,6 @@ func (a *AdminHelper) GetDirectors() (dirs []models.Organizer, err error) {
 
 // GetUserProfileUsingEmail returns user's profile for the given user email
 func (a *AdminHelper) GetUserProfileUsingEmail(userEmail string) (models.User, error) {
-	return a.userRepo.GetByEmail(userEmail)
+	users, err := a.userRepo.GetByConds("email = ?", userEmail)
+	return users[0], err
 }

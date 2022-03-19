@@ -10,12 +10,12 @@ import (
 )
 
 type UserHelper struct {
-	repo data.UserCRUDRepo
+	repo data.CRUDRepo[models.User]
 	contRepo data.CRUDRepo[models.Contestant]
 	sessMgr  *SessionHelper[models.Session]
 }
 
-func NewUserHelper(repo data.UserCRUDRepo, contRepo data.CRUDRepo[models.Contestant], sessMgr *SessionHelper[models.Session]) *UserHelper {
+func NewUserHelper(repo data.CRUDRepo[models.User], contRepo data.CRUDRepo[models.Contestant], sessMgr *SessionHelper[models.Session]) *UserHelper {
 	return &UserHelper{
 		repo: repo,
 		contRepo: contRepo,
@@ -24,20 +24,20 @@ func NewUserHelper(repo data.UserCRUDRepo, contRepo data.CRUDRepo[models.Contest
 }
 
 func (u *UserHelper) Login(user *models.User) (sess models.Session, err error) {
-	fetchedUser, err := u.repo.GetByEmail(user.Email)
+	fetchedUsers, err := u.repo.GetByConds("email = ?", user.Email)
 	if err != gorm.ErrRecordNotFound && err != nil {
-		return models.Session{}, err
+		return
 	}
 
-	exists, _ := u.repo.Exists(fetchedUser)
+	exists := u.repo.Exists(fetchedUsers[0].ID)
 	if !exists {
 		err = u.Signup(user)
-		fetchedUser = *user
+		fetchedUsers[0] = *user
 	}
 
-	sess, err = u.sessMgr.CreateSession(fetchedUser.ID)
+	sess, err = u.sessMgr.CreateSession(fetchedUsers[0].ID)
 	if err != nil {
-		return models.Session{}, err
+		return
 	}
 
 	return
@@ -60,7 +60,7 @@ func (u *UserHelper) LoginUsingSession(sessionToken string) (user models.User, e
 		return
 	}
 
-	user, err = u.repo.Get(models.User{ID: sess.UserID})
+	user, err = u.repo.Get(sess.UserID)
 	return
 }
 
@@ -70,7 +70,7 @@ func (u *UserHelper) Logout(user models.User, sessionToken string) error {
 		return err
 	}
 
-	user, err = u.repo.Get(user)
+	user, err = u.repo.Get(user.ID)
 	if err != nil {
 		return err
 	}
