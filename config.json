@@ -1,9 +1,10 @@
 {
-    "port_number": "8080",
-    "db_user": "",
-    "db_password": "",
-    "allowed_clients": "*",
-    "machine_ip": "",
-    "google_client_id": "",
-    "development": true
+  "port_number": "8080",
+  "db_user": "",
+  "db_host": "localhost:3306",
+  "db_password": "",
+  "allowed_clients": "*",
+  "machine_ip": "",
+  "google_client_id": "",
+  "development": true
 }
