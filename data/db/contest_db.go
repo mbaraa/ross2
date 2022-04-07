@@ -53,7 +53,10 @@ func (c *ContestDB[T, T2]) Get(id uint) (fetchedContest models.Contest, err erro
 		return
 	}
 
-	fetchedContest.Teams, err = c.teamRepo.GetByAssociation(fetchedContest)
+	err = c.db.
+		Model(&fetchedContest).
+		Association("Teams").
+		Find(&fetchedContest.Teams)
 	if err != nil {
 		return
 	}
