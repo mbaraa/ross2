@@ -191,9 +191,9 @@ const Contest = ({ user }: Props): ReactElement => {
               {(isDirector || isCoreOrg) && (
                 <Tab label={<TabLabel text="Edit" />} value={6} />
               )}
-              {!isDirector && (
+              {/*!isDirector && (
                 <Tab label={<TabLabel text={"Support"} />} value={7} />
-              )}
+              )*/}
             </Tabs>
           </Box>
 
@@ -243,14 +243,14 @@ const Contest = ({ user }: Props): ReactElement => {
               <CreateEditContest user={user} contest={contest} />
             </TabPanel>
           )}
-          {!isDirector && (
+          {/*!isDirector && (
             <TabPanel value={value} index={7}>
               <ContestSupport
                 orgs={contest.organizers as Organizer[]}
                 contest={contest}
               />
             </TabPanel>
-          )}
+          )*/}
         </Box>
       </div>
     );
