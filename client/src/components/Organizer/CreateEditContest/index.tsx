@@ -70,10 +70,10 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
   );
   const handlePartCondsChange =
     (prop: keyof ParticipationConditions) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPartConds({ ...partConds, [prop]: event.target.value });
-      setIsModified(true);
-    };
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPartConds({ ...partConds, [prop]: event.target.value });
+        setIsModified(true);
+      };
 
   const [logoFile, setLogoFile] = React.useState<File>(new File([], ""));
 
@@ -145,7 +145,11 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
       }
 
       contest2.logo_path = "/" + logoFile?.name;
-      await OrganizerRequests.createContest(contest2);
+      const resp = await OrganizerRequests.createContest(contest2);
+      if (!resp.ok) {
+        window.alert("Something went wrong, try again later!");
+        return;
+      }
       window.alert("Contest was created successfully!");
 
       window.open("/", "_self");
@@ -183,7 +187,11 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
 
       contest2.logo_path =
         logoFile.name !== "" ? "/" + logoFile?.name : contest2.logo_path;
-      await OrganizerRequests.updateContest(contest2);
+      const resp = await OrganizerRequests.updateContest(contest2);
+      if (!resp.ok) {
+        window.alert("Something went wrong, try again later!");
+        return;
+      }
       window.alert("Contest was updated successfully!");
     })();
   };
@@ -192,12 +200,14 @@ const CreateEditContest = ({ user, contest }: Props): React.ReactElement => {
     (async () => {
       if (
         window.confirm(
-          `Are you sure you want to delete the contest ${
-            (contest2 as Contest).name
+          `Are you sure you want to delete the contest ${(contest2 as Contest).name
           }?`
         )
       ) {
-        await OrganizerRequests.deleteContest(contest2 as Contest);
+        const resp = await OrganizerRequests.deleteContest(contest2 as Contest);
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+        }
         window.open("/", "_self");
       }
     })();

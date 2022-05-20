@@ -35,7 +35,11 @@ const Notifications = (): React.ReactElement => {
       if (
         window.confirm("Are you sure you want to clear your notifications?")
       ) {
-        await NotificationRequests.clearNotifications();
+        const resp = await NotificationRequests.clearNotifications();
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+          return;
+        }
       }
     })();
     setNots(new Array<Notification>());

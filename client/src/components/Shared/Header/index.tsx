@@ -36,11 +36,11 @@ const Header = (): React.ReactElement => {
               </IconButton>
             </Link>
 
-            {/* <Link to="/about">
+            <Link to="/about">
               <IconButton>
                 <Info className="text-ross2" />
               </IconButton>
-            </Link> */}
+            </Link>
           </div>
         </Toolbar>
       </AppBar>

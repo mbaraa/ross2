@@ -19,7 +19,10 @@ const UserManagerment = ({
 }: Props): React.ReactElement => {
   const sendFormNotificationHandler = () => {
     (async () => {
-      await OrganizerRequests.sendContestOverNotifications(contest);
+      const resp = await OrganizerRequests.sendContestOverNotifications(contest);
+      if (!resp.ok) {
+        window.alert("Something went wrong, try again later!");
+      }
     })();
   };
 

@@ -2,8 +2,8 @@ import config from "../../config";
 import Notification from "../../models/Notification";
 
 class NotificationRequests {
-    public static async clearNotifications(): Promise<void> {
-        await fetch(`${config.backendAddress}/notification/clear/`, {
+    public static async clearNotifications(): Promise<Response> {
+        return await fetch(`${config.backendAddress}/notification/clear/`, {
             method: "GET",
             mode: "cors",
             headers: {

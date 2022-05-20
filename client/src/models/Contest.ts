@@ -48,10 +48,10 @@ class Contest {
     return contest;
   }
 
-  public static async getContestsFromServer(): Promise<Contest[]> {
-    let contests = new Array<Contest>();
+  public static async getContestsFromServer(): Promise<Contest[] | null> {
+    let contests: Contest[] | null = new Array<Contest>();
 
-    await fetch(`${config.backendAddress}/contest/all/`, {
+    return await fetch(`${config.backendAddress}/contest/all/`, {
       method: "GET",
       mode: "cors",
     })
@@ -60,9 +60,12 @@ class Contest {
         contests = data["contests"] as Contest[];
         return contests;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {console.log(err)
+        contests = null;
+        return contests;
+      });
 
-    return contests;
+    // return contests;
   }
 }
 

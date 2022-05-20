@@ -115,8 +115,8 @@ class ContestantRequests {
     return respMsg;
   }
 
-  public static async joinAsTeamless(body: any): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  public static async joinAsTeamless(body: any): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "register-as-teamless",
       UserType.Contestant,
       body
@@ -157,12 +157,12 @@ class ContestantRequests {
     localStorage.removeItem("token");
   }
 
-  public static async leaveTeam(): Promise<void> {
-    await RequestsManager.makeAuthGetRequest("leave-team", UserType.Contestant);
+  public static async leaveTeam(): Promise<Response> {
+    return await RequestsManager.makeAuthGetRequest("leave-team", UserType.Contestant);
   }
 
-  public static async deleteTeam(team: Team): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  public static async deleteTeam(team: Team): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "delete-team",
       UserType.Contestant,
       team

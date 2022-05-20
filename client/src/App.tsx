@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, useHistory } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import About from "./pages/About";
 import Contests from "./pages/Contests";
 import Profile from "./pages/Profile";
@@ -11,14 +11,13 @@ import CreateEditContest from "./components/Organizer/CreateEditContest";
 import Admin from "./pages/Admin";
 
 function App() {
-  const router = useHistory();
   const [user, setUser] = React.useState<User>(new User());
-    React.useEffect(() => {
-      (async () => {
-        const u = await MicrosoftLogin.loginWithToken();
-        setUser(u);
-      })();                                                                                                                                                                                                                                                             
-    }, []);
+  React.useEffect(() => {
+    (async () => {
+      const u = await MicrosoftLogin.loginWithToken();
+      setUser(u);
+    })();
+  }, []);
   return (
     <>
       <Header />

@@ -59,7 +59,11 @@ const Profile = ({ user }: Props) => {
   const leaveTeam = () => {
     if (window.confirm("Are you sure you want to leave your team?")) {
       (async () => {
-        await ContestantRequests.leaveTeam();
+        const resp = await ContestantRequests.leaveTeam();
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+          return;
+        }
         window.location.reload();
       })();
     }
@@ -76,7 +80,11 @@ const Profile = ({ user }: Props) => {
       }
 
       (async () => {
-        await ContestantRequests.deleteTeam(cont.team as Team);
+        const resp = await ContestantRequests.deleteTeam(cont.team as Team);
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+          return;
+        }
         window.location.reload();
       })();
     }
@@ -85,7 +93,11 @@ const Profile = ({ user }: Props) => {
   const updateOrgProfile = () => {
     (async () => {
       if (modified) {
-        await OrganizerRequests.finishProfile(org);
+        const resp = await OrganizerRequests.finishProfile(org);
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+          return;
+        }
       }
       setModified(false);
     })();

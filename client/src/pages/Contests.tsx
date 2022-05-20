@@ -12,7 +12,7 @@ interface Props {
 }
 
 const Contests = ({ user }: Props) => {
-  const [contests, setContests] = useState<Contest[]>([]);
+  const [contests, setContests] = useState<Contest[] | null>([]);
 
   useEffect(() => {
     (async () => {
@@ -23,6 +23,10 @@ const Contests = ({ user }: Props) => {
 
   if (user !== null && user.id === 0) {
     return <Title className="mb-[8px]" content="Loading..." />;
+  }
+
+  if (contests === null) {
+    return <Title className="mb-[8px]" content="Something went wrong..." />;
   }
 
   return (

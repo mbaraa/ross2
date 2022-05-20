@@ -142,18 +142,12 @@ class OrganizerRequests {
 
   public static async sendContestOverNotifications(
     contest: Contest
-  ): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  ): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "send-sheev-notifications",
       UserType.Organizer,
       contest
     )
-      .then(() => {
-        window.alert("done :)");
-      })
-      .catch(() => {
-        window.alert("something went wrong!");
-      });
   }
 
   public static async updateTeams(
@@ -171,8 +165,8 @@ class OrganizerRequests {
     teams: Team[],
     teamless: Contestant[],
     contest: Contest
-  ): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  ): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "save-teams",
       UserType.Organizer,
       {
@@ -249,8 +243,8 @@ class OrganizerRequests {
   public static async deleteOrganizer(
     org: Organizer,
     contest: Contest
-  ): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  ): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "delete-organizer",
       UserType.Organizer,
       {
@@ -281,24 +275,24 @@ class OrganizerRequests {
     return orgs;
   }
 
-  public static async deleteContest(contest: Contest): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  public static async deleteContest(contest: Contest): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "delete-contest",
       UserType.Organizer,
       contest
     );
   }
 
-  public static async updateContest(contest: Contest): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  public static async updateContest(contest: Contest): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "update-contest",
       UserType.Organizer,
       contest
     );
   }
 
-  public static async createContest(contest: Contest): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  public static async createContest(contest: Contest): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "create-contest",
       UserType.Organizer,
       contest
@@ -346,8 +340,8 @@ class OrganizerRequests {
     return o;
   }
 
-  public static async finishProfile(org: Organizer): Promise<void> {
-    await RequestsManager.makeAuthPostRequest(
+  public static async finishProfile(org: Organizer): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "finish-profile",
       UserType.Organizer,
       org

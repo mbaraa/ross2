@@ -13,9 +13,13 @@ const OrganizerCard = ({ organizer, contestID }: Props): React.ReactElement => {
   const deleteOrganizer = () => {
     (async () => {
       if (window.confirm("are you sure you want to delete this organizer?")) {
-        await OrganizerRequests.deleteOrganizer(organizer, {
+        const resp = await OrganizerRequests.deleteOrganizer(organizer, {
           id: contestID,
         } as Contest);
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+          return;
+        }
         window.location.reload();
       }
     })();

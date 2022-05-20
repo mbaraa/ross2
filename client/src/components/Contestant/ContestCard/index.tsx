@@ -158,11 +158,12 @@ const ContestCard = ({ contest }: Props) => {
       contestantProfile.gender = state.gender === "true";
       contestantProfile.participate_with_other = state.partWithOther === "true";
 
-      await ContestantRequests.joinAsTeamless({
+      const resp = await ContestantRequests.joinAsTeamless({
         contest: contest,
         contestant: contestantProfile,
       });
-      window.alert(`you have registered as teamless in "${contest.name}"`);
+
+      window.alert(resp.ok? `you have registered as teamless in "${contest.name}"`: "Something went wrong, try again later!");
       closeJTLHandler();
     }
   };

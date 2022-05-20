@@ -50,7 +50,10 @@ const ManageTeams = ({
       if (
         window.confirm("are you sure of the teams you are about to register?")
       ) {
-        await OrganizerRequests.saveTeams(modTeams, teamless, contest);
+        const resp = await OrganizerRequests.saveTeams(modTeams, teamless, contest);
+        if (!resp.ok) {
+          window.alert("Something went wrong, try again later!");
+        }
       }
     })();
     // window.location.reload();
@@ -79,8 +82,8 @@ const ManageTeams = ({
     return firstMember.participate_with_other
       ? "Any"
       : firstMember.gender
-      ? "Males"
-      : "Females";
+        ? "Males"
+        : "Females";
   };
 
   const [isModTeam, setIsModTeam] = React.useState(false);
@@ -263,9 +266,8 @@ const ManageTeams = ({
       {!isModTeam && (
         <>
           <Title
-            content={`${filterTeams().length} Teams, ${
-              getCompleteTeams().length
-            } Complete Teams`}
+            content={`${filterTeams().length} Teams, ${getCompleteTeams().length
+              } Complete Teams`}
             className="text-indigo text-[22px] mb-[10px]"
           />
 
