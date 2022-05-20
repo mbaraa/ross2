@@ -180,11 +180,20 @@ func (c *ContestantHelper) LeaveTeam(contestant models.Contestant) error {
 }
 
 // RegisterAsTeamless adds the given contestant as teamless for the given contest
-func (c *ContestantHelper) RegisterAsTeamless(contestant models.Contestant, contest models.Contest) error {
+func (c *ContestantHelper) RegisterAsTeamless(contestant models.Contestant, contest models.Contest) (err error) {
+	contest, err = c.contestRepo.Get(contest.ID)
+	if err != nil {
+		return err
+	}
+
+	if contest.StartsAt2.Add(contest.Duration).Before(time.Now()) {
+		return errors.New("contest registration is over")
+	}
+
 	contestant.TeamlessedAt = time.Now()
 	contestant.TeamlessContestID = contest.ID
 
-	err := c.repo.Update(&contestant)
+	err = c.repo.Update(&contestant)
 	if err != nil {
 		return err
 	}

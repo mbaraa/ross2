@@ -1,8 +1,8 @@
 {
   "port_number": "8080",
-  "db_user": "",
+  "db_user": "root",
   "db_host": "localhost:3306",
-  "db_password": "",
+  "db_password": "blyat",
   "allowed_clients": "*",
   "machine_ip": "",
   "google_client_id": "",
