@@ -71,7 +71,10 @@ interface Props {
 
 const Contest = ({ user }: Props): ReactElement => {
   const router = useHistory();
+  const { id }: any = useParams();
+
   const { pathname } = useLocation();
+
   const getPath = (): string => {
     return pathname.substring(pathname.lastIndexOf("/") + 1);
   };
@@ -109,6 +112,8 @@ const Contest = ({ user }: Props): ReactElement => {
       case "support":
         index = 7;
         break;
+      default:
+        router.push(`/contest/${id}/about`);
     }
     setValue(index);
   }, []);
@@ -118,8 +123,6 @@ const Contest = ({ user }: Props): ReactElement => {
   };
 
   const [contest, setContest] = useState<Contest2>(new Contest2());
-
-  const { id }: any = useParams();
 
   useEffect(() => {
     if (id !== undefined) {
