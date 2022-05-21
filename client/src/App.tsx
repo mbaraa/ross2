@@ -9,6 +9,7 @@ import Contest from "./pages/Contest";
 import User from "./models/User";
 import CreateEditContest from "./components/Organizer/CreateEditContest";
 import Admin from "./pages/Admin";
+import NotFound from "./components/Shared/Errors/NotFound";
 
 function App() {
   const [user, setUser] = React.useState<User>(new User());
@@ -46,6 +47,8 @@ function App() {
         <Route path="/about">
           <About />
         </Route>
+
+        <Route component={NotFound} />
       </Switch>
     </>
   );

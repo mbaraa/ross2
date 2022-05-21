@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState, ReactElement } from "react";
 import { default as Contest2 } from "../models/Contest";
 import Title from "../components/Shared/Title";
@@ -17,7 +16,16 @@ import OrganizersGrid from "../components/Organizer/OrganizersGrid";
 import GeneratePosts from "../components/Organizer/GeneratePosts";
 import ContestAbout from "../components/Shared/ContestAbout";
 import UserManagerment from "../components/Organizer/UserManagement";
+import {
+  Switch,
+  Route,
+  useHistory,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import ContestSupport from "../components/Contestant/ContestSupport";
+import YouCantDoThat from "../components/Shared/Errors/YouCantDoThat";
+import NotFound from "../components/Shared/Errors/NotFound";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -62,7 +70,48 @@ interface Props {
 }
 
 const Contest = ({ user }: Props): ReactElement => {
+  const router = useHistory();
+  const { pathname } = useLocation();
+  const getPath = (): string => {
+    return pathname.substring(pathname.lastIndexOf("/") + 1);
+  };
+
   const [value, setValue] = React.useState(0);
+  React.useEffect(() => {
+    let index = 0;
+    switch (getPath()) {
+      case "about":
+        index = 0;
+        break;
+      case "generate-posts":
+        index = 1;
+        break;
+      case "generate-teams":
+        index = 2;
+        break;
+      case "manage-teams":
+        (async () => {
+          setContest(
+            await OrganizerRequests.getContest(parseInt(id as string))
+          );
+        })();
+        index = 3;
+        break;
+      case "manage-organizers":
+        index = 4;
+        break;
+      case "manage-users":
+        index = 5;
+        break;
+      case "edit":
+        index = 6;
+        break;
+      case "support":
+        index = 7;
+        break;
+    }
+    setValue(index);
+  }, []);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -156,101 +205,167 @@ const Contest = ({ user }: Props): ReactElement => {
               className="border-indigo"
               aria-label="scrollable auto tabs example"
             >
-              <Tab label={<TabLabel text="About" />} value={0} />
+              <Tab
+                label={<TabLabel text="About" />}
+                value={0}
+                onClick={() => router.push(`/contest/${contest.id}/about`)}
+              />
               {isDirector && (
-                <Tab label={<TabLabel text="Generate Posts" />} value={1} />
+                <Tab
+                  label={<TabLabel text="Generate Posts" />}
+                  value={1}
+                  onClick={() =>
+                    router.push(`/contest/${contest.id}/generate-posts`)
+                  }
+                />
               )}
               {isDirector && (
-                <Tab label={<TabLabel text="Generate Teams" />} value={2} />
+                <Tab
+                  label={<TabLabel text="Generate Teams" />}
+                  value={2}
+                  onClick={() =>
+                    router.push(`/contest/${contest.id}/generate-teams`)
+                  }
+                />
               )}
               {(isDirector || isCoreOrg) && (
                 <Tab
                   label={<TabLabel text="Manage Teams" />}
                   value={3}
                   onClick={() => {
-                    (async () => {
-                      setContest(
-                        await OrganizerRequests.getContest(
-                          parseInt(id as string)
-                        )
-                      );
-                    })();
+                    router.push(`/contest/${contest.id}/manage-teams`);
                   }}
                 />
               )}
               {isDirector && (
-                <Tab label={<TabLabel text="Manage Organizers" />} value={4} />
+                <Tab
+                  label={<TabLabel text="Manage Organizers" />}
+                  value={4}
+                  onClick={() =>
+                    router.push(`/contest/${contest.id}/manage-organizers`)
+                  }
+                />
               )}
               {(isDirector || isReceptionist) && (
                 <Tab
                   label={<TabLabel text="Attendance & Other User Management" />}
                   wrapped
                   value={5}
+                  onClick={() =>
+                    router.push(`/contest/${contest.id}/manage-users`)
+                  }
                 />
               )}
               {(isDirector || isCoreOrg) && (
-                <Tab label={<TabLabel text="Edit" />} value={6} />
+                <Tab
+                  label={<TabLabel text="Edit" />}
+                  value={6}
+                  onClick={() => router.push(`/contest/${contest.id}/edit`)}
+                />
               )}
-              {/*!isDirector && (
-                <Tab label={<TabLabel text={"Support"} />} value={7} />
-              )*/}
+              {!isDirector && (
+                <Tab
+                  label={<TabLabel text={"Support"} />}
+                  value={7}
+                  onClick={() => router.push(`/contest/${contest.id}/support`)}
+                />
+              )}
             </Tabs>
           </Box>
 
-          <TabPanel value={value} index={0}>
-            <ContestAbout contest={contest} />
-          </TabPanel>
-          {isDirector && (
-            <TabPanel value={value} index={1}>
-              <GeneratePosts contest={contest} />
-            </TabPanel>
-          )}
-          {isDirector && (
-            <TabPanel value={value} index={2}>
-              <ContestGenerateTeams id={contest.id} />
-            </TabPanel>
-          )}
-          {(isDirector || isCoreOrg) && (
-            <TabPanel value={value} index={3}>
-              <ContestManageTeams
-                teams={contest.teams}
-                teamless={contest.teamless_contestants}
-                showGender={false}
-                contest={contest}
-                updateTeams={() => {
-                  contest.teams = contest.teams.flat();
-                  setContest({ ...contest });
-                }}
-              />
-            </TabPanel>
-          )}
-          {isDirector && (
-            <TabPanel value={value} index={4}>
-              <OrganizersGrid user={user} contest={contest} />
-            </TabPanel>
-          )}
-          {(isDirector || isReceptionist) && (
-            <TabPanel value={value} index={5}>
-              <UserManagerment
-                contest={contest}
-                isDirector={isDirector}
-                isReceptionist={isReceptionist}
-              />
-            </TabPanel>
-          )}
-          {(isDirector || isCoreOrg) && (
-            <TabPanel value={value} index={6}>
-              <CreateEditContest user={user} contest={contest} />
-            </TabPanel>
-          )}
-          {/*!isDirector && (
-            <TabPanel value={value} index={7}>
+          <Switch>
+            <Route path="/contest/:id/about">
+              <TabPanel value={value} index={0}>
+                <ContestAbout contest={contest} />
+              </TabPanel>
+            </Route>
+
+            <Route path="/contest/:id/generate-posts">
+              {isDirector ? (
+                <TabPanel value={value} index={1}>
+                  <GeneratePosts contest={contest} />
+                </TabPanel>
+              ) : (
+                <YouCantDoThat />
+              )}
+            </Route>
+
+            <Route path="/contest/:id/generate-teams">
+              {isDirector ? (
+                <TabPanel value={value} index={2}>
+                  <ContestGenerateTeams id={contest.id} />
+                </TabPanel>
+              ) : (
+                <YouCantDoThat />
+              )}
+            </Route>
+
+            <Route path="/contest/:id/manage-teams">
+              {isDirector || isCoreOrg ? (
+                <TabPanel value={value} index={3}>
+                  {contest.teams === null ? (
+                    <Title className="" content="Loading..." />
+                  ) : (
+                    <ContestManageTeams
+                      teams={contest.teams}
+                      teamless={contest.teamless_contestants}
+                      showGender={false}
+                      contest={contest}
+                      updateTeams={() => {
+                        contest.teams = contest.teams.flat();
+                        setContest({ ...contest });
+                      }}
+                    />
+                  )}
+                </TabPanel>
+              ) : (
+                <YouCantDoThat />
+              )}
+            </Route>
+
+            <Route path="/contest/:id/manage-organizers">
+              {isDirector ? (
+                <TabPanel value={value} index={4}>
+                  <OrganizersGrid user={user} contest={contest} />
+                </TabPanel>
+              ) : (
+                <YouCantDoThat />
+              )}
+            </Route>
+
+            <Route path="/contest/:id/manage-users">
+              {isDirector || isReceptionist ? (
+                <TabPanel value={value} index={5}>
+                  <UserManagerment
+                    contest={contest}
+                    isDirector={isDirector}
+                    isReceptionist={isReceptionist}
+                  />
+                </TabPanel>
+              ) : (
+                <YouCantDoThat />
+              )}
+            </Route>
+
+            <Route path="/contest/:id/edit">
+              {isDirector || isCoreOrg ? (
+                <TabPanel value={value} index={6}>
+                  <CreateEditContest user={user} contest={contest} />
+                </TabPanel>
+              ) : (
+                <YouCantDoThat />
+              )}
+            </Route>
+
+            <Route path="/contest/:id/support">
               <ContestSupport
                 orgs={contest.organizers as Organizer[]}
                 contest={contest}
               />
-            </TabPanel>
-          )*/}
+            </Route>
+
+            <Route component={NotFound} />
+          </Switch>
         </Box>
       </div>
     );

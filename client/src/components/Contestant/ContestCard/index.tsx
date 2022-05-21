@@ -163,7 +163,11 @@ const ContestCard = ({ contest }: Props) => {
         contestant: contestantProfile,
       });
 
-      window.alert(resp.ok? `you have registered as teamless in "${contest.name}"`: "Something went wrong, try again later!");
+      window.alert(
+        resp.ok
+          ? `you have registered as teamless in "${contest.name}"`
+          : "Something went wrong, try again later!"
+      );
       closeJTLHandler();
     }
   };
@@ -194,7 +198,7 @@ const ContestCard = ({ contest }: Props) => {
         className=" cursor-pointer"
         title="Go to contest's page"
         onClick={() => {
-          router.push(`/contest/${contest.id}`, "_blank");
+          router.push(`/contest/${contest.id}/about`, "_blank");
         }}
       >
         <div className="grid grid-cols-2 p-[20px]">
