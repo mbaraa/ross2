@@ -374,7 +374,7 @@ const Contest = ({ user }: Props): ReactElement => {
     );
   }
 
-  return <Title content="Loading..." className="" />;
+  return <Title content="Contest not found!" className="color-red-600" />;
 };
 
 export default Contest;
