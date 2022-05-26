@@ -10,6 +10,7 @@ import User from "./models/User";
 import CreateEditContest from "./components/Organizer/CreateEditContest";
 import Admin from "./pages/Admin";
 import NotFound from "./components/Shared/Errors/NotFound";
+import JoinTeam from "./components/Contestant/JoinTeam";
 
 function App() {
   const [user, setUser] = React.useState<User>(new User());
@@ -30,6 +31,10 @@ function App() {
 
         <Route path="/admin">
           <Admin user={user} />
+        </Route>
+
+        <Route path="/contest/:id/join-team/:join">
+          <JoinTeam />
         </Route>
 
         <Route path="/contest/:id">

@@ -4,8 +4,29 @@ import JoinRequest from "../../models/JoinRequest";
 import RequestsManager, { UserType } from "./RequestsManager";
 import Contestant from "../../models/Contestant";
 import Contest from "../../models/Contest";
+import config from "../../config";
 
 class ContestantRequests {
+  public static async getTeamByJoinID(joinID: string): Promise<Team | null> {
+    return await fetch(
+      `${config.backendAddress}/contestant/get-team-by-join-id/?join-id=${joinID}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          Authorization: localStorage.getItem("token") as string,
+        },
+      }
+    )
+      .then((resp) => resp.json())
+      .then((resp) => {
+        return resp as Team;
+      })
+      .catch((err) => {
+        console.error(err);
+        return null;
+      });
+  }
   public static async registerInContest(contest: Contest): Promise<string> {
     let msg = "";
     await RequestsManager.makeAuthPostRequest(
@@ -158,7 +179,10 @@ class ContestantRequests {
   }
 
   public static async leaveTeam(): Promise<Response> {
-    return await RequestsManager.makeAuthGetRequest("leave-team", UserType.Contestant);
+    return await RequestsManager.makeAuthGetRequest(
+      "leave-team",
+      UserType.Contestant
+    );
   }
 
   public static async deleteTeam(team: Team): Promise<Response> {
