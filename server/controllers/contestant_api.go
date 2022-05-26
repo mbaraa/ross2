@@ -41,6 +41,7 @@ func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 		"POST /accept-join-request/": c.handleAcceptJoinRequest,
 		"POST /reject-join-request/": c.handleRejectJoinRequest,
 		"GET /leave-team/":           c.handleLeaveTeam,
+		"GET /get-team-by-join-id/":  c.handleGetTeamByJoinID,
 
 		"POST /register-as-teamless/": c.handleRegisterAsTeamless,
 		"POST /check-joined-team/":    c.handleCheckJoinedTeam,
@@ -288,4 +289,27 @@ func (c *ContestantAPI) handleRegisterInContest(ctx context.HandlerContext) {
 	err = c.contMgr.RegisterInContest(contest, cont)
 
 	_ = ctx.WriteJSON(err.Error(), 0)
+}
+
+// GET /get-team-by-join-id/
+func (c *ContestantAPI) handleGetTeamByJoinID(ctx context.HandlerContext) {
+	_, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
+	if err != nil {
+		ctx.Res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	joinID := ctx.Req.URL.Query().Get("join-id")
+	if len(joinID) == 0 {
+		ctx.Res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	team, err := c.contMgr.GetTeamByJoinID(joinID)
+	if len(joinID) == 0 {
+		ctx.Res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	ctx.WriteJSON(team, 0)
 }

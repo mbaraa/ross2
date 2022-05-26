@@ -300,3 +300,7 @@ func (c *ContestantHelper) checkCollidingContests(team *models.Team, contest mod
 
 	return nil
 }
+
+func (c *ContestantHelper) GetTeamByJoinID(joinID string) (models.Team, error) {
+	return c.teamMgr.GetTeamByJoinID(joinID)
+}
