@@ -95,6 +95,10 @@ const ContestCard = ({ contest }: Props) => {
   const [loading, setLoading] = React.useState(false);
 
   const createTeam = async () => {
+    if (state.teamName.length === 0) {
+      window.alert("Team name can't be empty!");
+      return;
+    }
     if (checkRegisterEnds()) {
       return;
     }
