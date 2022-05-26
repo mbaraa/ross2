@@ -1,70 +1,144 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import * as React from "react";
 
 const About = (): React.ReactElement => {
-  let list = [
+  const [techStack] = React.useState([
+    {
+      id: 0,
+      name: "Go",
+      purpose: "Backend Programming Language",
+      version: "1.18",
+      link: "https://golang.org",
+    },
     {
       id: 1,
-      text: "Baraa Al-Masri - Author & Backend & Frontend Developer",
-      link: "https://github.com/mbaraa",
+      name: "TypeScript",
+      purpose: "Frontend Programming Language",
+      version: "4.5",
+      link: "https://www.typescriptlang.org",
     },
     {
       id: 2,
-      text: "Akram Khalil - UI Designer & Frontend Developer",
-      link: "https://github.com/2kram",
-    },
-    {
-      id: 3,
-      text: "Go - Backend",
-      link: "https://golang.org/",
-    },
-    {
-      id: 4,
-      text: "ReactJS - Frontend",
+      name: "React.js",
+      purpose: "UI Library",
+      version: "17.0",
       link: "https://reactjs.org",
     },
     {
+      id: 3,
+      name: "MariaDB",
+      purpose: "Database",
+      version: "10.6",
+      link: "https://mariadb.org/",
+    },
+    {
+      id: 4,
+      name: "GORM",
+      purpose: "ORM Database",
+      version: "1.21",
+      link: "https://gorm.io",
+    },
+    {
       id: 5,
-      text: "GORM DB - ORM",
-      link: "https://gorm.io/",
-    },
-
-    {
-      id: 6,
-      text: "GoJWT - jwt validator",
-      link: "https://github.com/golang-jwt/jwt",
-    },
-    {
-      id: 7,
-      text: "Google UUID - uuid generator",
-      link: "https://github.com/google/uuid",
-    },
-    {
-      id: 8,
-      text: "MUI - Material Components",
+      name: "MUI",
+      purpose: "UI Material Components",
+      version: "5.2",
       link: "https://mui.com",
     },
     {
-      id: 9,
-      text: "Tailwind - CSS Classes",
+      id: 6,
+      name: "Tailwind CSS",
+      purpose: "CSS Framework",
+      version: "3.0",
       link: "https://tailwindcss.com",
     },
-  ];
+    {
+      id: 7,
+      name: "Cairo Graphics",
+      purpose: "Image Manipulation Library",
+      version: "1.17",
+      link: "https://www.cairographics.org/",
+    },
+  ]);
+
+  const [titles] = React.useState([
+    { id: 0, name: "Name" },
+    { id: 1, name: "Purpose" },
+    { id: 2, name: "Version" },
+  ]);
 
   return (
-    <div>
-      <ul className="space-y-[12px] list-disc font-Ropa">
-        {list.map((i) => {
-          return (
-            <li className="font-[12px] text-[#000] font-[400]" key={i.id}>
-              <div className="mr-[8px] float-left">{i.text}</div>
+    <div className="absolute left-[50%] translate-x-[-50%] font-Ropa w-[90%]">
+      <div className="grid md:grid-cols-2 grid-cols-1">
+        <div className="pt-[20px]">
+          <a href="https://github.com/mbaraa/ross2" target="_blank">
+            <img
+              src="/logo512.png"
+              className="w-[200px] h-[200px] border-[2px] border-grey-200 rounded-[100%] hover:opacity-[80%] relative left-[50%] translate-x-[-50%]"
+            />
+          </a>
+          <h1 className="text-center mt-[20px] text-[40px] text-ross2 font-black">
+            Ross 2
+          </h1>
+          <h1 className="text-center text-[30px] text-ross2">
+            Contest Management Thingy
+          </h1>
 
-              <a href={`${i.link}`} className="text-ross2" target="_blank" rel="noreferrer">
-                {i.link}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+          <h2 className="text-center text-[20px] ">
+            Support this project by staring it on GitHub 🥰
+            <br />
+            <iframe
+              src="https://ghbtns.com/github-btn.html?user=mbaraa&repo=ross2&type=star&count=true"
+              scrolling="0"
+              title="GitHub"
+              className="relative left-[50%] translate-x-[-50%] w-[75px] h-[25px]"
+            ></iframe>
+          </h2>
+        </div>
+
+        <div>
+          <h1 className="text-[22px] text-[#343434] m-[10px] mx-0">
+            Technologies Used:
+          </h1>
+          <TableContainer className="w-[80vw] mb-[30px]">
+            <Table
+              stickyHeader={true}
+              className="border-[1px] border-grey-[300]"
+            >
+              <TableHead>
+                <TableRow>
+                  {titles.map((col) => (
+                    <TableCell key={col.id}>{col.name}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {techStack.map((row) => (
+                  <TableRow key={row.id} hover={true}>
+                    <TableCell>
+                      <a href={row.link} target="_blank">
+                        {row.name}
+                      </a>
+                    </TableCell>
+                    <TableCell>{row.purpose}</TableCell>
+                    <TableCell>{row.version}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+      </div>
     </div>
   );
 };
