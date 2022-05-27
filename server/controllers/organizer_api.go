@@ -56,7 +56,6 @@ func (o *OrganizerAPI) initEndPoints() *OrganizerAPI {
 		"POST /generate-teams/":           o.handleGenerateTeams,
 		"POST /save-teams/":               o.handleSaveTeams,
 
-		"GET /get-contests/":              o.handleGetContests,
 		"POST /get-contest/":              o.handleGetContest,
 		"POST /send-sheev-notifications/": o.handleSendSheevNotifications,
 		"POST /get-participants-csv/":     o.handleGetParticipantsCSV,
@@ -369,30 +368,10 @@ func (o *OrganizerAPI) handleUploadContestLogoFile(ctx context.HandlerContext) {
 		return
 	}
 
-	uploadedFilePath := fileHeader.Filename
-	if !config.GetInstance().Development {
-		uploadedFilePath = "./client/dist/" + uploadedFilePath
-	}
+	uploadedFilePath := config.GetInstance().UploadDirectory + fileHeader.Filename
 	newFile, _ := os.Create(uploadedFilePath)
 	_, _ = io.Copy(newFile, file)
 	_ = file.Close()
-}
-
-// GET /organizer/get-contests/
-func (o *OrganizerAPI) handleGetContests(ctx context.HandlerContext) {
-	org, err := o.orgMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
-	if err != nil || (org.User.UserType&enums.UserTypeDirector) == 0 {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	contests, err := o.orgMgr.GetContests(org)
-	if err != nil {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_ = ctx.WriteJSON(contests, 0)
 }
 
 // POST /organizer/get-contest/
