@@ -15,10 +15,10 @@ import (
 )
 
 type Builder struct {
-	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
+	contestRepo      data.Many2ManyCRUDRepo[models.Contest]
 	contestantRepo   data.CRUDRepo[models.Contestant]
 	sessionRepo      data.CRUDRepo[models.Session]
-	teamRepo         data.Many2ManyCRUDRepo[models.Team, any]
+	teamRepo         data.Many2ManyCRUDRepo[models.Team]
 	organizerRepo    data.CRUDRepo[models.Organizer]
 	joinReqRepo      data.CRUDRepo[models.JoinRequest]
 	notificationRepo data.CRUDRepo[models.Notification]
@@ -31,7 +31,7 @@ func NewRouterBuilder() *Builder {
 	return new(Builder)
 }
 
-func (b *Builder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *Builder {
+func (b *Builder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest]) *Builder {
 	b.contestRepo = c
 	return b
 }
@@ -46,7 +46,7 @@ func (b *Builder) SessionRepo(s data.CRUDRepo[models.Session]) *Builder {
 	return b
 }
 
-func (b *Builder) TeamRepo(t data.Many2ManyCRUDRepo[models.Team, any]) *Builder {
+func (b *Builder) TeamRepo(t data.Many2ManyCRUDRepo[models.Team]) *Builder {
 	b.teamRepo = t
 	return b
 }
@@ -227,7 +227,7 @@ func (r *Router) getHandler() *http.ServeMux {
 	handler.Handle("/notification/", r.notificationAPI)
 	handler.Handle("/gauth/", r.googleLoginAPI)
 	handler.Handle("/msauth/", r.microsoftLoginAPI)
-	handler.Handle("/", http.FileServer(http.Dir("./client/dist/")))
+	handler.Handle("/", http.FileServer(http.Dir(config.GetInstance().UploadDirectory)))
 
 	return handler
 }

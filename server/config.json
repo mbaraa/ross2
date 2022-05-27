@@ -2,9 +2,10 @@
   "port_number": "8080",
   "db_user": "root",
   "db_host": "localhost:3306",
-  "db_password": "blyat",
+  "db_password": "",
   "allowed_clients": "*",
   "machine_ip": "",
   "google_client_id": "",
+  "upload_directory": "./uploads",
   "development": true
 }

@@ -10,14 +10,15 @@ import (
 
 // Config represents the configuration of the server
 type Config struct {
-	PortNumber     string `json:"port_number"`
-	DBUser         string `json:"db_user"`
-	DBPassword     string `json:"db_password"`
-	DBHost         string `json:"db_host"`
-	AllowedClients string `json:"allowed_clients"`
-	MachineAddress string `json:"machine_address"`
-	GoogleClientID string `json:"google_client_id"`
-	Development    bool   `json:"development"`
+	PortNumber      string `json:"port_number"`
+	DBUser          string `json:"db_user"`
+	DBPassword      string `json:"db_password"`
+	DBHost          string `json:"db_host"`
+	AllowedClients  string `json:"allowed_clients"`
+	MachineAddress  string `json:"machine_address"`
+	GoogleClientID  string `json:"google_client_id"`
+	UploadDirectory string `json:"upload_directory"`
+	Development     bool   `json:"development"`
 }
 
 var instance *Config = nil
@@ -66,14 +67,15 @@ func (c *Config) setMachineIP() {
 // used with docker
 func (c *Config) loadConfigFromENV() *Config {
 	return &Config{
-		PortNumber:     os.Getenv("PORT_NUMBER"),
-		DBUser:         os.Getenv("DB_USER"),
-		DBPassword:     os.Getenv("DB_PASSWORD"),
-		DBHost:         os.Getenv("DB_HOST"),
-		AllowedClients: os.Getenv("ALLOWED_CLIENTS"),
-		MachineAddress: os.Getenv("MACHINE_ADDRESS"),
-		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"),
-		Development:    os.Getenv("DEVELOPMENT") == "true",
+		PortNumber:      os.Getenv("PORT_NUMBER"),
+		DBUser:          os.Getenv("DB_USER"),
+		DBPassword:      os.Getenv("DB_PASSWORD"),
+		DBHost:          os.Getenv("DB_HOST"),
+		AllowedClients:  os.Getenv("ALLOWED_CLIENTS"),
+		MachineAddress:  os.Getenv("MACHINE_ADDRESS"),
+		GoogleClientID:  os.Getenv("GOOGLE_CLIENT_ID"),
+		UploadDirectory: os.Getenv("UPLOAD_DIRECTORY"),
+		Development:     os.Getenv("DEVELOPMENT") == "true",
 	}
 }
 
