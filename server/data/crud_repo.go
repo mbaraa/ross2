@@ -2,7 +2,7 @@ package data
 
 import "gorm.io/gorm"
 
-type CreatorRepo [T any] interface {
+type CreatorRepo[T any] interface {
 	Add(obj *T) error
 	AddMany(objs []*T) error
 }
@@ -35,10 +35,4 @@ type CRUDRepo[T any] interface {
 	GetterRepo[T]
 	UpdaterRepo[T]
 	DeleterRepo[T]
-}
-
-type Many2ManyCRUDRepo[T any, T2 any] interface {
-	CRUDRepo[T]
-	// AppendMany2Many(src T, associated T2) error
-	GetByAssociation(associated T2) ([]T, error)
 }

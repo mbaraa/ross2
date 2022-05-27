@@ -9,43 +9,43 @@ import (
 )
 
 // ContestDB represents a CRUD db repo for contests
-type ContestDB[T models.Contest, T2 any] struct {
+type ContestDB[T models.Contest] struct {
 	db       *gorm.DB
-	teamRepo data.Many2ManyCRUDRepo[models.Team, any]
+	teamRepo data.CRUDRepo[models.Team]
 }
 
 // NewContestDB returns a new ContestDB instance
-func NewContestDB(db *gorm.DB, teamRepo data.Many2ManyCRUDRepo[models.Team, any]) *ContestDB[models.Contest, any] {
-	return &ContestDB[models.Contest, any]{
+func NewContestDB(db *gorm.DB, teamRepo data.CRUDRepo[models.Team]) *ContestDB[models.Contest] {
+	return &ContestDB[models.Contest]{
 		db:       db,
 		teamRepo: teamRepo,
 	}
 }
 
-func (c *ContestDB[T, T2]) GetDB() *gorm.DB {
+func (c *ContestDB[T]) GetDB() *gorm.DB {
 	return c.db
 }
 
 // CREATOR REPO
 
-func (c *ContestDB[T, T2]) Add(contest *models.Contest) error {
+func (c *ContestDB[T]) Add(contest *models.Contest) error {
 	return c.db.
 		Create(&contest).
 		Error
 }
 
-func (c *ContestDB[T, T2]) AddMany(contests []*models.Contest) error {
+func (c *ContestDB[T]) AddMany(contests []*models.Contest) error {
 	return errors.New("not implemented")
 }
 
 // GETTER REPO
 
-func (c *ContestDB[T, T2]) Exists(id uint) bool {
+func (c *ContestDB[T]) Exists(id uint) bool {
 	res := c.db.First(&models.Contest{ID: id})
 	return !errors.Is(res.Error, gorm.ErrRecordNotFound)
 }
 
-func (c *ContestDB[T, T2]) Get(id uint) (fetchedContest models.Contest, err error) {
+func (c *ContestDB[T]) Get(id uint) (fetchedContest models.Contest, err error) {
 	err = c.db.
 		First(&fetchedContest, "id = ?", id).
 		Error
@@ -85,25 +85,16 @@ func (c *ContestDB[T, T2]) Get(id uint) (fetchedContest models.Contest, err erro
 	return
 }
 
-func (c *ContestDB[T, T2]) GetByConds(conds ...any) ([]models.Contest, error) {
+func (c *ContestDB[T]) GetByConds(conds ...any) ([]models.Contest, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (c *ContestDB[T, T2]) GetAll() (contests []models.Contest, err error) {
+func (c *ContestDB[T]) GetAll() (contests []models.Contest, err error) {
 	err = c.db.Find(&contests).Error
 	return
 }
 
-func (c *ContestDB[T, T2]) GetByAssociation(org any) (contests []models.Contest, err error) {
-	err = c.db.
-		Model(&org).
-		Association("Contests").
-		Find(&contests)
-
-	return
-}
-
-func (c *ContestDB[T, T2]) Count() (int64, error) {
+func (c *ContestDB[T]) Count() (int64, error) {
 	var count int64
 	err := c.db.
 		Model(new(models.Contest)).
@@ -117,7 +108,7 @@ func (c *ContestDB[T, T2]) Count() (int64, error) {
 
 // UPDATER REPO
 
-func (c *ContestDB[T, T2]) Update(contest *models.Contest, conds ...any) error {
+func (c *ContestDB[T]) Update(contest *models.Contest, conds ...any) error {
 	if conds != nil {
 		return errors.New("can't use conditions now")
 	}
@@ -138,13 +129,13 @@ func (c *ContestDB[T, T2]) Update(contest *models.Contest, conds ...any) error {
 		Error // error handling goes brr
 }
 
-func (c *ContestDB[T, T2]) UpdateAll(contests []*models.Contest, conds ...any) error {
+func (c *ContestDB[T]) UpdateAll(contests []*models.Contest, conds ...any) error {
 	return errors.New("not implemented")
 }
 
 // DELETER REPO
 
-func (c *ContestDB[T, T2]) Delete(contest models.Contest, conds ...any) error {
+func (c *ContestDB[T]) Delete(contest models.Contest, conds ...any) error {
 	if conds != nil {
 		return errors.New("can't use conditions now")
 	}
@@ -165,7 +156,7 @@ func (c *ContestDB[T, T2]) Delete(contest models.Contest, conds ...any) error {
 		Error // error handling goes brr
 }
 
-func (c *ContestDB[T, T2]) DeleteAll(conds ...any) error {
+func (c *ContestDB[T]) DeleteAll(conds ...any) error {
 	err := c.db.
 		Where("true").
 		Delete(new(models.Contest)).

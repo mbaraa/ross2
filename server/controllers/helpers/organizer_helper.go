@@ -17,7 +17,7 @@ import (
 
 type OrganizerHelperBuilder struct {
 	repo            data.CRUDRepo[models.Organizer]
-	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
+	contestRepo     data.CRUDRepo[models.Contest]
 	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.CRUDRepo[models.User]
 	teamMgr         *TeamHelper
@@ -33,7 +33,7 @@ func (b *OrganizerHelperBuilder) OrganizerRepo(o data.CRUDRepo[models.Organizer]
 	return b
 }
 
-func (b *OrganizerHelperBuilder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *OrganizerHelperBuilder {
+func (b *OrganizerHelperBuilder) ContestRepo(c data.CRUDRepo[models.Contest]) *OrganizerHelperBuilder {
 	b.contestRepo = c
 	return b
 }
@@ -95,7 +95,7 @@ func (b *OrganizerHelperBuilder) GetOrganizerManager() *OrganizerHelper {
 // OrganizerHelper well hmm
 type OrganizerHelper struct {
 	repo            data.CRUDRepo[models.Organizer]
-	contestRepo     data.Many2ManyCRUDRepo[models.Contest, any]
+	contestRepo     data.CRUDRepo[models.Contest]
 	ocRepo          data.OrganizeContestCRUDRepo
 	userRepo        data.CRUDRepo[models.User]
 	teamMgr         *TeamHelper
@@ -284,11 +284,6 @@ func (o *OrganizerHelper) CreateUpdateTeams(teams []models.Team, removedConts []
 // 	return o.teamMgr.CreateUpdateTeams(teams, removedConts, org)
 // }
 
-// GetContests returns the contests of the given organizer, and an occurring error
-func (o *OrganizerHelper) GetContests(org models.Organizer) ([]models.Contest, error) {
-	return o.contestRepo.GetByAssociation(org)
-}
-
 // GetContest well lol
 func (o *OrganizerHelper) GetContest(contest models.Contest) (models.Contest, error) {
 	return o.contestRepo.Get(contest.ID)
@@ -296,12 +291,7 @@ func (o *OrganizerHelper) GetContest(contest models.Contest) (models.Contest, er
 
 // GetOrganizers returns all organizers that are under the given organizer
 func (o *OrganizerHelper) GetOrganizers(org models.Organizer, contest models.Contest) ([]models.Organizer, error) {
-	orgs, err := o.ocRepo.GetOrgs(contest)
-	if err != nil {
-		return nil, err
-	}
-
-	return orgs, nil
+	return o.ocRepo.GetOrgs(contest)
 }
 
 func (o *OrganizerHelper) SendSheevNotifications(contest models.Contest) error {
@@ -379,7 +369,7 @@ func (o *OrganizerHelper) GetParticipants(contest models.Contest, org models.Org
 }
 
 func (o *OrganizerHelper) MarkAttendance(user models.User, contest models.Contest) error {
-	users, err := o.userRepo.GetByConds("email = ?",user.Email)
+	users, err := o.userRepo.GetByConds("email = ?", user.Email)
 	if err != nil {
 		return err
 	}

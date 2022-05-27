@@ -15,10 +15,10 @@ import (
 )
 
 type Builder struct {
-	contestRepo      data.Many2ManyCRUDRepo[models.Contest]
+	contestRepo      data.CRUDRepo[models.Contest]
 	contestantRepo   data.CRUDRepo[models.Contestant]
 	sessionRepo      data.CRUDRepo[models.Session]
-	teamRepo         data.Many2ManyCRUDRepo[models.Team]
+	teamRepo         data.CRUDRepo[models.Team]
 	organizerRepo    data.CRUDRepo[models.Organizer]
 	joinReqRepo      data.CRUDRepo[models.JoinRequest]
 	notificationRepo data.CRUDRepo[models.Notification]
@@ -31,7 +31,7 @@ func NewRouterBuilder() *Builder {
 	return new(Builder)
 }
 
-func (b *Builder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest]) *Builder {
+func (b *Builder) ContestRepo(c data.CRUDRepo[models.Contest]) *Builder {
 	b.contestRepo = c
 	return b
 }
@@ -46,7 +46,7 @@ func (b *Builder) SessionRepo(s data.CRUDRepo[models.Session]) *Builder {
 	return b
 }
 
-func (b *Builder) TeamRepo(t data.Many2ManyCRUDRepo[models.Team]) *Builder {
+func (b *Builder) TeamRepo(t data.CRUDRepo[models.Team]) *Builder {
 	b.teamRepo = t
 	return b
 }

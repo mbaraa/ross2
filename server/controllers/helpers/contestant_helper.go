@@ -16,7 +16,7 @@ import (
 type ContestantHelperBuilder struct {
 	userRepo         data.CRUDRepo[models.User]
 	contestantRepo   data.CRUDRepo[models.Contestant]
-	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
+	contestRepo      data.CRUDRepo[models.Contest]
 	notificationRepo data.CRUDRepo[models.Notification]
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
@@ -36,7 +36,7 @@ func (b *ContestantHelperBuilder) ContestantRepo(c data.CRUDRepo[models.Contesta
 	return b
 }
 
-func (b *ContestantHelperBuilder) ContestRepo(c data.Many2ManyCRUDRepo[models.Contest, any]) *ContestantHelperBuilder {
+func (b *ContestantHelperBuilder) ContestRepo(c data.CRUDRepo[models.Contest]) *ContestantHelperBuilder {
 	b.contestRepo = c
 	return b
 }
@@ -94,7 +94,7 @@ func (b *ContestantHelperBuilder) GetContestantManager() *ContestantHelper {
 type ContestantHelper struct {
 	repo             data.CRUDRepo[models.Contestant]
 	userRepo         data.UpdaterRepo[models.User]
-	contestRepo      data.Many2ManyCRUDRepo[models.Contest, any]
+	contestRepo      data.CRUDRepo[models.Contest]
 	notificationRepo data.CRUDRepo[models.Notification]
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper

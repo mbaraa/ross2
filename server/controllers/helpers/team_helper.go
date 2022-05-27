@@ -11,12 +11,12 @@ import (
 
 // TeamHelper manages teams and stuff
 type TeamHelper struct {
-	repo     data.Many2ManyCRUDRepo[models.Team, any]
+	repo     data.CRUDRepo[models.Team]
 	contRepo data.CRUDRepo[models.Contestant]
 }
 
 // NewTeamHelper returns a new TeamHelper instance
-func NewTeamHelper(teamRepo data.Many2ManyCRUDRepo[models.Team, any], contRepo data.CRUDRepo[models.Contestant]) *TeamHelper {
+func NewTeamHelper(teamRepo data.CRUDRepo[models.Team], contRepo data.CRUDRepo[models.Contestant]) *TeamHelper {
 	return &TeamHelper{
 		repo:     teamRepo,
 		contRepo: contRepo,
