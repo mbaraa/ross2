@@ -2,3 +2,4 @@
 .idea/
 server/go.sum
 mysql/
+**/*.swp
