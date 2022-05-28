@@ -9,12 +9,12 @@ import (
 
 // Team represents a team's fields
 type Team struct {
-	gorm.Model
-	ID       uint        `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	Name     string      `gorm:"column:name" json:"name"`
-	LeaderId uint        `gorm:"column:leader_id" json:"leader_id"` // not a foreign key to avoid cycling mess :)
-	Leader   *Contestant `gorm:"-" json:"leader"`                   // using a pointer to avoid cycling :)
-	JoinID   string      `gorm:"column:join_id;unique" json:"join_id"`
+	gorm.Model `json:"-"`
+	ID         uint        `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	Name       string      `gorm:"column:name" json:"name"`
+	LeaderId   uint        `gorm:"column:leader_id" json:"leader_id"` // not a foreign key to avoid cycling mess :)
+	Leader     *Contestant `gorm:"-" json:"leader"`                   // using a pointer to avoid cycling :)
+	JoinID     string      `gorm:"column:join_id;unique" json:"join_id"`
 
 	Contests []Contest    `gorm:"many2many:register_teams;"` // a team may register in more than one contest
 	Members  []Contestant `gorm:"-" json:"members"`          // each contestant has their team id :)
@@ -68,7 +68,7 @@ func (t *Team) AfterCreate(db *gorm.DB) error {
 }
 
 type JoinRequest struct {
-	gorm.Model
+	gorm.Model          `json:"-"`
 	ID                  uint         `gorm:"column:id;primaryKey;autoIncrement"`
 	RequesterID         uint         `gorm:"column:requester_id" json:"requester_id"`
 	RequestedTeamJoinID string       `gorm:"column:requested_team_join_id" json:"requested_team_join_id"`
@@ -86,4 +86,29 @@ func (j *JoinRequest) BeforeDelete(db *gorm.DB) error {
 		Where("id = ?", j.NotificationID).
 		Delete(&j.Notification).
 		Error
+}
+
+type RegisterTeam struct {
+	gorm.Model   `json:"-"`
+	ContestID    uint       `gorm:"column:contest_id" json:"-"`
+	ContestName  string     `gorm:"column:contest_name" json:"contest_name"`
+	TeamID       uint       `gorm:"column:team_id" json:"-"`
+	Team         Team       `gorm:"foreignkey:TeamID" json:"team"`
+	ContestantID uint       `gorm:"column:contestant_id" json:"-"`
+	Contestant   Contestant `gorm:"foreignkey:ContestantID" json:"-"`
+}
+
+func (r *RegisterTeam) AfterFind(db *gorm.DB) error {
+	var c Contest
+	err := db.
+		Model(new(Contest)).
+		First(&c, "id = ?", r.ContestID).
+		Error
+	if err != nil {
+		return err
+	}
+
+	r.ContestName = c.Name
+
+	return nil
 }

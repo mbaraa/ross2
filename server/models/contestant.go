@@ -9,9 +9,9 @@ import (
 
 // Contestant represents a contestant's fields
 type Contestant struct {
-	gorm.Model
-	User   User `gorm:"foreignkey:UserID" json:"user"`
-	UserID uint `gorm:"column:user_id" json:"user_id"`
+	gorm.Model `json:"-"`
+	User       User `gorm:"foreignkey:UserID" json:"user"`
+	UserID     uint `gorm:"column:user_id" json:"user_id"`
 
 	Team      Team        `gorm:"foreignkey:TeamID" json:"team"` // big surprise, a contestant gets their contests from here :)
 	TeamID    uint        `gorm:"column:team_id" json:"team_id"`

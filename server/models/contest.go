@@ -9,7 +9,7 @@ import (
 
 // Contest represents a contest's fields
 type Contest struct {
-	gorm.Model
+	gorm.Model        `json:"-"`
 	ID                uint          `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
 	Name              string        `gorm:"column:name" json:"name"`
 	StartsAt          int64         `gorm:"-" json:"starts_at"`
@@ -68,7 +68,7 @@ type OrganizeContest struct {
 
 // ParticipationConditions represents the conditions needed to participate in a contest
 type ParticipationConditions struct {
-	gorm.Model
+	gorm.Model     `json:"-"`
 	ID             uint        `gorm:"column:id;primaryKey;autoIncrement"`
 	Majors         enums.Major `gorm:"column:majors;type:uint" json:"majors"`
 	MajorsNames    []string    `gorm:"-" json:"majors_names"`

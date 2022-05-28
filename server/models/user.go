@@ -10,7 +10,7 @@ import (
 
 // User represents a general user :)
 type User struct {
-	gorm.Model
+	gorm.Model    `json:"-"`
 	ID            uint                `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
 	Email         string              `gorm:"column:email;unique" json:"email"`
 	Name          string              `gorm:"column:name" json:"name"`
@@ -43,7 +43,7 @@ func (u *User) BeforeCreate(db *gorm.DB) error {
 
 // ContactInfo represents a user's(any user on Ross) fields
 type ContactInfo struct {
-	gorm.Model
+	gorm.Model          `json:"-"`
 	FacebookURL         string `gorm:"column:facebook_url" json:"facebook_url"`
 	MicrosoftTeamsEmail string `gorm:"column:msteams_email" json:"msteams_email"`
 	TelegramNumber      string `gorm:"column:telegram_number" json:"telegram_number"`
