@@ -13,14 +13,13 @@ import { GoLocation } from "react-icons/go";
 import { BiTimeFive } from "react-icons/bi";
 import { Button } from "@mui/material";
 import Title from "../../Shared/Title";
-import Team from "../../../models/Team";
+import Team, { RegisterTeam } from "../../../models/Team";
 import ContestantRequests from "../../../utils/requests/ContestantRequests";
 import JoinRequest from "../../../models/JoinRequest";
 import Contestant from "../../../models/Contestant";
 import Contest from "../../../models/Contest";
 import config from "../../../config";
 import ActionChecker from "../../../utils/ActionChecker";
-import { checkUserType, UserType } from "../../../models/User";
 import { useHistory } from "react-router-dom";
 
 interface Props {
@@ -105,7 +104,7 @@ const ContestCard = ({ contest }: Props) => {
     team.name = state.teamName;
     team.contests.push(contest);
     setLoading(true);
-    const msg = await ContestantRequests.createTeam(team);
+    const msg = await ContestantRequests.createTeam(team, contest);
     if (msg.length > 0) {
       window.alert(msg);
       closeCTHandler();
@@ -115,6 +114,15 @@ const ContestCard = ({ contest }: Props) => {
     window.alert(`your team "${team.name}" was created successfully ☺️`);
     router.go(0);
   };
+
+  const [teams, setTeams] = React.useState<RegisterTeam[] | null>(
+    new Array<RegisterTeam>()
+  );
+  React.useEffect(() => {
+    (async () => {
+      setTeams(await ContestantRequests.getTeams());
+    })();
+  }, []);
 
   const joinTeam = async () => {
     const resp = await ContestantRequests.requestJoinTeam({
@@ -176,22 +184,20 @@ const ContestCard = ({ contest }: Props) => {
     }
   };
 
-  const [hasTeam, setHasTeam] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    setHasTeam(
-      contestantProfile !== null && (contestantProfile.team_id as number) > 1
-    );
-  }, [contestantProfile]);
-
-  const registerInContest = () => {
+  const joinUsingTeam = (team: Team) => {
     (async () => {
       if (
         window.confirm(
-          `Are you sure that you want to register in the contest "${contest.name}"`
+          `Are you sure you want to register in "${contest.name}" using the team "${team.name}"?`
         )
       ) {
-        window.alert(await ContestantRequests.registerInContest(contest));
+        const respMsg = await ContestantRequests.registerInContest(
+          contest,
+          team
+        );
+        if (!respMsg) {
+          window.alert("Something went wrong...");
+        }
       }
     })();
   };
@@ -238,14 +244,6 @@ const ContestCard = ({ contest }: Props) => {
           title="You are already registered in this contest!"
         >
           Already Registerd ✅
-        </div>
-      ) : hasTeam ? (
-        <div
-          className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
-          title="Join using the current team"
-          onClick={registerInContest}
-        >
-          Register in Contest
         </div>
       ) : (
         <>
@@ -333,11 +331,49 @@ const ContestCard = ({ contest }: Props) => {
 
       <Dialog open={openJT} onClose={closeJTHandler}>
         <div className="min-w-[348px] max-w-[348px] p-[28px]">
-          <div className="mb-[28px]">
-            <Title
-              className="text-[18px] font-[400] mb-[16px]"
-              content="Join Team"
-            />
+          {/****/}
+
+          {teams !== null && (teams.length as number) >= 1 && (
+            <>
+              <label className="text-[16px] text-[#425CBA] space-y-[4px]">
+                Your Teams:
+              </label>
+              <br />
+              <ul className="list-disc text-[#ab59ab] ml-[25px]">
+                {teams.map((rt: RegisterTeam) => (
+                  <>
+                    <li>
+                      <b>Team Name: </b>
+                      {rt.team?.name}
+                    </li>
+                    <li>
+                      <b>Team Members:</b>
+                    </li>
+                    <ul className="list-square ml-[25px]">
+                      {rt.team?.members.map((c: Contestant) => (
+                        <li>{c.user.name}</li>
+                      ))}
+                    </ul>
+                    <div className="pt-[8px] ml-[-13px]">
+                      <Button
+                        color="success"
+                        variant="outlined"
+                        onClick={() => joinUsingTeam(rt.team as Team)}
+                      >
+                        <label className="normal-case font-Ropa cursor-pointer">
+                          Register Using This Team
+                        </label>
+                      </Button>
+                    </div>
+                  </>
+                ))}
+              </ul>
+              <hr className="pb-[10px] mt-[10px]" />
+            </>
+          )}
+          {/******/}
+          <div className="mb-[5px]">
+            <Title className="text-[18px] font-[400]" content="Join Team:" />
           </div>
           <TextField
             label="Team ID"

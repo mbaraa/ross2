@@ -1,4 +1,4 @@
-import Team from "../../models/Team";
+import Team, { RegisterTeam } from "../../models/Team";
 import Notification from "../../models/Notification";
 import JoinRequest from "../../models/JoinRequest";
 import RequestsManager, { UserType } from "./RequestsManager";
@@ -7,6 +7,24 @@ import Contest from "../../models/Contest";
 import config from "../../config";
 
 class ContestantRequests {
+  public static async getTeams(): Promise<RegisterTeam[] | null> {
+    return await fetch(`${config.backendAddress}/contestant/get-teams/`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        Authorization: localStorage.getItem("token") as string,
+      },
+    })
+      .then((resp) => resp.json())
+      .then((resp) => {
+        return resp as RegisterTeam[];
+      })
+      .catch((err) => {
+        console.error(err);
+        return null;
+      });
+  }
+
   public static async getTeamByJoinID(joinID: string): Promise<Team | null> {
     return await fetch(
       `${config.backendAddress}/contestant/get-team-by-join-id/?join-id=${joinID}`,
@@ -27,21 +45,27 @@ class ContestantRequests {
         return null;
       });
   }
-  public static async registerInContest(contest: Contest): Promise<string> {
-    let msg = "";
-    await RequestsManager.makeAuthPostRequest(
+  public static async registerInContest(
+    contest: Contest,
+    team: Team
+  ): Promise<boolean> {
+    return await RequestsManager.makeAuthPostRequest(
       "register-in-contest",
       UserType.Contestant,
-      contest
+      {
+        contest: contest,
+        team: team,
+      }
     )
       .then((resp) => resp.json())
       .then((resp) => {
-        msg = resp as string;
-        return msg;
+        return resp as boolean;
       })
-      .catch((err) => console.error(err));
-
-    return msg;
+      .catch((err) => {
+        window.alert("Something went wrong...");
+        console.error(err);
+        return false;
+      });
   }
   public static async checkContestJoin(contest: Contest): Promise<boolean> {
     let joined = false;
@@ -119,19 +143,28 @@ class ContestantRequests {
     return inTeam;
   }
 
-  public static async createTeam(team: Team): Promise<string> {
+  public static async createTeam(
+    team: Team,
+    contest: Contest
+  ): Promise<string> {
     let respMsg = "";
     await RequestsManager.makeAuthPostRequest(
       "create-team",
       UserType.Contestant,
-      team
+      {
+        team: team,
+        contest: contest,
+      }
     )
       .then((resp) => resp.text())
       .then((resp) => {
         respMsg = resp as string;
         return respMsg;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        respMsg = err;
+        console.error(err);
+      });
 
     return respMsg;
   }
@@ -178,10 +211,11 @@ class ContestantRequests {
     localStorage.removeItem("token");
   }
 
-  public static async leaveTeam(): Promise<Response> {
-    return await RequestsManager.makeAuthGetRequest(
+  public static async leaveTeam(team: Team): Promise<Response> {
+    return await RequestsManager.makeAuthPostRequest(
       "leave-team",
-      UserType.Contestant
+      UserType.Contestant,
+      team
     );
   }
 

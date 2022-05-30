@@ -6,7 +6,7 @@ import MicrosoftLogin from "../../src/utils/requests/MicrosoftLogin";
 import Title from "../components/Shared/Title";
 import User, { UserType } from "../models/User";
 import Contestant from "../models/Contestant";
-import Team from "../models/Team";
+import Team, { RegisterTeam } from "../models/Team";
 import Organizer from "../models/Organizer";
 import OrganizerRequests from "../utils/requests/OrganizerRequests";
 
@@ -19,6 +19,9 @@ const Profile = ({ user }: Props) => {
     return user !== null && (t & user.user_type_base) !== 0;
   };
 
+  const [teams, setTeams] = React.useState<RegisterTeam[] | null>(
+    new Array<RegisterTeam>()
+  );
   const [cont, setCont] = React.useState<Contestant>(new Contestant());
   const [org, setOrg] = React.useState<Organizer>(new Organizer());
   // const [admin, setAdmin] = React.useState<Admin>(new Admin());
@@ -28,6 +31,8 @@ const Profile = ({ user }: Props) => {
       if (checkUserType(UserType.Contestant)) {
         const _cont = await ContestantRequests.getProfile();
         setCont(_cont);
+
+        setTeams(await ContestantRequests.getTeams());
       }
 
       if (checkUserType(UserType.Organizer)) {
@@ -56,10 +61,10 @@ const Profile = ({ user }: Props) => {
     );
   }
 
-  const leaveTeam = () => {
+  const leaveTeam = (team: Team) => {
     if (window.confirm("Are you sure you want to leave your team?")) {
       (async () => {
-        const resp = await ContestantRequests.leaveTeam();
+        const resp = await ContestantRequests.leaveTeam(team);
         if (!resp.ok) {
           window.alert("Something went wrong, try again later!");
           return;
@@ -69,18 +74,16 @@ const Profile = ({ user }: Props) => {
     }
   };
 
-  const deleteTeam = () => {
+  const deleteTeam = (team: Team) => {
     if (window.confirm("Are you sure you want to delete your team :)")) {
-      if (
-        cont.team === null ||
-        (cont.team !== undefined && (cont.team.name as string).length === 0)
-      ) {
+      if (team !== undefined && (team.name as string).length === 0) {
         window.alert("Woah... something went wrong :(");
         return;
       }
 
       (async () => {
-        const resp = await ContestantRequests.deleteTeam(cont.team as Team);
+        const resp = await ContestantRequests.deleteTeam(team as Team);
+        console.log(resp);
         if (!resp.ok) {
           window.alert("Something went wrong, try again later!");
           return;
@@ -221,55 +224,64 @@ const Profile = ({ user }: Props) => {
             </>
           )}
 
-          {cont !== null &&
-            cont.team !== undefined &&
-            (cont.team.id as number) > 1 && (
-              <>
-                <hr className="pb-[10px] mt-[10px]" />
-                <div className="text-[16px] text-[#425CBA] space-y-[4px]">
-                  <b>Team Name: </b> {cont.team.name}
-                </div>
-                <hr className="pb-[10px] mt-[10px]" />
-                <div className="text-[16px] text-[#425CBA] space-y-[4px]">
-                  <b>Team Join ID: </b> {cont.team.join_id}
-                </div>
-                {cont.team.members !== null && cont.team.members.length > 1 && (
+          {cont !== null && teams !== null && (teams.length as number) >= 1 && (
+            <>
+              <hr className="pb-[10px] mt-[10px]" />
+              <label className="text-[20px] text-[#ab59ab] space-y-[4px]">
+                Your Teams and Contests:
+              </label>
+              <br />
+              <ul className="list-disc text-[#ab59ab] ml-[25px]">
+                {teams.map((rt: RegisterTeam) => (
                   <>
-                    <hr className="pb-[10px] mt-[10px]" />
-                    <label className="text-[#425CBA] text-[16px]">
-                      <b>Team Members: </b>{" "}
-                      <ul>
-                        {cont.team.members.map((c) => (
+                    <li>
+                      <b>Contest:</b> {rt.contest_name}
+                    </li>
+                    <ul className="list-square ml-[25px]">
+                      <li>
+                        <b>Team Name: </b>
+                        {rt.team?.name}
+                      </li>
+                      <li>
+                        <b>Team Members:</b>
+                      </li>
+                      <ul className="list-disc ml-[25px]">
+                        {rt.team?.members.map((c: Contestant) => (
                           <li>{c.user.name}</li>
                         ))}
-                      </ul>{" "}
-                    </label>
-                  </>
-                )}
-                <hr className="pb-[10px] mt-[10px]" />
-                <div className="relative left-[62%] translate-x-[-50%]">
-                  <Button color="info" variant="outlined" onClick={leaveTeam}>
-                    <label className="normal-case cursor-pointer">
-                      Leave Team
-                    </label>
-                  </Button>
-                  {cont.user.id === cont.team.leader_id && (
-                    <>
-                      {"  "}
+                      </ul>
+                    </ul>
+                    {/* team control stuff */}
+                    <div className="relative left-[62%] translate-x-[-50%] ml-[-8px] mt-[10px] font-Ropa">
                       <Button
-                        color="error"
+                        color="info"
                         variant="outlined"
-                        onClick={deleteTeam}
+                        onClick={() => leaveTeam(rt.team as Team)}
                       >
                         <label className="normal-case cursor-pointer">
-                          Delete Team
+                          Leave Team
                         </label>
                       </Button>
-                    </>
-                  )}
-                </div>
-              </>
-            )}
+                      {cont.user.id === rt.team?.leader_id && (
+                        <>
+                          {"  "}
+                          <Button
+                            color="error"
+                            variant="outlined"
+                            onClick={() => deleteTeam(rt.team as Team)}
+                          >
+                            <label className="normal-case cursor-pointer">
+                              Delete Team
+                            </label>
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
 
         <Button

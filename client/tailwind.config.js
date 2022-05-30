@@ -6,9 +6,16 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-				Ropa: ["Ropa", "sans-serif"],
-				RopaItalic: ["RopaItalic", "sans-serif"],
-			},
+        Ropa: ["Ropa", "sans-serif"],
+        RopaItalic: ["RopaItalic", "sans-serif"],
+      },
+      listStyleType: {
+        none: "none",
+        disc: "disc",
+        decimal: "decimal",
+        square: "square",
+        roman: "upper-roman",
+      },
     },
     colors: {
       transparent: "transparent",

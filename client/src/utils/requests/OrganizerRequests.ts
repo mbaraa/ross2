@@ -315,18 +315,6 @@ class OrganizerRequests {
     return contest;
   }
 
-  public static async getContests(): Promise<Contest[]> {
-    let contests = new Array<Contest>();
-    await RequestsManager.makeAuthGetRequest("get-contests", UserType.Organizer)
-      .then((resp) => resp.json())
-      .then((resp) => {
-        contests = resp as Contest[];
-      })
-      .catch((err) => window.alert("oi mama " + err.message));
-
-    return contests;
-  }
-
   public static async getProfile(): Promise<Organizer> {
     let o = new Organizer();
     await RequestsManager.makeAuthGetRequest("profile", UserType.Organizer)
