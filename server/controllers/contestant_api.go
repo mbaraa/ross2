@@ -40,14 +40,14 @@ func (c *ContestantAPI) initEndPoints() *ContestantAPI {
 		"POST /req-join-team/":       c.handleRequestJoinTeam,
 		"POST /accept-join-request/": c.handleAcceptJoinRequest,
 		"POST /reject-join-request/": c.handleRejectJoinRequest,
-		"GET /leave-team/":           c.handleLeaveTeam,
-		"GET /get-team-by-join-id/":  c.handleGetTeamByJoinID,
+		"POST /leave-team/":          c.handleLeaveTeam,
 
 		"POST /register-as-teamless/": c.handleRegisterAsTeamless,
 		"POST /check-joined-team/":    c.handleCheckJoinedTeam,
 		//"POST /invite-teamless/":      nil,
 
-		"GET /get-team/":             c.handleGetTeam,
+		"GET /get-teams/":            c.handleGetTeams,
+		"GET /get-team-by-join-id/":  c.handleGetTeamByJoinID,
 		"POST /check-contest-join/":  c.handleCheckContestJoin,
 		"POST /register-in-contest/": c.handleRegisterInContest,
 	})
@@ -76,11 +76,11 @@ func (c *ContestantAPI) handleGetProfile(ctx context.HandlerContext) {
 		return
 	}
 
-	cont.Team, err = c.contMgr.GetTeam(cont)
-	if err != nil {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	// cont.Team, err = c.contMgr.GetTeam(cont)
+	// if err != nil {
+	// 	ctx.Res.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
 
 	_ = ctx.WriteJSON(cont, 0)
 }
@@ -93,12 +93,15 @@ func (c *ContestantAPI) handleCreateTeam(ctx context.HandlerContext) {
 		return
 	}
 
-	var team models.Team
-	if ctx.ReadJSON(&team) != nil {
+	var reqBody struct {
+		Team    models.Team    `json:"team"`
+		Contest models.Contest `json:"contest"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	err = c.contMgr.CreateTeam(cont, team)
+	err = c.contMgr.CreateTeam(cont, reqBody.Team, reqBody.Contest)
 	if err != nil {
 		ctx.Res.Write([]byte(err.Error()))
 		ctx.Res.WriteHeader(http.StatusBadRequest)
@@ -124,7 +127,7 @@ func (c *ContestantAPI) handleDeleteTeam(ctx context.HandlerContext) {
 		return
 	}
 
-	if c.contMgr.DeleteTeam(team) != nil {
+	if c.contMgr.DeleteTeam(cont, team) != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -176,7 +179,7 @@ func (c *ContestantAPI) handleRejectJoinRequest(ctx context.HandlerContext) {
 	}
 }
 
-// GET /contestant/leave-team/
+// POST /contestant/leave-team/
 func (c *ContestantAPI) handleLeaveTeam(ctx context.HandlerContext) {
 	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
@@ -184,7 +187,13 @@ func (c *ContestantAPI) handleLeaveTeam(ctx context.HandlerContext) {
 		return
 	}
 
-	if c.contMgr.LeaveTeam(cont) != nil {
+	var team models.Team
+
+	if ctx.ReadJSON(&team) != nil {
+		return
+	}
+
+	if c.contMgr.LeaveTeam(cont, team) != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -233,22 +242,21 @@ func (c *ContestantAPI) handleCheckJoinedTeam(ctx context.HandlerContext) {
 	}, 0)
 }
 
-// Deprecated
-// GET /contestant/get-team/
-func (c *ContestantAPI) handleGetTeam(ctx context.HandlerContext) {
+// GET /contestant/get-teams/
+func (c *ContestantAPI) handleGetTeams(ctx context.HandlerContext) {
 	cont, err := c.contMgr.GetProfile(models.User{ID: ctx.Sess.UserID})
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	team, err := c.contMgr.GetTeam(cont)
+	teams, err := c.contMgr.GetTeams(cont)
 	if err != nil {
 		ctx.Res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_ = ctx.WriteJSON(team, 0)
+	_ = ctx.WriteJSON(teams, 0)
 }
 
 // POST /check-contest-join/
@@ -264,13 +272,7 @@ func (c *ContestantAPI) handleCheckContestJoin(ctx context.HandlerContext) {
 		return
 	}
 
-	err = c.contMgr.CheckJoinedContest(contest, cont)
-	if err != nil {
-		ctx.Res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_ = ctx.WriteJSON(err == nil, 0)
+	_ = ctx.WriteJSON(c.contMgr.CheckJoinedContest(contest, cont), 0)
 }
 
 // POST /register-in-contest/
@@ -281,14 +283,17 @@ func (c *ContestantAPI) handleRegisterInContest(ctx context.HandlerContext) {
 		return
 	}
 
-	var contest models.Contest
-	if ctx.ReadJSON(&contest) != nil {
+	var reqBody struct {
+		Contest models.Contest `json:"contest"`
+		Team    models.Team    `json:"team"`
+	}
+	if ctx.ReadJSON(&reqBody) != nil {
 		return
 	}
 
-	err = c.contMgr.RegisterInContest(contest, cont)
+	err = c.contMgr.RegisterInContestUsingTeam(reqBody.Contest, reqBody.Team, cont)
 
-	_ = ctx.WriteJSON(err.Error(), 0)
+	_ = ctx.WriteJSON(err == nil, 0)
 }
 
 // GET /get-team-by-join-id/

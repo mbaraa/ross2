@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"errors"
 	"math"
 	"time"
 
@@ -13,22 +12,21 @@ import (
 type TeamHelper struct {
 	repo     data.CRUDRepo[models.Team]
 	contRepo data.CRUDRepo[models.Contestant]
+	rtRepo   data.RegisterTeamCRUDRepo
 }
 
 // NewTeamHelper returns a new TeamHelper instance
-func NewTeamHelper(teamRepo data.CRUDRepo[models.Team], contRepo data.CRUDRepo[models.Contestant]) *TeamHelper {
+func NewTeamHelper(teamRepo data.CRUDRepo[models.Team], contRepo data.CRUDRepo[models.Contestant],
+	rtRepo data.RegisterTeamCRUDRepo) *TeamHelper {
 	return &TeamHelper{
 		repo:     teamRepo,
 		contRepo: contRepo,
+		rtRepo:   rtRepo,
 	}
 }
 
 // CreateTeam creates a team and adds the given contestant to it as its leader
 func (t *TeamHelper) CreateTeam(contestant models.Contestant, team *models.Team) error {
-	if contestant.TeamID > 1 {
-		return errors.New("contestant already has a team")
-	}
-
 	// set team's required attributes to be lead by the given contestant
 	team.Leader = &contestant
 	team.LeaderId = contestant.User.ID
@@ -117,7 +115,7 @@ func (t *TeamHelper) CreateUpdateTeams(teams []models.Team, removedContestants [
 
 		// delete
 		if team.Members == nil || len(team.Members) == 0 {
-			err := t.DeleteTeam(team)
+			err := t.DeleteTeam(models.Contestant{}, team)
 			if err != nil {
 				return err
 			}
@@ -167,12 +165,8 @@ func (t *TeamHelper) GetTeamByJoinID(joinID string) (models.Team, error) {
 }
 
 // LeaveTeam removes the given contestant from their team in a super safe way
-func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
-	team, err := t.GetTeam(cont.TeamID)
-	if err != nil {
-		return err
-	}
-
+func (t *TeamHelper) LeaveTeam(cont models.Contestant, team models.Team) error {
+	var err error
 	if team.LeaderId == cont.User.ID {
 		if len(team.Members) > 1 {
 			for _, member := range team.Members { // change leadership!
@@ -183,8 +177,17 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 			}
 			err = t.repo.Update(&team)
 		} else {
-			err = t.DeleteTeam(team)
+			err = t.DeleteTeam(cont, team)
 		}
+		if err != nil {
+			return err
+		}
+
+		err = t.repo.
+			GetDB().
+			Model(&cont).
+			Association("Teams").
+			Delete(&team)
 
 		if err != nil {
 			return err
@@ -198,23 +201,22 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant) error {
 		}
 	}
 
-	err = t.repo.Update(&team)
-	if err != nil {
-		return err
-	}
-
-	cont.TeamID = 1 // add to the no_team team
-	return t.contRepo.Update(&cont)
+	return t.repo.Update(&team)
 }
 
 // DeleteTeam kicks every member out of it and deletes it
-func (t *TeamHelper) DeleteTeam(team models.Team) error {
-	team, _ = t.GetTeam(team.ID) // better safe than sorry :\
-	for _, member := range team.Members {
-		member.TeamID = 1
-		_ = t.contRepo.Update(&member)
-	}
-	team.Members = []models.Contestant{}
+func (t *TeamHelper) DeleteTeam(cont models.Contestant, team models.Team) error {
+	if cont.ID == 0 {
+		team, _ = t.GetTeam(team.ID) // better safe than sorry :\
+		for _, member := range team.Members {
+			member.TeamID = 1
+		}
 
-	return t.repo.Delete(team)
+		return t.repo.Delete(team)
+	}
+	return t.repo.
+		GetDB().
+		Model(&cont).
+		Association("Teams").
+		Delete(&team)
 }

@@ -62,6 +62,7 @@ func (db *dbManager) InitTables() {
 			new(models.Session),
 			new(models.Notification),
 			new(models.JoinRequest),
+			new(models.RegisterTeam),
 		)
 		if err != nil {
 			panic(err)

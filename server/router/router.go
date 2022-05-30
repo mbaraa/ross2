@@ -25,6 +25,7 @@ type Builder struct {
 	userRepo         data.CRUDRepo[models.User]
 	adminRepo        data.CRUDRepo[models.Admin]
 	ocRepo           data.OrganizeContestCRUDRepo
+	rtRepo           data.RegisterTeamCRUDRepo
 }
 
 func NewRouterBuilder() *Builder {
@@ -81,6 +82,11 @@ func (b *Builder) OrganizeContestRepo(c data.OrganizeContestCRUDRepo) *Builder {
 	return b
 }
 
+func (b *Builder) RegisterTeamRepo(rt data.RegisterTeamCRUDRepo) *Builder {
+	b.rtRepo = rt
+	return b
+}
+
 func (b *Builder) verify() bool {
 	sb := new(strings.Builder)
 
@@ -91,28 +97,31 @@ func (b *Builder) verify() bool {
 		sb.WriteString("Router Builder: missing contestant repo!")
 	}
 	if b.sessionRepo == nil {
-		sb.WriteString("Router Builder: missing session repo!")
+		sb.WriteString("Router Builder: missing session repo!\n")
 	}
 	if b.teamRepo == nil {
-		sb.WriteString("Router Builder: missing team repo!")
+		sb.WriteString("Router Builder: missing team repo!\n")
 	}
 	if b.organizerRepo == nil {
-		sb.WriteString("Router: missing organizer repo!")
+		sb.WriteString("Router: missing organizer repo!\n")
 	}
 	if b.joinReqRepo == nil {
-		sb.WriteString("Router Builder: missing join request repo!")
+		sb.WriteString("Router Builder: missing join request repo!\n")
 	}
 	if b.notificationRepo == nil {
-		sb.WriteString("Router Builder: missing notification repo!")
+		sb.WriteString("Router Builder: missing notification repo!\n")
 	}
 	if b.userRepo == nil {
-		sb.WriteString("Router Builder: missing user repo!")
+		sb.WriteString("Router Builder: missing user repo!\n")
 	}
 	if b.adminRepo == nil {
-		sb.WriteString("Router Builder: missing admin repo!")
+		sb.WriteString("Router Builder: missing admin repo!\n")
 	}
 	if b.ocRepo == nil {
-		sb.WriteString("Router Builder: missing organize contest repo!")
+		sb.WriteString("Router Builder: missing organize contest repo!\n")
+	}
+	if b.rtRepo == nil {
+		sb.WriteString("Router Builer: missing regiser team repo!\n")
 	}
 
 	if sb.Len() != 0 {
@@ -174,7 +183,7 @@ func (r *Router) verifyAPIs() bool {
 
 func NewRouter(b *Builder) *Router {
 	var (
-		teamManager         = helpers.NewTeamHelper(b.teamRepo, b.contestantRepo)
+		teamManager         = helpers.NewTeamHelper(b.teamRepo, b.contestantRepo, b.rtRepo)
 		notificationManager = helpers.NewNotificationHelper(b.notificationRepo)
 
 		organizerManager = helpers.NewOrganizerHelperBuilder().
@@ -196,6 +205,7 @@ func NewRouter(b *Builder) *Router {
 					NotificationRepo(b.notificationRepo).
 					TeamMgr(teamManager).
 					JoinRequestMgr(joinReqManager).
+					RegisterTeamRepo(b.rtRepo).
 					GetContestantManager()
 
 		adminHelper   = helpers.NewAdminHelper(b.adminRepo, b.organizerRepo, b.userRepo)

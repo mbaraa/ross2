@@ -16,8 +16,8 @@ type Team struct {
 	Leader     *Contestant `gorm:"-" json:"leader"`                   // using a pointer to avoid cycling :)
 	JoinID     string      `gorm:"column:join_id;unique" json:"join_id"`
 
-	Contests []Contest    `gorm:"many2many:register_teams;"` // a team may register in more than one contest
-	Members  []Contestant `gorm:"-" json:"members"`          // each contestant has their team id :)
+	Contests []Contest    `gorm:"many2many:register_teams"`                // a team may register in more than one contest
+	Members  []Contestant `gorm:"many2many:register_teams" json:"members"` // each contestant has their team id :)
 }
 
 func (t *Team) AfterFind(db *gorm.DB) error {
@@ -89,7 +89,8 @@ func (j *JoinRequest) BeforeDelete(db *gorm.DB) error {
 }
 
 type RegisterTeam struct {
-	gorm.Model   `json:"-"`
+	gorm.Model `json:"-"`
+	// ID           uint       `gorm:"primaryKey;autoIncrement"`
 	ContestID    uint       `gorm:"column:contest_id" json:"-"`
 	ContestName  string     `gorm:"column:contest_name" json:"contest_name"`
 	TeamID       uint       `gorm:"column:team_id" json:"-"`
@@ -104,6 +105,24 @@ func (r *RegisterTeam) AfterFind(db *gorm.DB) error {
 		Model(new(Contest)).
 		First(&c, "id = ?", r.ContestID).
 		Error
+
+	if err != nil {
+		return err
+	}
+
+	err = db.
+		Model(&r.Team).
+		Find(&r.Team, "id = ?", r.TeamID).
+		Error
+	if err != nil {
+		return err
+	}
+
+	err = db.
+		Model(&r.Team).
+		Association("Members").
+		Find(&r.Team.Members)
+
 	if err != nil {
 		return err
 	}

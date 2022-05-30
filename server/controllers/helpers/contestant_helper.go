@@ -18,6 +18,7 @@ type ContestantHelperBuilder struct {
 	contestantRepo   data.CRUDRepo[models.Contestant]
 	contestRepo      data.CRUDRepo[models.Contest]
 	notificationRepo data.CRUDRepo[models.Notification]
+	rtRepo           data.RegisterTeamCRUDRepo
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
 }
@@ -46,6 +47,11 @@ func (b *ContestantHelperBuilder) NotificationRepo(n data.CRUDRepo[models.Notifi
 	return b
 }
 
+func (b *ContestantHelperBuilder) RegisterTeamRepo(rt data.RegisterTeamCRUDRepo) *ContestantHelperBuilder {
+	b.rtRepo = rt
+	return b
+}
+
 func (b *ContestantHelperBuilder) TeamMgr(t *TeamHelper) *ContestantHelperBuilder {
 	b.teamMgr = t
 	return b
@@ -70,6 +76,9 @@ func (b *ContestantHelperBuilder) verify() bool {
 	}
 	if b.notificationRepo == nil {
 		sb.WriteString("Contestant Helper Builder: missing notification repo!")
+	}
+	if b.rtRepo == nil {
+		sb.WriteString("Contestant Helper Builder: missing register team repo!")
 	}
 	if b.teamMgr == nil {
 		sb.WriteString("Contestant Helper Builder: missing team repo!")
@@ -96,6 +105,7 @@ type ContestantHelper struct {
 	userRepo         data.UpdaterRepo[models.User]
 	contestRepo      data.CRUDRepo[models.Contest]
 	notificationRepo data.CRUDRepo[models.Notification]
+	rtRepo           data.RegisterTeamCRUDRepo
 	teamMgr          *TeamHelper
 	jrMgr            *JoinRequestHelper
 }
@@ -106,9 +116,10 @@ func NewContestantHelper(b *ContestantHelperBuilder) *ContestantHelper {
 		repo:             b.contestantRepo,
 		userRepo:         b.userRepo,
 		contestRepo:      b.contestRepo,
+		notificationRepo: b.notificationRepo,
+		rtRepo:           b.rtRepo,
 		teamMgr:          b.teamMgr,
 		jrMgr:            b.jrMgr,
-		notificationRepo: b.notificationRepo,
 	}
 }
 
@@ -141,7 +152,7 @@ func (c *ContestantHelper) GetProfile(user models.User) (models.Contestant, erro
 }
 
 // CreateTeam creates a team and adds the given contestant to it as its leader
-func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.Team) error {
+func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.Team, contest models.Contest) error {
 	contestant.TeamlessContestID = math.MaxInt64
 	contestant.TeamlessedAt = contestant.CreatedAt
 
@@ -150,12 +161,22 @@ func (c *ContestantHelper) CreateTeam(contestant models.Contestant, team models.
 		return err
 	}
 
-	return c.jrMgr.DeleteRequests(contestant.User.ID, 0)
+	err = c.jrMgr.DeleteRequests(contestant.User.ID, 0)
+	if err != nil {
+		return err
+	}
+
+	return c.rtRepo.Add(&models.RegisterTeam{
+		ContestantID: contestant.ID,
+		Team:         team,
+		TeamID:       team.ID,
+		ContestID:    contest.ID,
+	})
 }
 
 // DeleteTeam kicks every member out of it and deletes it
-func (c *ContestantHelper) DeleteTeam(team models.Team) error {
-	return c.teamMgr.DeleteTeam(team)
+func (c *ContestantHelper) DeleteTeam(cont models.Contestant, team models.Team) error {
+	return c.teamMgr.DeleteTeam(cont, team)
 }
 
 // RequestJoinTeam sends a notification to the requested team leader
@@ -175,8 +196,8 @@ func (c *ContestantHelper) RejectJoinRequest(noti models.Notification) error {
 }
 
 // LeaveTeam removes the given contestant from their team in a super safe way
-func (c *ContestantHelper) LeaveTeam(contestant models.Contestant) error {
-	return c.teamMgr.LeaveTeam(contestant)
+func (c *ContestantHelper) LeaveTeam(contestant models.Contestant, team models.Team) error {
+	return c.teamMgr.LeaveTeam(contestant, team)
 }
 
 // RegisterAsTeamless adds the given contestant as teamless for the given contest
@@ -207,35 +228,21 @@ func (c *ContestantHelper) CheckJoinedTeam(cont models.Contestant, team models.T
 	return cont.TeamID > 1 || cont.TeamID == team.ID || c.jrMgr.CheckContestantTeamRequests(cont, team)
 }
 
-// GetTeam returns a team using the given id
-func (c *ContestantHelper) GetTeam(contestant models.Contestant) (models.Team, error) {
-	return c.teamMgr.GetTeam(contestant.TeamID)
+// GetTeams returns a team using the given id
+func (c *ContestantHelper) GetTeams(contestant models.Contestant) ([]models.RegisterTeam, error) {
+	return c.rtRepo.Get(models.RegisterTeam{
+		ContestantID: contestant.ID,
+	}, "contestant_id = ?", contestant.ID)
 }
 
 // CheckJoinedContest reports whether the contestant is in the given contest or not
-func (c *ContestantHelper) CheckJoinedContest(contest models.Contest, contestant models.Contestant) error {
-	var teams []models.Team
-	err := c.repo.
-		GetDB().
-		Model(&contest).
-		Association("Teams").
-		Find(&teams)
-	if err != nil {
-		return err
-	}
+func (c *ContestantHelper) CheckJoinedContest(contest models.Contest, contestant models.Contestant) bool {
+	rts, _ := c.rtRepo.Get(models.RegisterTeam{
+		ContestID:    contest.ID,
+		ContestantID: contestant.ID,
+	}, "contest_id = ? and contestant_id = ?", contest.ID, contestant.ID)
 
-	team, err := c.teamMgr.GetTeam(contestant.TeamID)
-	if err != nil {
-		return err
-	}
-
-	for _, t := range teams {
-		if t.ID == team.ID {
-			return nil
-		}
-	}
-
-	return errors.New("contestant is not registered in this contest")
+	return len(rts) > 0
 }
 
 // RegisterInContest adds the given contestant's team to the given contest
@@ -303,4 +310,12 @@ func (c *ContestantHelper) checkCollidingContests(team *models.Team, contest mod
 
 func (c *ContestantHelper) GetTeamByJoinID(joinID string) (models.Team, error) {
 	return c.teamMgr.GetTeamByJoinID(joinID)
+}
+
+func (c *ContestantHelper) RegisterInContestUsingTeam(contest models.Contest, team models.Team, cont models.Contestant) error {
+	return c.rtRepo.Add(&models.RegisterTeam{
+		ContestID:    contest.ID,
+		TeamID:       team.ID,
+		ContestantID: cont.ID,
+	})
 }
