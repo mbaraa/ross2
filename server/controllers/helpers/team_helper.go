@@ -31,16 +31,7 @@ func (t *TeamHelper) CreateTeam(contestant models.Contestant, team *models.Team)
 	team.Leader = &contestant
 	team.LeaderId = contestant.User.ID
 
-	err := t.repo.Add(team)
-	if err != nil {
-		return err
-	}
-
-	// set contestant's required attributes to join the team
-	contestant.TeamID = team.ID
-	contestant.Team = *team
-
-	return t.contRepo.Update(&contestant)
+	return t.repo.Add(team)
 }
 
 // CreateTeams creates the given teams :)
@@ -61,13 +52,8 @@ func (t *TeamHelper) AddContestantToTeam(contID, teamID uint) (team models.Team,
 	}
 	team.Members = append(team.Members, cont)
 
-	cont.TeamID = team.ID
-	cont.Team = team
-
-	// if cont.TeamlessContestID != 0 {
 	cont.TeamlessContestID = math.MaxInt64
 	cont.TeamlessedAt = cont.CreatedAt
-	// }
 
 	err = t.contRepo.Update(&cont)
 	if err != nil {
@@ -89,8 +75,6 @@ func (t *TeamHelper) UpdateTeam(team models.Team, org models.Organizer) error {
 
 func (t *TeamHelper) CreateUpdateTeams(teams []models.Team, removedContestants []models.Contestant, contest models.Contest, org models.Organizer) error {
 	for _, cont := range removedContestants {
-		cont.Team = models.Team{}
-		cont.TeamID = 1
 		cont.TeamlessContestID = contest.ID
 		cont.TeamlessedAt = time.Now()
 
@@ -124,16 +108,12 @@ func (t *TeamHelper) CreateUpdateTeams(teams []models.Team, removedContestants [
 
 		// update
 		for _, cont := range team.Members {
-			if cont.TeamID != team.ID {
-				cont.Team = team
-				cont.TeamID = team.ID
-				cont.TeamlessContestID = math.MaxInt
-				cont.TeamlessedAt = time.Time{}
+			cont.TeamlessContestID = math.MaxInt
+			cont.TeamlessedAt = time.Time{}
 
-				err := t.contRepo.Update(&cont)
-				if err != nil {
-					return err
-				}
+			err := t.contRepo.Update(&cont)
+			if err != nil {
+				return err
 			}
 		}
 
@@ -208,9 +188,6 @@ func (t *TeamHelper) LeaveTeam(cont models.Contestant, team models.Team) error {
 func (t *TeamHelper) DeleteTeam(cont models.Contestant, team models.Team) error {
 	if cont.ID == 0 {
 		team, _ = t.GetTeam(team.ID) // better safe than sorry :\
-		for _, member := range team.Members {
-			member.TeamID = 1
-		}
 
 		return t.repo.Delete(team)
 	}
@@ -219,4 +196,19 @@ func (t *TeamHelper) DeleteTeam(cont models.Contestant, team models.Team) error 
 		Model(&cont).
 		Association("Teams").
 		Delete(&team)
+}
+
+func (t *TeamHelper) CloneTeam(team models.Team) (newTeam models.Team, err error) {
+	team, err = t.repo.Get(team.ID)
+	if err != nil {
+		return
+	}
+
+	newTeam.Name = team.Name
+	newTeam.Leader = team.Leader
+	newTeam.LeaderId = team.LeaderId
+	newTeam.Members = team.Members[:]
+
+	err = t.repo.Add(&newTeam)
+	return
 }

@@ -10,14 +10,14 @@ import (
 )
 
 type UserHelper struct {
-	repo data.CRUDRepo[models.User]
+	repo     data.CRUDRepo[models.User]
 	contRepo data.CRUDRepo[models.Contestant]
 	sessMgr  *SessionHelper[models.Session]
 }
 
 func NewUserHelper(repo data.CRUDRepo[models.User], contRepo data.CRUDRepo[models.Contestant], sessMgr *SessionHelper[models.Session]) *UserHelper {
 	return &UserHelper{
-		repo: repo,
+		repo:     repo,
 		contRepo: contRepo,
 		sessMgr:  sessMgr,
 	}
@@ -48,10 +48,7 @@ func (u *UserHelper) Signup(user *models.User) error {
 	return u.contRepo.Add(&models.Contestant{
 		User:   *user,
 		UserID: user.ID,
-		Team:   models.Team{ID: 1},
-		TeamID: 1,
 	})
-	return u.repo.Add(user)
 }
 
 func (u *UserHelper) LoginUsingSession(sessionToken string) (user models.User, err error) {

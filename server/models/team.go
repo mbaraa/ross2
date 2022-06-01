@@ -49,7 +49,6 @@ func (t *Team) BeforeDelete(db *gorm.DB) error {
 
 func (t *Team) AfterCreate(db *gorm.DB) error {
 	for i := range t.Members {
-		t.Members[i].TeamID = t.ID
 		t.Members[i].TeamlessContestID = math.MaxInt
 		t.Members[i].TeamlessedAt = time.Now()
 

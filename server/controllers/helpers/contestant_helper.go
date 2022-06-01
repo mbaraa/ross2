@@ -137,7 +137,6 @@ func (c *ContestantHelper) Register(cont models.Contestant) error {
 		}
 
 		cont.User.AvatarURL = multiavatar.GetAvatarURL()
-		cont.TeamID = 1
 		cont.UserID = cont.User.ID
 		cont.User.ProfileStatus |= enums.ProfileStatusContestantFinished
 
@@ -225,7 +224,11 @@ func (c *ContestantHelper) RegisterAsTeamless(contestant models.Contestant, cont
 
 // CheckJoinedTeam reports whether the given contestant is in the given team, or any team at all
 func (c *ContestantHelper) CheckJoinedTeam(cont models.Contestant, team models.Team) bool {
-	return cont.TeamID > 1 || cont.TeamID == team.ID || c.jrMgr.CheckContestantTeamRequests(cont, team)
+	rts, _ := c.rtRepo.Get(models.RegisterTeam{
+		ContestantID: cont.ID,
+	}, "contestant_id = ? and team_id = ?", cont.ID, team.ID)
+
+	return len(rts) > 0 && c.jrMgr.CheckContestantTeamRequests(cont, team)
 }
 
 // GetTeams returns a team using the given id
@@ -245,15 +248,14 @@ func (c *ContestantHelper) CheckJoinedContest(contest models.Contest, contestant
 	return len(rts) > 0
 }
 
-// RegisterInContest adds the given contestant's team to the given contest
-func (c *ContestantHelper) RegisterInContest(contest models.Contest, contestant models.Contestant) error {
-	team, err := c.teamMgr.GetTeam(contestant.TeamID)
-	if err != nil {
-		return err
+func (c *ContestantHelper) RegisterInContestUsingTeam(contest models.Contest, team models.Team, cont models.Contestant) error {
+	if team.LeaderId != cont.UserID {
+		return errors.New("only the team's creator can join contests")
 	}
 
-	if team.LeaderId != contestant.UserID {
-		return errors.New("only the team's creator can join contests")
+	newTeam, err := c.teamMgr.CloneTeam(team)
+	if err != nil {
+		return err
 	}
 
 	contest, err = c.contestRepo.Get(contest.ID)
@@ -275,7 +277,11 @@ func (c *ContestantHelper) RegisterInContest(contest models.Contest, contestant 
 		return err
 	}
 
-	return errors.New("all good")
+	return c.rtRepo.Add(&models.RegisterTeam{
+		ContestID:    contest.ID,
+		TeamID:       newTeam.ID,
+		ContestantID: cont.ID,
+	})
 }
 
 func (c *ContestantHelper) checkCollidingContests(team *models.Team, contest models.Contest) error {
@@ -310,12 +316,4 @@ func (c *ContestantHelper) checkCollidingContests(team *models.Team, contest mod
 
 func (c *ContestantHelper) GetTeamByJoinID(joinID string) (models.Team, error) {
 	return c.teamMgr.GetTeamByJoinID(joinID)
-}
-
-func (c *ContestantHelper) RegisterInContestUsingTeam(contest models.Contest, team models.Team, cont models.Contestant) error {
-	return c.rtRepo.Add(&models.RegisterTeam{
-		ContestID:    contest.ID,
-		TeamID:       team.ID,
-		ContestantID: cont.ID,
-	})
 }
