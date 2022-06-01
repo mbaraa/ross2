@@ -8,7 +8,7 @@ class Team {
   leader_id?: number;
   contests: Contest[];
   members: Contestant[];
-  join_id?: number;
+  join_id?: string;
 
   inTeam?: boolean; // once you go spaghetti, you can't turn back :)
 
@@ -21,6 +21,7 @@ class Team {
 
 export class RegisterTeam {
   contest_name?: string;
+  contest_id?: number;
   team?: Team;
 }
 

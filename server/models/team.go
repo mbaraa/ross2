@@ -90,7 +90,7 @@ func (j *JoinRequest) BeforeDelete(db *gorm.DB) error {
 type RegisterTeam struct {
 	gorm.Model `json:"-"`
 	// ID           uint       `gorm:"primaryKey;autoIncrement"`
-	ContestID    uint       `gorm:"column:contest_id" json:"-"`
+	ContestID    uint       `gorm:"column:contest_id" json:"contest_id"`
 	ContestName  string     `gorm:"column:contest_name" json:"contest_name"`
 	TeamID       uint       `gorm:"column:team_id" json:"-"`
 	Team         Team       `gorm:"foreignkey:TeamID" json:"team"`

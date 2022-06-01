@@ -197,8 +197,11 @@ const ContestCard = ({ contest }: Props) => {
         );
         if (!respMsg) {
           window.alert("Something went wrong...");
+          return;
         }
       }
+      closeJTHandler();
+      router.go(0);
     })();
   };
 
@@ -257,7 +260,7 @@ const ContestCard = ({ contest }: Props) => {
             className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"
             onClick={openJTHandler}
           >
-            Join Team
+            Join Contest
           </div>
           <div
             className="border-t-[1px] border-ross2 py-[12px] text-[13px] font-[600] text-ross2 text-center cursor-pointer hover:bg-ross2 hover:text-white"

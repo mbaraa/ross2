@@ -106,6 +106,9 @@ const Profile = ({ user }: Props) => {
     })();
   };
 
+  const getJoinLink = (teamJoinID: string, contestID: number): string =>
+    `https://ross2.co/contest/${contestID}/join-team/${teamJoinID}`;
+
   return (
     <div className="flex justify-center items-center font-Ropa">
       <div className=" grid grid-cols-1">
@@ -243,6 +246,10 @@ const Profile = ({ user }: Props) => {
                         {rt.team?.name}
                       </li>
                       <li>
+                        <b>Team Join ID: </b>
+                        {rt.team?.join_id}
+                      </li>
+                      <li>
                         <b>Team Members:</b>
                       </li>
                       <ul className="list-disc ml-[25px]">
@@ -250,6 +257,22 @@ const Profile = ({ user }: Props) => {
                           <li>{c.user.name}</li>
                         ))}
                       </ul>
+                      <li>
+                        <b>Team Join Link:</b>
+                        <br />
+                        <a
+                          className="text-[#425CBA]"
+                          href={getJoinLink(
+                            rt.team?.join_id as string,
+                            rt.contest_id as number
+                          )}
+                        >
+                          {getJoinLink(
+                            rt.team?.join_id as string,
+                            rt.contest_id as number
+                          )}
+                        </a>
+                      </li>
                     </ul>
                     {/* team control stuff */}
                     <div className="relative left-[62%] translate-x-[-50%] ml-[-8px] mt-[10px] font-Ropa">
