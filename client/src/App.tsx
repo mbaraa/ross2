@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, useHistory } from "react-router-dom";
 import About from "./pages/About";
 import Contests from "./pages/Contests";
 import Profile from "./pages/Profile";
@@ -13,13 +13,21 @@ import NotFound from "./components/Shared/Errors/NotFound";
 import JoinTeam from "./components/Contestant/JoinTeam";
 
 function App() {
-  const [user, setUser] = React.useState<User>(new User());
+  const router = useHistory();
+  const [user, setUser] = React.useState(new User());
+  const [ok, setOk] = React.useState(true);
+
   React.useEffect(() => {
     (async () => {
       const u = await MicrosoftLogin.loginWithToken();
       setUser(u);
+      if (u === null || u.id === 0) {
+        router.push("/profile");
+        return;
+      }
     })();
-  }, []);
+  }, [ok]);
+
   return (
     <>
       <Header />
