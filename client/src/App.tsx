@@ -24,37 +24,13 @@ function App() {
     <>
       <Header />
 
-      <Switch>
-        <Route exact path="/">
-          <Contests user={user} />
-        </Route>
-
-        <Route path="/admin">
-          <Admin user={user} />
-        </Route>
-
-        <Route path="/contest/:id/join-team/:join">
-          <JoinTeam />
-        </Route>
-
-        <Route path="/contest/:id">
-          <Contest user={user} />
-        </Route>
-
-        <Route path="/contests/new">
-          <CreateEditContest user={user} />
-        </Route>
-
-        <Route path="/profile">
-          <Profile user={user} />
-        </Route>
-
-        <Route path="/about">
-          <About />
-        </Route>
-
-        <Route component={NotFound} />
-      </Switch>
+      <h1 className="text-[30px] font-Ropa">
+        Due to a technical error registration has been moved to Google forms
+        using{" "}
+        <a href="https://bit.ly/jpc5reg" className="underline text-blue-600">
+          this link
+        </a>
+      </h1>
     </>
   );
 }
