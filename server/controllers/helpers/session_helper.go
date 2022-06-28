@@ -26,7 +26,11 @@ func (s *SessionHelper[T]) CreateSession(userID uint) (models.Session, error) {
 
 func (s *SessionHelper[T]) GetSession(token string) (models.Session, error) {
 	sess, err := s.sessionRepo.GetByConds("id = ?", token)
-	return sess[0], err
+	if err != nil || len(sess) == 0 {
+		return models.Session{}, err
+	}
+
+	return sess[0], nil
 }
 
 func (s *SessionHelper[T]) DeleteSession(token string) error {

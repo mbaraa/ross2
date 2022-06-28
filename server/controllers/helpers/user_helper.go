@@ -6,18 +6,17 @@ import (
 	"github.com/mbaraa/ross2/data"
 	"github.com/mbaraa/ross2/models"
 	"github.com/mbaraa/ross2/models/enums"
-	"gorm.io/gorm"
 )
 
 type UserHelper struct {
-	repo data.CRUDRepo[models.User]
+	repo     data.CRUDRepo[models.User]
 	contRepo data.CRUDRepo[models.Contestant]
 	sessMgr  *SessionHelper[models.Session]
 }
 
 func NewUserHelper(repo data.CRUDRepo[models.User], contRepo data.CRUDRepo[models.Contestant], sessMgr *SessionHelper[models.Session]) *UserHelper {
 	return &UserHelper{
-		repo: repo,
+		repo:     repo,
 		contRepo: contRepo,
 		sessMgr:  sessMgr,
 	}
@@ -25,11 +24,8 @@ func NewUserHelper(repo data.CRUDRepo[models.User], contRepo data.CRUDRepo[model
 
 func (u *UserHelper) Login(user *models.User) (sess models.Session, err error) {
 	fetchedUsers, err := u.repo.GetByConds("email = ?", user.Email)
-	if err != gorm.ErrRecordNotFound && err != nil {
-		return
-	}
 
-	exists := u.repo.Exists(fetchedUsers[0].ID)
+	exists := len(fetchedUsers) > 0
 	if !exists {
 		err = u.Signup(user)
 		fetchedUsers[0] = *user
